@@ -2,7 +2,9 @@ version: '3'
 services:
   client:
     build:
+      # ?Git位置を指定
       context: .
+      # dockerfileの位置を指定
       dockerfile: ./client/Dockerfile
     container_name: react_container
     tty: true
@@ -11,3 +13,14 @@ services:
     command: sh -c "cd /app/client/client-app && yarn start"
     ports:
       - 3000:3000
+  api:
+    build:
+      context: .
+      dockerfile: ./api/Dockerfile
+    container_name: go_container
+    ports:
+      - 8000:8000
+    # 正常終了しないようにしている
+    # ttyとは、標準入出力となっている端末デバイス(制御端末、controlling terminal)の名前を表示するUnix系のコマンドである。
+    # 元来ttyとはteletypewriter（テレタイプライター）のことを指す。
+    tty: true

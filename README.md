@@ -54,3 +54,57 @@ docker-compose run --rm client sh -c 'create-react-app client-app --template typ
 docker-compose build
 docker-compose up -d
 ```
+
+### Golang
+
+- Dockerfile
+
+```
+FROM golang:alpine
+COPY ./api /app/api
+WORKDIR /app/api
+RUN go build -o main .
+CMD ["/app/api/main"]
+```
+
+- docker-compose.yml
+
+```
+  api:
+    build:
+      context: .
+      dockerfile: ./api/Dockerfile
+    container_name: go_container
+    ports:
+      - 8000:8000
+    tty: true
+```
+
+- ファイル作成
+
+api/main.go 作成
+
+- コマンド&エラー
+
+```
+docker-compose build
+
+ => ERROR [4/4] RUN go build -o main .                                                            0.4s
+------
+ > [4/4] RUN go build -o main .:
+#9 0.336 go: go.mod file not found in current directory or any parent directory; see 'go help modules'
+------
+executor failed running [/bin/sh -c go build -o main .]: exit code: 1
+ERROR: Service 'api' failed to build : Build failed
+```
+
+GoMudules を利用するために Dockerfile に下記に修正し起動確認
+
+```
+FROM golang:alpine
+COPY ./api /app/api
+WORKDIR /app/api
+RUN go mod init github.com/kory-jp/react_golang_mux/api && go build -o main .
+CMD ["/app/api/main"]
+
+```
