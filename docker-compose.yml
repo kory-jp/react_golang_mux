@@ -24,3 +24,29 @@ services:
     # ttyとは、標準入出力となっている端末デバイス(制御端末、controlling terminal)の名前を表示するUnix系のコマンドである。
     # 元来ttyとはteletypewriter（テレタイプライター）のことを指す。
     tty: true
+  nginx:
+    image: nginx
+    container_name:  nginx_container
+    ports:
+      - 80:80
+    environment:
+      - TZ=Asia/Tokyo
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+  mysql:
+    build:
+      context: .
+      dockerfile: ./mysql/Dockerfile
+    container_name: mysql_container
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: react_golang_mux
+      TZ: 'Asia/Tokyo'
+    volumes:
+      - ./mysql/initdb.d:/docker-entrypoint-initdb.d
+      - ./mysql/conf.d:/etc/mysql/conf.d
+      - ./mysql/mysql_data:/var/lib/mysql
+    ports:
+    - 3306:3306
+    links:
+      - api
