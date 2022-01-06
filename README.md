@@ -5,11 +5,16 @@ docker を利用しての環境構築
 
 ## 環境構築
 
+[参考サイト 1](https://qiita.com/Blueman81/items/72ca43681d16d44e21ad)
+
 - ディレクトリ構成
 
 ```
 ./-- api //golang
   |_client //react-tyepscript
+  |_nginx/nginx.conf
+  |_mysql/Dockerfile
+      |_conf.d/my.conf
 ```
 
 ### React
@@ -108,3 +113,18 @@ RUN go mod init github.com/kory-jp/react_golang_mux/api && go build -o main .
 CMD ["/app/api/main"]
 
 ```
+
+### MySQL
+
+各種ファイル新規作成
+
+gitignore
+
+```
+mysql/mysql_data
+mysql/initdb.d
+```
+
+[参考サイト 1](https://michinoku-se.org/docker-mysql-workbench/)
+
+上記の参考サイトから MySQLWorkBench からデータベース詳細を確認できる
