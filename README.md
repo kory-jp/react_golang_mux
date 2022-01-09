@@ -128,3 +128,20 @@ mysql/initdb.d
 [参考サイト 1](https://michinoku-se.org/docker-mysql-workbench/)
 
 上記の参考サイトから MySQLWorkBench からデータベース詳細を確認できる
+
+## react 構築
+
+### package
+
+material-ui
+
+```
+yarn add @mui/material @emotion/react @emotion/styled
+yarn add @mui/material @mui/styled-engine-sc styled-components
+```
+
+redux
+
+```
+yarn add connected-react-router history react-redux react-router redux redux-actions redux-logger redux-thunk reselect axios
+```
