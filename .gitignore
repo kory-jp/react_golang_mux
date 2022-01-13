@@ -25,3 +25,8 @@ yarn-error.log*
 
 mysql/mysql_data
 mysql/initdb.d
+
+
+## api
+
+api/apiapp.log

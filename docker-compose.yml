@@ -18,6 +18,8 @@ services:
       context: .
       dockerfile: ./api/Dockerfile
     container_name: go_container
+    volumes:
+      - ./api:/app/api
     ports:
       - 8000:8000
     # 正常終了しないようにしている
