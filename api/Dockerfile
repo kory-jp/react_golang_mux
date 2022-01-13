@@ -1,5 +1,7 @@
 FROM golang:alpine
-COPY ./api /app/api
 WORKDIR /app/api
-RUN go mod init github.com/kory-jp/react_golang_mux/api && go build -o main .
-CMD ["/app/api/main"]
+RUN export GOPATH= && export GO111MODULE=on
+COPY ./api /app/api
+RUN go get -u github.com/cosmtrek/air && \
+  go build -o /go/bin/air github.com/cosmtrek/air
+CMD ["air", "-c", ".air.toml"]

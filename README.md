@@ -62,13 +62,18 @@ docker-compose up -d
 
 ### Golang
 
+```
+cd api
+go mod init github.com/kory-jp/react_golang_mux/api && touch go.sum
+```
+
 - Dockerfile
 
 ```
 FROM golang:alpine
 COPY ./api /app/api
 WORKDIR /app/api
-RUN go build -o main .
+RUN go mod init github.com/kory-jp/react_golang_mux/api && go build -o main .
 CMD ["/app/api/main"]
 ```
 
@@ -104,14 +109,24 @@ ERROR: Service 'api' failed to build : Build failed
 ```
 
 GoMudules を利用するために Dockerfile に下記に修正し起動確認
+空文字でもよいので[GOPATH= ]を指定
+[参考動画](https://www.youtube.com/watch?v=rHontd51R3A&t=1219s)
 
 ```
 FROM golang:alpine
-COPY ./api /app/api
 WORKDIR /app/api
-RUN go mod init github.com/kory-jp/react_golang_mux/api && go build -o main .
+RUN export GOPATH= && export GO111MODULE=on
+COPY ./api /app/api
+RUN go build -o main .
 CMD ["/app/api/main"]
+```
 
+?? パッケージをインストールする際はコンテナにログインして goget を実行すれば正しくパッケージ管理されているが、ホスト上で goget をするとパッケージが管理外になっている
+
+- コンテナログイン
+
+```
+docker exec -it go_container /bin/sh
 ```
 
 ### MySQL
