@@ -12,12 +12,13 @@ const PrimaryButtonStyle = styled(Button)({
 
 type Props = {
   children: string
+  onClick: () => void
 }
 
 export const PrimaryButton: VFC<Props> = (props) => {
-  const {children} = props;
+  const {children, onClick} = props;
   return(
-    <PrimaryButtonStyle>
+    <PrimaryButtonStyle onClick={onClick}>
       {children}
     </PrimaryButtonStyle>
   )
