@@ -30,3 +30,4 @@ mysql/initdb.d
 ## api
 
 api/apiapp.log
+api/tmp

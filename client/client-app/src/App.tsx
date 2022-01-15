@@ -1,9 +1,15 @@
+import { Provider } from 'react-redux';
 import InputArea from './components/organisms/posts/InputArea';
+import createInitStore from './reducks/store/store';
+
+const store = createInitStore()
 
 function App() {
   return (
     <>
-      <InputArea />
+      <Provider store={store}>
+        <InputArea />
+      </Provider>
     </>
   );
 }
