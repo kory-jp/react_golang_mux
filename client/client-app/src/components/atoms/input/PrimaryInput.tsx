@@ -2,6 +2,9 @@ import { Input, styled } from "@mui/material"
 
 type Props = {
   placeholder: string
+  value: string
+  required: boolean
+  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void
 }
 
 const PrimaryInputStyle = styled(Input)((props) => ({
@@ -11,6 +14,11 @@ const PrimaryInputStyle = styled(Input)((props) => ({
 
 export const PrimaryInput = (props: Props) => {
   return(
-    <PrimaryInputStyle placeholder={props.placeholder}/>
+    <PrimaryInputStyle 
+      placeholder={props.placeholder}
+      value={props.value}
+      required={props.required}
+      onChange={props.onChange}
+    />
   )
 }
