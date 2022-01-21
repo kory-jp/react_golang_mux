@@ -44,6 +44,14 @@ docker-compose build
 docker-compose up -d
 ```
 
+コンテナログイン
+
+```
+docker exec -it go_container /bin/sh
+docker exec -it react_container /bin/sh
+docker exec -it mysql_container /bin/sh
+```
+
 golang のログを確認
 
 ```
