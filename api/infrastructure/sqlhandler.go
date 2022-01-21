@@ -17,6 +17,7 @@ type SqlHandler struct {
 
 const (
 	tableNameTodo = "todos"
+	tableNameUser = "users"
 )
 
 func NewSqlHandler() *SqlHandler {
@@ -34,6 +35,22 @@ func NewSqlHandler() *SqlHandler {
 		fmt.Println("データベース接続成功")
 	}
 
+	cmdU := fmt.Sprintf(`
+		create table if not exists %s (
+			id integer primary key auto_increment,
+			uuid varchar(50) NOT NULL UNIQUE,
+			name varchar(50),
+			email varchar(50),
+			password varchar(50),
+			created_at datetime default current_timestamp
+		)
+	`, tableNameUser)
+	_, errU := conn.Exec(cmdU)
+	if errU != nil {
+		log.SetFlags(log.Llongfile)
+		log.Println(errU)
+	}
+
 	cmdT := fmt.Sprintf(`
 		create table if not exists %s (
 			id integer primary key auto_increment,
@@ -41,7 +58,6 @@ func NewSqlHandler() *SqlHandler {
 		)`, tableNameTodo)
 	_, errT := conn.Exec(cmdT)
 	if errT != nil {
-		fmt.Println("error!2")
 		log.SetFlags(log.Llongfile)
 		log.Println(errT)
 	}

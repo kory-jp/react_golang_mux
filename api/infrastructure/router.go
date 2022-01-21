@@ -11,6 +11,7 @@ import (
 func Init() {
 	r := mux.NewRouter()
 	todoController := controllers.NewTodoController(NewSqlHandler())
+	controllers.NewUserController(NewSqlHandler())
 	r.Methods("POST").Path("/api").HandlerFunc(todoController.Create)
 	c := cors.New(cors.Options{
 		AllowedOrigins:   []string{"http://localhost:8080"},
