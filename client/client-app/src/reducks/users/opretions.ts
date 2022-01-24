@@ -6,7 +6,7 @@ import { User } from "./types"
 export const storeRegistration = (name: string, email: string, password: string) => {
   return async (dispach: Dispatch<{}>) => {
     axios
-      .post("http://localhost:8000/registration",
+      .post("http://localhost:8000/api/registration",
         {
           name: name,
           email: email,
