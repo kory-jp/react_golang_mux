@@ -24,6 +24,7 @@ export const InputArea = () => {
     <Box>
       <PrimaryInput 
         placeholder={'入力'}
+        type="text"
         value={content}
         required={true}
         onChange={inputContent}
