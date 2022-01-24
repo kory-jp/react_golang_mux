@@ -1,3 +1,6 @@
+import { registration } from "../users/actions";
+
 export const ActionTypes = {
-  createTodo: "CREATETODO"
+  createTodo: "CREATETODO",
+  registration: "REGISTRATION"
 }
