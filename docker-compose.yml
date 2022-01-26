@@ -16,6 +16,7 @@ services:
       - ./mysql/mysql_data:/var/lib/mysql
     ports:
       - 3306:3306
+
   client:
     build:
       # ?Git位置を指定
@@ -29,6 +30,7 @@ services:
     command: sh -c "cd /app/client/client-app && yarn start"
     ports:
       - 3000:3000
+
   api:
     build:
       context: .
@@ -38,9 +40,16 @@ services:
       - ./api:/app/api
     ports:
       - 8000:8000
+      - 2345:2345
     depends_on:
       - mysql
     tty: true
+    # security_opt:
+    #   - apparmor:unconfined
+    # cap_add:
+    #   - SYS_PTRACE
+
+
   nginx:
     image: nginx
     container_name:  nginx_container
