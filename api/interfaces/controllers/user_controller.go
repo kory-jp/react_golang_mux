@@ -16,6 +16,10 @@ type UserController struct {
 	Interactor usecase.UserInteractor
 }
 
+type UserValidError struct {
+	Detail string
+}
+
 func NewUserController(sqlHandler database.SqlHandler) *UserController {
 	return &UserController{
 		Interactor: usecase.UserInteractor{
@@ -40,9 +44,12 @@ func (controller *UserController) Create(w http.ResponseWriter, r *http.Request)
 	}
 	user, err := controller.Interactor.Add(*userType)
 	if err != nil {
-		log.SetFlags(log.Llongfile)
-		log.Println(err)
+		validErr := &UserValidError{Detail: err.Error()}
+		e, _ := json.Marshal(validErr)
+		fmt.Fprintln(w, string(e))
+		return
 	}
+	fmt.Println(user)
 
 	jsonUser, err := json.Marshal(user)
 	if err != nil {
