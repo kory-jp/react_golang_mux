@@ -31,6 +31,7 @@ export const InputArea = () => {
       />
       <PrimaryButton
         onClick={onClickCreateTodo}
+        disabled={content === ""}
       >
         送信
       </PrimaryButton>

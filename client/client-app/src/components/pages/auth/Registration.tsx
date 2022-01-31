@@ -11,6 +11,7 @@ export const Registration = () => {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [passwordConfirmation, setPasswordConfirmation] = useState('')
 
   const inputName = useCallback((event: React.ChangeEvent<HTMLInputElement>)=> {
     setName(event.target.value)
@@ -24,12 +25,17 @@ export const Registration = () => {
     setPassword(event.target.value)
   }, [setPassword])
 
+  const inputPasswordConfirmation = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    setPasswordConfirmation(event.target.value)
+  }, [setPasswordConfirmation])
+
   const onClickRegistration = useCallback(() => {
-    dispatch(storeRegistration(name, email, password))
+    dispatch(storeRegistration(name, email, password, passwordConfirmation))
     setName('')
     setEmail('')
     setPassword('')
-  },[name, email, password])
+    setPasswordConfirmation('')
+  },[name, email, password, passwordConfirmation])
 
   return(
     <Box display="flex" alignItems="center" height="100vh" justifyContent="center" width="100%">
@@ -59,8 +65,17 @@ export const Registration = () => {
             required={true}
             onChange={inputPassword}
           />
+          <PrimaryInput 
+            placeholder="確認用パスワード"
+            type="password"
+            value={passwordConfirmation}
+            required={true}
+            onChange={inputPasswordConfirmation}
+          />
+          <Box />
           <PrimaryButton
             onClick={onClickRegistration}
+            disabled={name === "" || email === "" || password === "" || passwordConfirmation === ""}
           >
             登録
           </PrimaryButton>
