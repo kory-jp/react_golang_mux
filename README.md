@@ -19,9 +19,13 @@ docker を利用しての環境構築
 
 ## アーキテクチャ設計
 
-クリーンアーキテクチャを採用
+api(golang)/Clean Architecture を採用
 
 [参考サイト 2](https://qiita.com/hirotakan/items/698c1f5773a3cca6193e)
+
+client(react)/Atomic Design を採用
+
+[参考サイト 3](https://www.happylifecreators.com/blog/20220113/)
 
 ## ローカルでの起動方法
 

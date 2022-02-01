@@ -1,6 +1,8 @@
-import { Box, Typography } from "@mui/material";
+import { Box, Button, IconButton, Snackbar, Typography } from "@mui/material";
 import React, { useCallback, useState } from "react";
 import { useDispatch } from "react-redux";
+import CloseIcon from '@mui/icons-material/Close';
+import { push } from "connected-react-router";
 import { storeRegistration } from "../../../reducks/users/opretions";
 import { PrimaryButton } from "../../atoms/button/PrimaryButton";
 import { PrimaryInput } from "../../atoms/input/PrimaryInput";
@@ -36,6 +38,39 @@ export const Registration = () => {
     setPassword('')
     setPasswordConfirmation('')
   },[name, email, password, passwordConfirmation])
+
+
+  const [open, setOpen] = React.useState(false);
+
+  const handleClick = () => {
+    setOpen(true);
+    dispatch(push("/input"));
+  };
+
+  const handleClose = (event: React.SyntheticEvent | Event, reason?: string) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+
+    setOpen(false);
+  };
+
+  const action = (
+    <React.Fragment>
+      <Button color="secondary" size="small" onClick={handleClose}>
+        UNDO
+      </Button>
+      <IconButton
+        size="small"
+        aria-label="close"
+        color="inherit"
+        onClick={handleClose}
+      >
+        <CloseIcon fontSize="small" />
+      </IconButton>
+    </React.Fragment>
+  );
+
 
   return(
     <Box display="flex" alignItems="center" height="100vh" justifyContent="center" width="100%">
@@ -81,6 +116,16 @@ export const Registration = () => {
           </PrimaryButton>
         </Box>
       </Box>
+      <div>
+      <Button onClick={handleClick}>Open simple snackbar</Button>
+      <Snackbar
+        open={open}
+        autoHideDuration={6000}
+        onClose={handleClose}
+        message="Note archived"
+        action={action}
+      />
+    </div>
     </Box>
   )
 }
