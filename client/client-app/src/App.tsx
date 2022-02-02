@@ -11,10 +11,10 @@ function App() {
   return (
     <>
       <Provider store={store}>
-        <ConnectedRouter history={history}>
-          <Router />
-        </ConnectedRouter>
-       </Provider>
+         <ConnectedRouter history={history}>
+           <Router />
+         </ConnectedRouter>
+      </Provider>
     </>
   );
 }

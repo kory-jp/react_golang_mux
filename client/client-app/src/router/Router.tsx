@@ -1,7 +1,7 @@
 import { VFC } from "react";
 import InputArea from "../components/organisms/posts/InputArea";
 import Registration from "../components/pages/auth/Registration";
-import { BrowserRouter, Route, Switch } from 'react-router-dom';
+import { Route, Switch } from 'react-router-dom';
 
 export const Router: VFC = () => {
   return(

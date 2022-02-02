@@ -1,10 +1,11 @@
-import { Box, Input } from "@mui/material"
+import { Box } from "@mui/material"
 import { useCallback, useState } from "react";
 import { useDispatch } from 'react-redux';
 import { createTodo } from "../../../reducks/todos/operations";
 
 import { PrimaryButton } from "../../atoms/button/PrimaryButton"
 import { PrimaryInput } from "../../atoms/input/PrimaryInput"
+import Toast from "../../molecules/toast/Toast";
 
 export const InputArea = () => {
   const dispatch = useDispatch()
@@ -21,21 +22,24 @@ export const InputArea = () => {
   
   
   return(
-    <Box>
-      <PrimaryInput 
-        placeholder={'入力'}
-        type="text"
-        value={content}
-        required={true}
-        onChange={inputContent}
-      />
-      <PrimaryButton
-        onClick={onClickCreateTodo}
-        disabled={content === ""}
-      >
-        送信
-      </PrimaryButton>
-    </Box>
+    <>
+      <Box>
+        <PrimaryInput 
+          placeholder={'入力'}
+          type="text"
+          value={content}
+          required={true}
+          onChange={inputContent}
+        />
+        <PrimaryButton
+          onClick={onClickCreateTodo}
+          disabled={content === ""}
+        >
+          送信
+        </PrimaryButton>
+      </Box>
+      <Toast />
+    </>
   )
 }
 

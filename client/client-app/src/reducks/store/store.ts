@@ -1,6 +1,7 @@
 import { connectRouter, routerMiddleware } from "connected-react-router";
 import { applyMiddleware, combineReducers, compose, createStore } from "redux";
 import thunk from "redux-thunk";
+import { ToastReducer } from "../toasts/reducers";
 import { TodoReducer } from "../todos/reducers";
 import { UserReducer } from "../users/reducers";
 
@@ -11,7 +12,8 @@ export default function createInitStore(history: any ) {
     combineReducers({
       router: connectRouter(history),
       todo: TodoReducer,
-      user: UserReducer
+      user: UserReducer,
+      toasts: ToastReducer
     }),
     composeEnhancers(
       applyMiddleware(routerMiddleware(history), thunk)
