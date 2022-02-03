@@ -39,9 +39,9 @@ func NewSqlHandler() *SqlHandler {
 		create table if not exists %s (
 			id integer primary key auto_increment,
 			uuid varchar(50) NOT NULL UNIQUE,
-			name varchar(50),
-			email varchar(50),
-			password varchar(50),
+			name varchar(50) NOT NULL,
+			email varchar(50) NOT NULL UNIQUE,
+			password varchar(50) NOT NULL,
 			created_at datetime default current_timestamp
 		)
 	`, tableNameUser)
@@ -80,7 +80,6 @@ func (handler *SqlHandler) Execute(statement string, args ...interface{}) (datab
 	result, err := handler.Conn.Exec(statement, args...)
 	if err != nil {
 		log.SetFlags(log.Llongfile)
-		log.Panicln(err)
 		return res, err
 	}
 	res.Result = result

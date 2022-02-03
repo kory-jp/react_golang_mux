@@ -31,6 +31,8 @@ mysql/initdb.d
 
 api/apiapp.log
 api/tmp
+api/vendor
 
-#other
+
+## other
 .vscode/

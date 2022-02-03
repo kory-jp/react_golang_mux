@@ -7,18 +7,25 @@ const PrimaryButtonStyle = styled(Button)({
   color: 'white',
   "&:hover": {
     backgroundColor: '#00bfff'
+  },
+  "&:disabled": {
+    backgroundColor: "#bbdefb"
   }
 })
 
 type Props = {
   children: string
   onClick: () => void
+  disabled: boolean
 }
 
 export const PrimaryButton: VFC<Props> = (props) => {
   const {children, onClick} = props;
   return(
-    <PrimaryButtonStyle onClick={onClick}>
+    <PrimaryButtonStyle 
+      onClick={onClick}
+      disabled={props.disabled}
+    >
       {children}
     </PrimaryButtonStyle>
   )

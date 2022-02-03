@@ -1,15 +1,19 @@
+import { ConnectedRouter } from 'connected-react-router';
 import { Provider } from 'react-redux';
-import InputArea from './components/organisms/posts/InputArea';
 import createInitStore from './reducks/store/store';
 import Router from './router/Router';
+import * as History from "history";
 
-const store = createInitStore()
+const history = History.createBrowserHistory();
+const store = createInitStore(history);
 
 function App() {
   return (
     <>
       <Provider store={store}>
-        <Router />
+         <ConnectedRouter history={history}>
+           <Router />
+         </ConnectedRouter>
       </Provider>
     </>
   );
