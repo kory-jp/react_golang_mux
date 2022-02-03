@@ -2,5 +2,7 @@ import { registration } from "../users/actions";
 
 export const ActionTypes = {
   createTodo: "CREATETODO",
-  registration: "REGISTRATION"
+  registration: "REGISTRATION",
+  pushToast: "PUSHTOAST",
+  shiftToast: "SHIFTTOAST"
 }

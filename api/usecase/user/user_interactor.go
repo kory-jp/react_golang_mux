@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/kory-jp/react_golang_mux/api/domain"
@@ -11,14 +12,23 @@ type UserInteractor struct {
 }
 
 func (interactor *UserInteractor) Add(u domain.User) (user domain.User, err error) {
-	identifier, err := interactor.UserRepository.Store(u)
-	if err != nil {
-		log.SetFlags(log.Llongfile)
+	if err = domain.UserValidate(&u); err != nil {
 		log.Println(err)
-	}
-	user, err = interactor.UserRepository.FindById(identifier)
-	if err != nil {
-		return
+	} else {
+		identifier, validErr := interactor.UserRepository.Store(u)
+		err = validErr
+		if err != nil {
+			fmt.Println("errhandin", err)
+			log.SetFlags(log.Llongfile)
+			log.Println(err)
+			return
+		} else {
+			user, err = interactor.UserRepository.FindById(identifier)
+			if err != nil {
+				log.SetFlags(log.Llongfile)
+				log.Println(err)
+			}
+		}
 	}
 	return
 }

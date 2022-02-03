@@ -44,10 +44,10 @@ services:
     depends_on:
       - mysql
     tty: true
-    # security_opt:
-    #   - apparmor:unconfined
-    # cap_add:
-    #   - SYS_PTRACE
+    security_opt:
+      - apparmor:unconfined
+    cap_add:
+      - SYS_PTRACE
 
 
   nginx:
