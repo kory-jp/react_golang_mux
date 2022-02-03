@@ -31,10 +31,6 @@ export const Registration = () => {
 
   const onClickRegistration = useCallback(() => {
     dispatch(storeRegistration(name, email, password, passwordConfirmation))
-    setName('')
-    setEmail('')
-    setPassword('')
-    setPasswordConfirmation('')
   },[name, email, password, passwordConfirmation])
 
 

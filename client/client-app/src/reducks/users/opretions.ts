@@ -35,12 +35,19 @@ export const storeRegistration = (name: string, email: string, password: string,
           }
         }
       ).then((response) => {
-        const userData: User = response.data.user
-        dispatch(registration(userData))
-        dispatch(pushToast({title: '保存しました', severity: "success"}))
-        dispatch(push("/input"))
+        console.log(response)
+        if (response.data.Detail) {
+          dispatch(pushToast({title: response.data.Detail, severity: "error"}))
+          return
+        } else {
+          const userData: User = response.data.user
+          dispatch(registration(userData))
+          dispatch(push("/input"))
+          dispatch(pushToast({title: '保存しました', severity: "success"}))
+        }
       }).catch((error) => {
         console.log(error)
+        dispatch(pushToast({title: '処理に失敗しました', severity: "error"}))
       })
   }
 }

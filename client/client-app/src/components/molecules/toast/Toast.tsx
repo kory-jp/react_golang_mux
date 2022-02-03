@@ -26,7 +26,6 @@ const Toast: ()=> JSX.Element = () => {
       setOpen(false)
       dispatch(shiftToast())
     }
-
     showToast()
   }, [toasts])
 

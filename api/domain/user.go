@@ -13,8 +13,8 @@ type User struct {
 	ID        int       `json:"id"`
 	UUID      string    `json:"uuid"`
 	Name      string    `json:"name" validate:"required,gte=2,lt=20"`
-	Email     string    `json:"email"`
-	Password  string    `json:"password"`
+	Email     string    `json:"email" validate:"required,email"`
+	Password  string    `json:"password" validate:"required,gte=5,lt=20"`
 	CreatedAt time.Time `json:"created_at"`
 }
 
@@ -31,6 +31,8 @@ func traslateField(field string) (value string) {
 		value = "名前"
 	case "Email":
 		value = "メールアドレス"
+	case "Password":
+		value = "パスワード"
 	}
 	return
 }
@@ -47,6 +49,10 @@ func UserValidate(user *User) (err error) {
 				return errors.New(fmt.Sprintf("%sは必須です。", value))
 			case "gte":
 				return errors.New(fmt.Sprintf("%sは%s文字以上が必須です。", value, err.Param()))
+			case "lt":
+				return errors.New(fmt.Sprintf("%sは%s文字以内の入力になります。", value, err.Param()))
+			case "email":
+				return errors.New(fmt.Sprintf("メールアドレスのフォーマットに誤りがあります"))
 			}
 		}
 	}

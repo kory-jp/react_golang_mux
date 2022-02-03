@@ -29,6 +29,7 @@ func (repo *UserRepository) Store(u domain.User) (id int, err error) {
 	if err != nil {
 		log.SetFlags(log.Llongfile)
 		log.Println(err)
+		return
 	}
 	id64, err := result.LastInsertId()
 	if err != nil {
