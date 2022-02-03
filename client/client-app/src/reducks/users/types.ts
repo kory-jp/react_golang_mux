@@ -10,9 +10,10 @@ export type User = {
   created_at: Date | null
 }
 
-interface registrationAction extends Action {
-  type: typeof ActionTypes.registration;
+interface getUserStateAction extends Action {
+  type: typeof ActionTypes.getUserState;
   payload: User
 }
 
-export type UserActionTypes = registrationAction;
+
+export type UserActionTypes = getUserStateAction;

@@ -1,9 +1,9 @@
 import { ActionTypes } from "../store/actionTypes";
 import { User, UserActionTypes } from "./types";
 
-export const registration = (userState: User): UserActionTypes => {
+export const getUserState = (userState: User): UserActionTypes => {
   return {
-    type: ActionTypes.registration,
+    type: ActionTypes.getUserState,
     payload: userState
   }
 }

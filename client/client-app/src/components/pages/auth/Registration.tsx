@@ -1,7 +1,8 @@
-import { Box, Typography } from "@mui/material";
+import { Box, Link, Typography } from "@mui/material";
+import { push } from "connected-react-router";
 import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { storeRegistration } from "../../../reducks/users/opretions";
+import { saveUserInfo } from "../../../reducks/users/opretions";
 import { PrimaryButton } from "../../atoms/button/PrimaryButton";
 import { PrimaryInput } from "../../atoms/input/PrimaryInput";
 import Toast from  "../../molecules/toast/Toast";
@@ -30,15 +31,18 @@ export const Registration = () => {
   }, [setPasswordConfirmation])
 
   const onClickRegistration = useCallback(() => {
-    dispatch(storeRegistration(name, email, password, passwordConfirmation))
+    dispatch(saveUserInfo(name, email, password, passwordConfirmation))
   },[name, email, password, passwordConfirmation])
 
+  const onClickToLogin = useCallback(() => {
+    dispatch(push("/"))
+  },[])
 
   return(
     <>
       <Box display="flex" alignItems="center" height="100vh" justifyContent="center" width="100%">
         <Box bgcolor="white" p="20px" borderRadius="10px">
-          <Typography variant="h1" fontSize="20px" fontWeight="bolder" mb="10px">
+          <Typography variant="h1" fontSize="20px" fontWeight="bolder" mb="10px" textAlign="center">
             ユーザー登録
           </Typography>
           <Box display="flex" flexDirection="column" justifyContent="space-evenly" height="300px" width="300px">
@@ -77,6 +81,15 @@ export const Registration = () => {
             >
               登録
             </PrimaryButton>
+          </Box>
+          <Box textAlign="center">
+            <Link
+              component="button"
+              underline="none"
+              onClick={onClickToLogin}
+            >
+              ログイン画面はコチラ
+            </Link>
           </Box>
         </Box>
       </Box>
