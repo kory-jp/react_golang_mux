@@ -94,7 +94,7 @@ export const login = (email: string, password: string) => {
 }
 
 
-export const logOut = () => {
+export const logout = () => {
   return async (dispatch: Dispatch<{}>) => {
     await axios
       .delete("http://localhost:8000/api/logout",
@@ -114,6 +114,7 @@ export const logOut = () => {
           password: "",
           created_at: null
         }))
+        dispatch(push("/"))
         dispatch(pushToast({title: "ログアウトしました", severity: "success"}))
       }).catch((error) => {
         console.log(error)
