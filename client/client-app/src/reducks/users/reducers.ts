@@ -14,6 +14,8 @@ export const UserReducer = (state = initialState, action: UserActionTypes): User
   switch(action.type) {
     case ActionTypes.getUserState:
       return {...state, ...action.payload}
+    case ActionTypes.deleteUserState:
+      return {...action.payload}
   }
   return state
 }
