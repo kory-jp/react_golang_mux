@@ -6,6 +6,7 @@ import { useDispatch } from "react-redux"
 import { PrimaryButton } from "../../atoms/button/PrimaryButton"
 import { PrimaryInput } from "../../atoms/input/PrimaryInput"
 import Toast from "../../molecules/toast/Toast"
+import { login } from "../../../reducks/users/opretions"
 
 export const Login = () => {
   const dispatch = useDispatch()
@@ -21,8 +22,8 @@ export const Login = () => {
   }, [setPassword])
 
   const onClickLogin = useCallback(() => {
-    console.log("login")
-  },[])
+    dispatch(login(email, password))
+  },[email, password])
 
   const onClickToRegistration = useCallback(() => {
     dispatch(push("/registration"))

@@ -74,6 +74,7 @@ export const login = (email: string, password: string) => {
           }
         }
       ).then((response) => {
+        console.log(response)
         if (response.data.Detail) {
           dispatch(pushToast({title: response.data.Detail, severity: "error"}))
           return

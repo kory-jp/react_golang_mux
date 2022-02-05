@@ -53,12 +53,12 @@ func (repo *UserRepository) FindById(identifier int) (user domain.User, err erro
 		where
 			id = ?
 	`, identifier)
-	defer row.Close()
 	if err != nil {
 		log.SetFlags(log.Llongfile)
 		log.Println(err)
 		return
 	}
+	defer row.Close()
 	var id int
 	var uuid string
 	var name string

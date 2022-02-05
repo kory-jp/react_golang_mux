@@ -42,11 +42,12 @@ func (repo *TodoRepository) FindById(identifier int) (todo domain.Todo, err erro
 		where
 			id = ?
 	`, identifier)
-	defer row.Close()
 	if err != nil {
 		log.SetFlags(log.Llongfile)
 		log.Panicln(err)
 	}
+	defer row.Close()
+
 	var id int
 	var content string
 	row.Next()
