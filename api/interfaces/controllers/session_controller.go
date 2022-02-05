@@ -74,6 +74,17 @@ func (controller *SessionController) Login(w http.ResponseWriter, r *http.Reques
 	}
 }
 
+func (controller *SessionController) Logout(w http.ResponseWriter, r *http.Request) {
+	session, _ := store.Get(r, "cookie-name")
+	session.Values["token"] = nil
+	cookie := http.Cookie{
+		Name:     "cookie-name",
+		Value:    "",
+		HttpOnly: true,
+	}
+	http.SetCookie(w, &cookie)
+}
+
 func MakeRandomStr(digit uint32) (string, error) {
 	const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
