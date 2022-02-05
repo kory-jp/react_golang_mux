@@ -7,3 +7,11 @@ export const getUserState = (userState: User): UserActionTypes => {
     payload: userState
   }
 }
+
+
+export const deleteUserState = (userState: User):UserActionTypes => {
+  return {
+    type: ActionTypes.deleteUserState,
+    payload: userState
+  }
+}

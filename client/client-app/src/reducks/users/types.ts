@@ -15,5 +15,10 @@ interface getUserStateAction extends Action {
   payload: User
 }
 
+interface deleteUserStateAction extends Action {
+  type: typeof ActionTypes.deleteUserState;
+  payload: User
+}
 
-export type UserActionTypes = getUserStateAction;
+
+export type UserActionTypes = getUserStateAction | deleteUserStateAction;
