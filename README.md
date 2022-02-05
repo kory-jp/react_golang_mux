@@ -41,6 +41,16 @@ git clone git@github.com:kory-jp/react_golang_mux.git
 cd golang_react_mux
 ```
 
+環境変数設定
+
+```
+touch api/env/dev.env
+```
+
+```
+SESSION_KEY = ********
+```
+
 docker 起動
 
 ```

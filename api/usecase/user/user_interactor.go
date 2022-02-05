@@ -1,7 +1,6 @@
 package usecase
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/kory-jp/react_golang_mux/api/domain"
@@ -18,7 +17,6 @@ func (interactor *UserInteractor) Add(u domain.User) (user domain.User, err erro
 		identifier, validErr := interactor.UserRepository.Store(u)
 		err = validErr
 		if err != nil {
-			fmt.Println("errhandin", err)
 			log.SetFlags(log.Llongfile)
 			log.Println(err)
 			return

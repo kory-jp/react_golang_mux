@@ -30,8 +30,9 @@ mysql/initdb.d
 ## api
 
 api/apiapp.log
-api/tmp
+api/tmp/main
 api/vendor
+api/env/
 
 
 ## other
