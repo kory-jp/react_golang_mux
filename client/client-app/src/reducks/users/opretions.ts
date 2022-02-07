@@ -41,8 +41,8 @@ export const saveUserInfo = (name: string, email: string, password: string, pass
         } else {
           const userData: User = response.data.user
           dispatch(getUserState(userData))
-          dispatch(push("/input"))
           dispatch(pushToast({title: '保存しました', severity: "success"}))
+          dispatch(login(email, password))
         }
       }).catch((error) => {
         console.log(error)
@@ -103,8 +103,8 @@ export const isLoggedIn = () => {
         }
       ).then((response) => {
         if (response.data.Detail) {
-          dispatch(pushToast({title: response.data.Detail, severity: "error"}))
           dispatch(push("/"))
+          dispatch(pushToast({title: response.data.Detail, severity: "error"}))
           return
         } else {
           const userData: User = response.data
@@ -152,7 +152,6 @@ export const logout = () => {
       ).then((response) => {
         dispatch(deleteUserState({
           id: 0,
-          uuid: "",
           name: "",
           email: "",
           password: "",
