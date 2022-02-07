@@ -30,3 +30,12 @@ func (interactor *SessionInteractor) Login(u domain.User) (user domain.User, err
 	}
 	return
 }
+
+func (interactor *SessionInteractor) IsLoggedin(uid int) (user domain.User, err error) {
+	user, err = interactor.SessionRepository.FindById(uid)
+	if err != nil {
+		log.SetFlags(log.Llongfile)
+		log.Println(err)
+	}
+	return
+}

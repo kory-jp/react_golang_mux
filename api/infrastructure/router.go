@@ -24,6 +24,7 @@ func Init() {
 	r.Methods("POST").Path("/api").HandlerFunc(todoController.Create)
 	r.Methods("POST").Path("/api/registration").HandlerFunc(userController.Create)
 	r.Methods("POST").Path("/api/login").HandlerFunc(sessionController.Login)
+	r.Methods("GET").Path("/api/authenticate").HandlerFunc(sessionController.Authenticate)
 	r.Methods("DELETE").Path("/api/logout").HandlerFunc(sessionController.Logout)
 	c := cors.New(cors.Options{
 		AllowedOrigins:   []string{"http://localhost:8080"},

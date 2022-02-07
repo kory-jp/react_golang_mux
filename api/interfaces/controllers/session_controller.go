@@ -3,6 +3,7 @@ package controllers
 import (
 	"crypto/rand"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -37,7 +38,6 @@ func NewSessionController(sqlHandler database.SqlHandler) *SessionController {
 var store = sessions.NewCookieStore([]byte(os.Getenv("SESSION_KEY")))
 
 func (controller *SessionController) Login(w http.ResponseWriter, r *http.Request) {
-	session, _ := store.Get(r, "cookie-name")
 	bytesUser, err := io.ReadAll(r.Body)
 	if err != nil {
 		log.SetFlags(log.Llongfile)
@@ -58,8 +58,10 @@ func (controller *SessionController) Login(w http.ResponseWriter, r *http.Reques
 		fmt.Fprintln(w, string(e))
 	} else {
 		token, _ := MakeRandomStr(10)
+		session, _ := store.New(r, "session")
 		session.Values["token"] = token
-		cookie := http.Cookie{
+		session.Values["userId"] = user.ID
+		cookie := &http.Cookie{
 			Name:     "cookie-name",
 			Value:    token,
 			HttpOnly: true,
@@ -69,8 +71,50 @@ func (controller *SessionController) Login(w http.ResponseWriter, r *http.Reques
 			log.SetFlags(log.Llongfile)
 			log.Println(err)
 		}
-		http.SetCookie(w, &cookie)
+		session.Save(r, w)
+		http.SetCookie(w, cookie)
 		fmt.Fprintln(w, string(jsonUser))
+	}
+}
+
+func (controller *SessionController) Authenticate(w http.ResponseWriter, r *http.Request) {
+	session, _ := store.Get(r, "session")
+	fmt.Println("84", session.Values["userId"])
+	cookie, err := r.Cookie("cookie-name")
+	if err != nil {
+		log.SetFlags(log.Llongfile)
+		log.Println(err)
+	}
+	if session.Values["token"] == cookie.Value {
+		if userId, ok := session.Values["userId"].(int); ok {
+			user, err := controller.Interactor.IsLoggedin(userId)
+			if err != nil {
+				log.SetFlags(log.Llongfile)
+				log.Println(err)
+			}
+			token, _ := MakeRandomStr(10)
+			session, _ := store.New(r, "session")
+			session.Values["token"] = token
+			session.Values["userId"] = user.ID
+			cookie := &http.Cookie{
+				Name:     "cookie-name",
+				Value:    token,
+				HttpOnly: true,
+			}
+			jsonUser, err := json.Marshal(user)
+			if err != nil {
+				log.SetFlags(log.Llongfile)
+				log.Println(err)
+			}
+			session.Save(r, w)
+			http.SetCookie(w, cookie)
+			fmt.Fprintln(w, string(jsonUser))
+		}
+	} else {
+		err := errors.New("ログインをしてください")
+		validErr := &SessionValidError{Detail: err.Error()}
+		e, _ := json.Marshal(validErr)
+		fmt.Fprintln(w, string(e))
 	}
 }
 
