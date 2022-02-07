@@ -48,7 +48,6 @@ func (controller *UserController) Create(w http.ResponseWriter, r *http.Request)
 		errStr := err.Error()
 		errStr1 := strings.Replace(errStr, "Error 1062: Duplicate entry", "入力された", 1)
 		errStr2 := strings.Replace(errStr1, "for key 'email'", "既に登録されています。", 1)
-		fmt.Println(errStr2)
 		validErr := &UserValidError{Detail: errStr2}
 		e, _ := json.Marshal(validErr)
 		fmt.Fprintln(w, string(e))

@@ -1,8 +1,7 @@
-import { registration } from "../users/actions";
-
 export const ActionTypes = {
   createTodo: "CREATETODO",
-  registration: "REGISTRATION",
+  getUserState: "GETUSERSTATE",
+  deleteUserState: "DELETEUSERSTATE",
   pushToast: "PUSHTOAST",
   shiftToast: "SHIFTTOAST"
 }
