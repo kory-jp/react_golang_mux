@@ -79,7 +79,6 @@ func (controller *SessionController) Login(w http.ResponseWriter, r *http.Reques
 
 func (controller *SessionController) Authenticate(w http.ResponseWriter, r *http.Request) {
 	session, _ := store.Get(r, "session")
-	fmt.Println("84", session.Values["userId"])
 	cookie, err := r.Cookie("cookie-name")
 	if err != nil {
 		log.SetFlags(log.Llongfile)
@@ -93,7 +92,6 @@ func (controller *SessionController) Authenticate(w http.ResponseWriter, r *http
 				log.Println(err)
 			}
 			token, _ := MakeRandomStr(10)
-			session, _ := store.New(r, "session")
 			session.Values["token"] = token
 			session.Values["userId"] = user.ID
 			cookie := &http.Cookie{
