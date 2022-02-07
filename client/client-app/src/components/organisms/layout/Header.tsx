@@ -1,9 +1,9 @@
 import {  Grid, Paper, styled } from "@mui/material";
 import { Box } from "@mui/system";
-import { useCallback, VFC } from "react";
+import { useCallback, useEffect, VFC } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RooState } from "../../../reducks/store/store";
-import { logout } from "../../../reducks/users/opretions";
+import { isLoggedIn, logout } from "../../../reducks/users/opretions";
 import { SecondaryButton } from "../../atoms/button/SecondaryButton";
 
 const HeaderPaper = styled(Paper)({
@@ -24,6 +24,10 @@ const HeaderUserName = styled(Box)({
 export const Header: VFC = () => {
   const dispatch = useDispatch()
   const user = useSelector((state: RooState) => state.user)
+
+  useEffect(() => {
+    dispatch(isLoggedIn())
+  },[])
 
   const onClickLogout = useCallback(() => {
     dispatch(logout())

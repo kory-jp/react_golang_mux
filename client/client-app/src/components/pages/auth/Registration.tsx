@@ -2,7 +2,7 @@ import { Box, Link, Typography } from "@mui/material";
 import { push } from "connected-react-router";
 import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { saveUserInfo } from "../../../reducks/users/opretions";
+import { isLoggedOut, saveUserInfo } from "../../../reducks/users/opretions";
 import { PrimaryButton } from "../../atoms/button/PrimaryButton";
 import { PrimaryInput } from "../../atoms/input/PrimaryInput";
 import Toast from  "../../molecules/toast/Toast";
@@ -13,6 +13,10 @@ export const Registration = () => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [passwordConfirmation, setPasswordConfirmation] = useState('')
+
+  useEffect(() => {
+    dispatch(isLoggedOut())
+  },[])
 
   const inputName = useCallback((event: React.ChangeEvent<HTMLInputElement>)=> {
     setName(event.target.value)
