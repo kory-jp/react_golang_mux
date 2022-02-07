@@ -11,7 +11,6 @@ import (
 
 type User struct {
 	ID        int       `json:"id"`
-	UUID      string    `json:"uuid"`
 	Name      string    `json:"name" validate:"required,gte=2,lt=20"`
 	Email     string    `json:"email" validate:"required,email"`
 	Password  string    `json:"password" validate:"required,gte=5,lt=20"`
@@ -46,13 +45,16 @@ func UserValidate(user *User) (err error) {
 			value := traslateField(err.Field())
 			switch err.ActualTag() {
 			case "required":
-				return errors.New(fmt.Sprintf("%sは必須です。", value))
+				// return errors.New(fmt.Sprintf("%sは必須です。", value))
+				return fmt.Errorf("%sは必須です。", value)
 			case "gte":
-				return errors.New(fmt.Sprintf("%sは%s文字以上が必須です。", value, err.Param()))
+				// return errors.New(fmt.Sprintf("%sは%s文字以上が必須です。", value, err.Param()))
+				return fmt.Errorf("%sは%s文字以上が必須です。", value, err.Param())
 			case "lt":
-				return errors.New(fmt.Sprintf("%sは%s文字以内の入力になります。", value, err.Param()))
+				// return errors.New(fmt.Sprintf("%sは%s文字以内の入力になります。", value, err.Param()))
+				return fmt.Errorf("%sは%s文字以内の入力になります。", value, err.Param())
 			case "email":
-				return errors.New(fmt.Sprintf("メールアドレスのフォーマットに誤りがあります"))
+				return errors.New("メールアドレスのフォーマットに誤りがあります")
 			}
 		}
 	}

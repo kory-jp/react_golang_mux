@@ -15,7 +15,6 @@ func (repo *SessionRepository) FindByEmail(u domain.User) (user domain.User, err
 	row, err := repo.Query(`
 		select
 			id,
-			uuid,
 			name,
 			email,
 			password,
@@ -33,19 +32,17 @@ func (repo *SessionRepository) FindByEmail(u domain.User) (user domain.User, err
 	defer row.Close()
 
 	var id int
-	var uuid string
 	var name string
 	var email string
 	var password string
 	var created_at time.Time
 	row.Next()
-	if err = row.Scan(&id, &uuid, &name, &email, &password, &created_at); err != nil {
+	if err = row.Scan(&id, &name, &email, &password, &created_at); err != nil {
 		log.SetFlags(log.Llongfile)
 		log.Println(err)
 		return
 	}
 	user.ID = id
-	user.UUID = uuid
 	user.Name = name
 	user.Email = email
 	user.Password = password
@@ -57,7 +54,6 @@ func (repo *SessionRepository) FindById(uid int) (user domain.User, err error) {
 	row, err := repo.Query(`
 		select
 			id,
-			uuid,
 			name,
 			email,
 			password,
@@ -75,19 +71,17 @@ func (repo *SessionRepository) FindById(uid int) (user domain.User, err error) {
 	defer row.Close()
 
 	var id int
-	var uuid string
 	var name string
 	var email string
 	var password string
 	var created_at time.Time
 	row.Next()
-	if err = row.Scan(&id, &uuid, &name, &email, &password, &created_at); err != nil {
+	if err = row.Scan(&id, &name, &email, &password, &created_at); err != nil {
 		log.SetFlags(log.Llongfile)
 		log.Println(err)
 		return
 	}
 	user.ID = id
-	user.UUID = uuid
 	user.Name = name
 	user.Email = email
 	user.Password = password

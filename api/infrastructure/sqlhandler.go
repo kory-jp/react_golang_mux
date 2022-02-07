@@ -38,7 +38,6 @@ func NewSqlHandler() *SqlHandler {
 	cmdU := fmt.Sprintf(`
 		create table if not exists %s (
 			id integer primary key auto_increment,
-			uuid varchar(50) NOT NULL UNIQUE,
 			name varchar(50) NOT NULL,
 			email varchar(50) NOT NULL UNIQUE,
 			password varchar(50) NOT NULL,

@@ -3,7 +3,6 @@ import { User, UserActionTypes } from "./types";
 
 const initialState: User = {
   id: 0,
-  uuid: '',
   name: '',
   email: '',
   password: '',

@@ -3,7 +3,6 @@ import { ActionTypes } from "../store/actionTypes";
 
 export type User = {
   id: number,
-  uuid: string,
   name: string,
   email: string,
   password: string,
