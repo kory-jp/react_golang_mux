@@ -3,7 +3,11 @@ import { Todo, TodosActionTypes } from "./types";
 
 const initialState: Todo = {
   id: 0,
-  content: "",
+  userId: 0,
+  title: '',
+  content: '',
+  image: null,
+  createdAt: null,
 }
 
 export const TodoReducer = (state = initialState, action: TodosActionTypes): Todo => {

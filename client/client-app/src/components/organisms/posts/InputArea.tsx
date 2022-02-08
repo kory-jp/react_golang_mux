@@ -16,8 +16,8 @@ export const InputArea = () => {
   },[setContent])
   
   const onClickCreateTodo = useCallback(()=> {
-    dispatch(createTodo(content))
-    setContent('')
+    // dispatch(createTodo(content))
+    // setContent('')
   },[content])
   
   
