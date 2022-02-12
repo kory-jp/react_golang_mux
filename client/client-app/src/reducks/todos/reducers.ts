@@ -7,6 +7,7 @@ const initialState: Todo = {
   title: '',
   content: '',
   image: null,
+  isFinished: false,
   createdAt: null,
 }
 

@@ -49,6 +49,7 @@ func (controller *SessionController) Login(w http.ResponseWriter, r *http.Reques
 		log.Println(err)
 		return
 	}
+	fmt.Println("52", userType)
 	user, err := controller.Interactor.Login(*userType)
 	if err != nil {
 		log.SetFlags(log.Llongfile)

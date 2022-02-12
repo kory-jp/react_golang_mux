@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"errors"
 	"log"
 
 	"github.com/kory-jp/react_golang_mux/api/domain"
@@ -10,18 +11,19 @@ type TodoInteractor struct {
 	TodoRepository TodoRepository
 }
 
-func (interactor *TodoInteractor) Add(t domain.Todo) (todo domain.Todo, err error) {
-	identifier, err := interactor.TodoRepository.Store(t)
+type TodoMessage struct {
+	Message string
+}
+
+func (interactor *TodoInteractor) Add(t domain.Todo) (mess TodoMessage, err error) {
+	err = interactor.TodoRepository.Store(t)
 	if err != nil {
 		log.SetFlags(log.Llongfile)
 		log.Panicln(err)
+		err = errors.New("保存に失敗しました")
 		return
 	}
-	todo, err = interactor.TodoRepository.FindById(identifier)
-	if err != nil {
-		log.SetFlags(log.Llongfile)
-		log.Panicln(err)
-		return
-	}
+	mess = TodoMessage{}
+	mess.Message = "保存に成功しました"
 	return
 }

@@ -33,6 +33,7 @@ api/apiapp.log
 api/vendor
 api/env/
 api/tmp/
+api/img/
 
 
 ## other

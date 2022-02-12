@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Button, Divider, FormControl, Input, InputLabel, Paper, Stack, TextField} from "@mui/material";
 import CameraAltIcon from '@mui/icons-material/CameraAlt';
@@ -46,18 +46,18 @@ export const NewTodo = () => {
   const createFormData = useCallback(() => {
     const formData = new FormData()
     // formDataの第二引数はstring,Blobを受け取る
-    formData.append('todo[user_id', String(userId))
-    formData.append('todo[title]', title)
-    formData.append('todo[content]', content)
-    if (image) formData.append('todo[image]', image)
+    formData.append('user_id', String(userId))
+    formData.append('title', title)
+    formData.append('content', content)
+    if (image) formData.append('image', image)
     return formData
-  }, [])
+  }, [userId, title, content, image])
 
 
   const formData = createFormData()
   const onClickNewTodo = useCallback(() => {
     dispatch(createTodo(formData))
-  }, [])
+  }, [formData])
 
   return(
     <>

@@ -7,6 +7,7 @@ export type Todo = {
   title: string,
   content: string,
   image: File | null,
+  isFinished: boolean,
   createdAt: Date | null,
 }
 
