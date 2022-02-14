@@ -27,3 +27,12 @@ func (interactor *TodoInteractor) Add(t domain.Todo) (mess TodoMessage, err erro
 	mess.Message = "保存に成功しました"
 	return
 }
+
+func (interactor *TodoInteractor) Todos(id int) (todos domain.Todos, err error) {
+	todos, err = interactor.TodoRepository.FindByUserId(id)
+	if err != nil {
+		log.SetFlags(log.Llongfile)
+		log.Println(err)
+	}
+	return
+}

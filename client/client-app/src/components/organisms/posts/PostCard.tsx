@@ -1,8 +1,15 @@
 import { Button, Card, CardActions, CardContent, CardMedia, Typography } from "@mui/material";
+import { VFC } from "react";
 
 import sample1 from "../../../assets/images/sample1.jpeg"
+import { Todo } from "../../../reducks/todos/types";
 
-export const PostCard = () => {
+type Props = {
+  todo: Todo,
+}
+
+export const PostCard: VFC<Props> = (props) => {
+  const {todo} = props;
   return(
     <>
       <Card
@@ -17,7 +24,7 @@ export const PostCard = () => {
         />
         <CardContent>
           <Typography>
-            タイトル
+            {todo.title}
           </Typography>
         </CardContent>
         <CardActions>

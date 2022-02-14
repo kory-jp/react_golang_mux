@@ -1,3 +1,4 @@
+import { ArrowBackIosOutlined } from "@mui/icons-material";
 import { Action } from "redux";
 import { ActionTypes } from "../store/actionTypes";
 
@@ -11,7 +12,7 @@ export type Todo = {
   createdAt: Date | null,
 }
 
-export type Todos = Array<Todo>
+export type Todos = Todo[]
 
 interface createTodoAction extends Action {
   type: typeof ActionTypes.createTodo;

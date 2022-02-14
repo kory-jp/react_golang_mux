@@ -1,7 +1,7 @@
 import { ActionTypes } from "../store/actionTypes";
 import { Todo, Todos, TodosActionTypes } from "./types";
 
-const initialState: Array<Todo> = []
+const initialState: Todos = []
 
 export const TodoReducer = (state = initialState, action: TodosActionTypes): Todos => {
   switch(action.type) {

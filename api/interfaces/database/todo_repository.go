@@ -31,30 +31,39 @@ func (repo *TodoRepository) Store(t domain.Todo) (err error) {
 	return
 }
 
-func (repo *TodoRepository) FindById(identifier int) (todo domain.Todo, err error) {
-	row, err := repo.Query(`
+func (repo *TodoRepository) FindByUserId(identifier int) (todos domain.Todos, err error) {
+	rows, err := repo.Query(`
 		select
-			id,
-			content
+			*
 		from
 			todos
 		where
-			id = ?
+			user_id = ?
 	`, identifier)
 	if err != nil {
 		log.SetFlags(log.Llongfile)
 		log.Panicln(err)
 	}
-	defer row.Close()
+	defer rows.Close()
 
-	var id int
-	var content string
-	row.Next()
-	if err = row.Scan(&id, &content); err != nil {
-		log.SetFlags(log.Llongfile)
-		log.Panicln(err)
+	for rows.Next() {
+		var todo domain.Todo
+		// var todosType domain.Todos
+		err = rows.Scan(
+			&todo.ID,
+			&todo.UserID,
+			&todo.Title,
+			&todo.Content,
+			&todo.ImagePath,
+			&todo.IsFinished,
+			&todo.CreatedAt,
+		)
+		if err != nil {
+			log.SetFlags(log.Llongfile)
+			log.Panicln(err)
+		}
+		todos = append(todos, todo)
 	}
-	todo.ID = id
-	todo.Content = content
-	return
+	rows.Close()
+	return todos, err
 }

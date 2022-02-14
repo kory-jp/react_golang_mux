@@ -33,7 +33,7 @@ export const createTodo = (formdata: FormData) => {
 export const indexTodos = () => {
   return async(dispatch: Dispatch<{}>) => {
     axios
-      .get("http://localhost:8000/api/todo",
+      .get("http://localhost:8000/api/todos",
       {
         withCredentials: true,
         headers:{
