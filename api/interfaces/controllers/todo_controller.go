@@ -1,8 +1,11 @@
 package controllers
 
 import (
+	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
+	"log"
 	"mime/multipart"
 	"net/http"
 	"os"
@@ -16,6 +19,10 @@ import (
 
 type TodoController struct {
 	Interactor usecase.TodoInteractor
+}
+
+type TodosError struct {
+	Error string
 }
 
 func NewTodoController(sqlHandler database.SqlHandler) *TodoController {
@@ -80,4 +87,23 @@ func (controller *TodoController) Create(w http.ResponseWriter, r *http.Request)
 	}
 
 	fmt.Fprintln(w, mess)
+}
+
+func (controller *TodoController) Index(w http.ResponseWriter, r *http.Request) {
+	session, _ := store.Get(r, "session")
+	todos, err := controller.Interactor.Todos(session.Values["userId"].(int))
+	if err != nil {
+		log.SetFlags(log.Llongfile)
+		log.Println(err)
+		err := errors.New("データ取得に失敗しました")
+		todosErr := &TodosError{Error: err.Error()}
+		e, _ := json.Marshal(todosErr)
+		fmt.Fprintln(w, string(e))
+	}
+	jsonTodos, err := json.Marshal(todos)
+	if err != nil {
+		log.SetFlags(log.Llongfile)
+		log.Println(err)
+	}
+	fmt.Fprintln(w, string(jsonTodos))
 }
