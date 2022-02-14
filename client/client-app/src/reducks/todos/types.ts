@@ -11,10 +11,16 @@ export type Todo = {
   createdAt: Date | null,
 }
 
+export type Todos = Array<Todo>
 
 interface createTodoAction extends Action {
   type: typeof ActionTypes.createTodo;
-  payload: Todo;
+  payload: Todos;
 }
 
-export type TodosActionTypes = createTodoAction;
+interface indexTodosAction extends Action {
+  type: typeof ActionTypes.indexTodos;
+  payload: Todos;
+}
+
+export type TodosActionTypes = createTodoAction | indexTodosAction;
