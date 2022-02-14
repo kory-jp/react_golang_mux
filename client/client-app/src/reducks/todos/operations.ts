@@ -2,7 +2,7 @@ import axios from "axios";
 import { push } from "connected-react-router";
 import { Dispatch } from "react";
 import { pushToast } from "../toasts/actions";
-import { createTodoAction } from "./actions";
+import { createTodoAction, indexTodosAction } from "./actions";
 
 export const createTodo = (formdata: FormData) => {
   return async(dispatch: Dispatch<{}>) => {
@@ -20,12 +20,33 @@ export const createTodo = (formdata: FormData) => {
       .then((response) => {
         const todo = response.data
         dispatch(createTodoAction(todo))
-        dispatch(push("/input"))
+        dispatch(push("/todo"))
         dispatch(pushToast({title: '保存しました', severity: "success"}))
       })
       .catch((error)=> {
         console.log(error)
         dispatch(pushToast({title: '保存に失敗しました', severity: "error"}))
+      })
+  }
+}
+
+export const indexTodos = () => {
+  return async(dispatch: Dispatch<{}>) => {
+    axios
+      .get("http://localhost:8000/api/todo",
+      {
+        withCredentials: true,
+        headers:{
+          'Accept': 'application/json',  
+          'Content-Type': 'multipart/form-data'
+        }
+      }
+      ).then((response) => {
+        const todos = response.data
+        dispatch(indexTodosAction(todos))
+      })
+      .catch((error) => {
+        dispatch(pushToast({title: 'データ取得に失敗しました', severity: "error"}))
       })
   }
 }

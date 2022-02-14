@@ -16,7 +16,7 @@ export const Header: VFC = () => {
   },[])
 
   const onClickToNewTodo = useCallback(() => {
-    dispatch(push("/new"))
+    dispatch(push("/todo/new"))
   },[])
 
   const onClickLogout = useCallback(() => {
