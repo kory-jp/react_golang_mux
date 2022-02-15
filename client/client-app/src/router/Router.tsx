@@ -5,6 +5,7 @@ import DefaultTemplate from "../components/template/DefaultTemplate";
 import NewTodo from "../components/pages/todos/NewTodo";
 import IndexTodos from "../components/pages/todos/IndexTodos";
 import Login from "../components/pages/auth/Login";
+import ShowTodo from "../components/pages/todos/ShowTodo";
 
 export const Router: VFC = () => {
   return(
@@ -14,6 +15,7 @@ export const Router: VFC = () => {
       <DefaultTemplate>
         <Route exact path={"/todo"} component={IndexTodos} />
         <Route path={"/todo/new"} component={NewTodo} />
+        <Route path={"/todo/:id"} component={ShowTodo} />
       </DefaultTemplate>
     </Switch>
   )

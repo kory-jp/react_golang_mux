@@ -2,14 +2,14 @@ import { Button, Divider, FormControl, Input, InputLabel, Paper, Stack, TextFiel
 import { Box } from "@mui/system";
 import CameraAltIcon from '@mui/icons-material/CameraAlt';
 import ClearIcon from '@mui/icons-material/Clear';
-import { useCallback, useState } from "react";
+import { FC, useCallback, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import { createTodo } from "../../../reducks/todos/operations";
 import { PrimaryButton } from "../../atoms/button/PrimaryButton";
 import { RooState } from "../../../reducks/store/store";
 
-export const NewTodo = () => {
+export const NewTodo: FC = () => {
   const dispatch = useDispatch()
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')

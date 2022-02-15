@@ -50,3 +50,24 @@ export const indexTodos = () => {
       })
   }
 }
+
+export const showTodo = (id: number) => {
+  return async(dispatch: Dispatch<{}>) => {
+    axios
+      .get(`http://localhost:8000/api/todos/${id}`,
+      {
+        withCredentials: true,
+        headers:{
+          'Accept': 'application/json',  
+          'Content-Type': 'multipart/form-data'
+        }
+      }
+      ).then((response) => {
+        const todo = response.data
+        dispatch(indexTodosAction(todo))
+      })
+      .catch((error) => {
+        dispatch(pushToast({title: 'データ取得に失敗しました', severity: "error"}))
+      })
+  }
+}
