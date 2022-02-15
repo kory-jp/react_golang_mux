@@ -1,14 +1,14 @@
 import { Grid } from "@mui/material";
 import { Box } from "@mui/system";
-import { useEffect } from "react";
+import { FC, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RooState } from "../../../reducks/store/store";
 import { indexTodos } from "../../../reducks/todos/operations";
-import { Todo, Todos } from "../../../reducks/todos/types";
+import { Todos } from "../../../reducks/todos/types";
 
 import PostCard from "../../organisms/posts/PostCard";
 
-export const IndexTodos = () => {
+export const IndexTodos: FC = () => {
   const dispatch = useDispatch()
   const todosObj: Todos = useSelector((state: RooState) => state.todos)
   // Object -> Array

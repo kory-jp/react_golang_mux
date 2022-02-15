@@ -80,7 +80,7 @@ export const login = (email: string, password: string) => {
         } else {
           const userData: User = response.data
           dispatch(getUserState(userData))
-          dispatch(push("/input"))
+          dispatch(push("/todo"))
           dispatch(pushToast({title: 'ログインしました', severity: "success"}))
         }
       }).catch((error) => {
@@ -130,7 +130,7 @@ export const isLoggedOut = () => {
       }
       ).then((response) => {
         if (response.data.id) {
-          dispatch(push("/input"))
+          dispatch(push("/todo"))
         }
       }).catch((error) => {
         console.log(error)
