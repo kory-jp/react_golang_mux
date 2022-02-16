@@ -48,7 +48,6 @@ func (repo *TodoRepository) FindByUserId(identifier int) (todos domain.Todos, er
 
 	for rows.Next() {
 		var todo domain.Todo
-		// var todosType domain.Todos
 		err = rows.Scan(
 			&todo.ID,
 			&todo.UserID,
@@ -66,4 +65,49 @@ func (repo *TodoRepository) FindByUserId(identifier int) (todos domain.Todos, er
 	}
 	rows.Close()
 	return todos, err
+}
+
+func (repo *TodoRepository) FindByIdAndUserId(identifier int, userIdentifier int) (todo domain.Todo, err error) {
+	row, err := repo.Query(`
+		select
+			id,
+			user_id,
+			title,
+			content,
+			image_path,
+			isFinished,
+			created_at
+		from
+			todos
+		where
+			id = ?
+		and
+			user_id = ?
+	`, identifier, userIdentifier)
+	if err != nil {
+		log.SetFlags(log.Llongfile)
+		log.Panicln(err)
+	}
+	defer row.Close()
+
+	var id int
+	var userId int
+	var title string
+	var content string
+	var imagePath string
+	var isFinished bool
+	var created_at time.Time
+	row.Next()
+	if err = row.Scan(&id, &userId, &title, &content, &imagePath, &isFinished, &created_at); err != nil {
+		log.SetFlags(log.Llongfile)
+		log.Println(err)
+	}
+	todo.ID = id
+	todo.UserID = userId
+	todo.Title = title
+	todo.Content = content
+	todo.ImagePath = imagePath
+	todo.IsFinished = isFinished
+	todo.CreatedAt = created_at
+	return
 }

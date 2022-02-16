@@ -15,7 +15,7 @@ export const Router: VFC = () => {
       <DefaultTemplate>
         <Route exact path={"/todo"} component={IndexTodos} />
         <Route path={"/todo/new"} component={NewTodo} />
-        <Route path={"/todo/:id"} component={ShowTodo} />
+        <Route path={"/todo/show/:id"} component={ShowTodo} />
       </DefaultTemplate>
     </Switch>
   )

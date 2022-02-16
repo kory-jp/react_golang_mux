@@ -23,6 +23,7 @@ func Init() {
 	sessionController := controllers.NewSessionController(NewSqlHandler())
 	r.Methods("POST").Path("/api/new").HandlerFunc(todoController.Create)
 	r.Methods("GET").Path("/api/todos").HandlerFunc(todoController.Index)
+	r.Methods("GET").Path("/api/todos/{id:[0-9]+}").HandlerFunc(todoController.Show)
 	r.Methods("POST").Path("/api/registration").HandlerFunc(userController.Create)
 	r.Methods("POST").Path("/api/login").HandlerFunc(sessionController.Login)
 	r.Methods("GET").Path("/api/authenticate").HandlerFunc(sessionController.Authenticate)

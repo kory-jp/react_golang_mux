@@ -1,5 +1,7 @@
 import { Button, Card, CardActions, CardContent, CardMedia, Typography } from "@mui/material";
-import { VFC } from "react";
+import { push } from "connected-react-router";
+import { useCallback, VFC } from "react";
+import { useDispatch } from "react-redux";
 
 import sample1 from "../../../assets/images/sample1.jpeg"
 import { Todo } from "../../../reducks/todos/types";
@@ -10,6 +12,12 @@ type Props = {
 
 export const PostCard: VFC<Props> = (props) => {
   const {todo} = props;
+  const dispatch = useDispatch()
+
+  const onclickToShowTodo = useCallback(() => {
+    dispatch(push(`/todo/show/${todo.id}`))
+  }, [])
+
   return(
     <>
       <Card
@@ -21,9 +29,22 @@ export const PostCard: VFC<Props> = (props) => {
           component="img"
           height="140"
           image={sample1}
+          sx={{
+            '&:hover': {
+              cursor: 'pointer'
+            }
+          }}
+          onClick={onclickToShowTodo}
         />
         <CardContent>
-          <Typography>
+          <Typography
+            sx={{
+              '&:hover': {
+                cursor: 'pointer'
+              }
+            }}
+            onClick={onclickToShowTodo}
+          >
             {todo.title}
           </Typography>
         </CardContent>

@@ -1,6 +1,7 @@
 import axios from "axios";
 import { push } from "connected-react-router";
 import { Dispatch } from "react";
+import { nowLoadingState } from "../loading/actions";
 import { pushToast } from "../toasts/actions";
 import { createTodoAction, indexTodosAction } from "./actions";
 
@@ -32,6 +33,7 @@ export const createTodo = (formdata: FormData) => {
 
 export const indexTodos = () => {
   return async(dispatch: Dispatch<{}>) => {
+    dispatch(nowLoadingState(true))
     axios
       .get("http://localhost:8000/api/todos",
       {
@@ -48,11 +50,17 @@ export const indexTodos = () => {
       .catch((error) => {
         dispatch(pushToast({title: 'データ取得に失敗しました', severity: "error"}))
       })
+      .finally(() => {
+        setTimeout(() => {
+          dispatch(nowLoadingState(false));
+        }, 800);
+      });
   }
 }
 
 export const showTodo = (id: number) => {
   return async(dispatch: Dispatch<{}>) => {
+    dispatch(nowLoadingState(true))
     axios
       .get(`http://localhost:8000/api/todos/${id}`,
       {
@@ -69,5 +77,10 @@ export const showTodo = (id: number) => {
       .catch((error) => {
         dispatch(pushToast({title: 'データ取得に失敗しました', severity: "error"}))
       })
+      .finally(() => {
+        setTimeout(() => {
+          dispatch(nowLoadingState(false));
+        }, 800);
+      });
   }
 }

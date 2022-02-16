@@ -5,4 +5,5 @@ export const ActionTypes = {
   shiftToast: "SHIFTTOAST",
   createTodo: "CREATETODO",
   indexTodos: "INDEXTODOS",
+  nowLoading: "NOWLOADING",
 }
