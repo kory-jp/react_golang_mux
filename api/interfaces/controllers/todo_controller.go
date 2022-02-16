@@ -12,6 +12,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/gorilla/mux"
 	"github.com/kory-jp/react_golang_mux/api/domain"
 	"github.com/kory-jp/react_golang_mux/api/interfaces/database"
 	usecase "github.com/kory-jp/react_golang_mux/api/usecase/todo"
@@ -44,7 +45,7 @@ func (controller *TodoController) Create(w http.ResponseWriter, r *http.Request)
 	// POSTされたファイルデータを取得する
 	if file, fileHeader, err = r.FormFile("image"); err != nil {
 		fmt.Println("No Image File")
-		fmt.Fprintln(w, "ファイルアップロードを確認できませんでした。")
+		// fmt.Fprintln(w, "ファイルアップロードを確認できませんでした。")
 	} else {
 		fmt.Println("Ok! hello")
 		fmt.Printf("%T", file)
@@ -106,4 +107,34 @@ func (controller *TodoController) Index(w http.ResponseWriter, r *http.Request) 
 		log.Println(err)
 	}
 	fmt.Fprintln(w, string(jsonTodos))
+}
+
+func (controller *TodoController) Show(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		log.SetFlags(log.Llongfile)
+		log.Println(err)
+	}
+	session, err := store.Get(r, "session")
+	if err != nil {
+		log.SetFlags(log.Llongfile)
+		log.Println(err)
+	}
+	todo, err := controller.Interactor.TodoByIdAndUserId(id, session.Values["userId"].(int))
+	if err != nil {
+		log.SetFlags(log.Llongfile)
+		log.Println(err)
+		err := errors.New("データ取得に失敗しました")
+		todosErr := &TodosError{Error: err.Error()}
+		e, _ := json.Marshal(todosErr)
+		fmt.Fprintln(w, string(e))
+	}
+
+	jsonTodo, err := json.Marshal(todo)
+	if err != nil {
+		log.SetFlags(log.Llongfile)
+		log.Println(err)
+	}
+	fmt.Fprintln(w, string(jsonTodo))
 }

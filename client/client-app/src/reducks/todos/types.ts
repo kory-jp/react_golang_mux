@@ -12,7 +12,27 @@ export type Todo = {
   createdAt: Date | null,
 }
 
-export type Todos = Todo[]
+export type Todos = [
+  {
+    id: number,
+    userId: number,
+    title: string,
+    content: string,
+    image: File | null,
+    isFinished: boolean,
+    createdAt: Date | null,
+  }
+]
+
+// export type Todos = Array<{
+//   id: number;
+//   userId: number;
+//   title: string;
+//   content: string;
+//   image: File | null;
+//   isFinished: boolean;
+//   createdAt: Date | null;
+// }>
 
 interface createTodoAction extends Action {
   type: typeof ActionTypes.createTodo;

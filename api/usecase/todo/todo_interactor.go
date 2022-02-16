@@ -23,13 +23,20 @@ func (interactor *TodoInteractor) Add(t domain.Todo) (mess TodoMessage, err erro
 		err = errors.New("保存に失敗しました")
 		return
 	}
-	mess = TodoMessage{}
-	mess.Message = "保存に成功しました"
 	return
 }
 
 func (interactor *TodoInteractor) Todos(id int) (todos domain.Todos, err error) {
 	todos, err = interactor.TodoRepository.FindByUserId(id)
+	if err != nil {
+		log.SetFlags(log.Llongfile)
+		log.Println(err)
+	}
+	return
+}
+
+func (interactor *TodoInteractor) TodoByIdAndUserId(id int, userId int) (todo domain.Todo, err error) {
+	todo, err = interactor.TodoRepository.FindByIdAndUserId(id, userId)
 	if err != nil {
 		log.SetFlags(log.Llongfile)
 		log.Println(err)

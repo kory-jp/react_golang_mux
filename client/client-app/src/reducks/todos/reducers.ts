@@ -1,20 +1,24 @@
 import { ActionTypes } from "../store/actionTypes";
-import { Todo, Todos, TodosActionTypes } from "./types";
+import { Todos, TodosActionTypes } from "./types";
 
-const initialState: Todos = []
+const initialState: Todos = [
+  {
+    id: 0,
+    userId: 0,
+    title: "",
+    content: "",
+    image: null,
+    isFinished: false,
+    createdAt: null
+  }
+]
 
 export const TodoReducer = (state = initialState, action: TodosActionTypes): Todos => {
   switch(action.type) {
     case ActionTypes.createTodo:
-      return {
-        ...state,
-        ...action.payload
-        };
+      return action.payload
     case ActionTypes.indexTodos:
-      return {
-        ...state,
-        ...action.payload
-        }
+      return action.payload
   }
   return state;
 }

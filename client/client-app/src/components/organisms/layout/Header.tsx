@@ -1,4 +1,4 @@
-import {  Grid, Paper, styled } from "@mui/material";
+import {  Grid, Paper } from "@mui/material";
 import { Box } from "@mui/system";
 import { push } from "connected-react-router";
 import { useCallback, useEffect, VFC } from "react";
@@ -21,6 +21,10 @@ export const Header: VFC = () => {
 
   const onClickLogout = useCallback(() => {
     dispatch(logout())
+  }, [])
+
+  const onClickToTop = useCallback(() => {
+    dispatch(push("/todo"))
   }, [])
 
   return(
@@ -55,8 +59,12 @@ export const Header: VFC = () => {
                 fontSize: {
                   sm: '20px',
                   md: '35px'
+                },
+                '&:hover': {
+                  cursor: 'pointer'
                 }
               }}
+              onClick={onClickToTop}
             >
               ToDO
             </Box>
