@@ -28,6 +28,9 @@ func Init() {
 	r.Methods("POST").Path("/api/login").HandlerFunc(sessionController.Login)
 	r.Methods("GET").Path("/api/authenticate").HandlerFunc(sessionController.Authenticate)
 	r.Methods("DELETE").Path("/api/logout").HandlerFunc(sessionController.Logout)
+	// ----- 画像配信URL ---------
+	r.PathPrefix("/api/img/").Handler(http.StripPrefix("/api/img/", http.FileServer(http.Dir("./img/"))))
+	// -----
 	c := cors.New(cors.Options{
 		AllowedOrigins:   []string{"http://localhost:8080"},
 		AllowCredentials: true,

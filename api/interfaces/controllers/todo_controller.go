@@ -136,5 +136,6 @@ func (controller *TodoController) Show(w http.ResponseWriter, r *http.Request) {
 		log.SetFlags(log.Llongfile)
 		log.Println(err)
 	}
+
 	fmt.Fprintln(w, string(jsonTodo))
 }

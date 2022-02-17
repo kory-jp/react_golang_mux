@@ -1,4 +1,4 @@
-import { CardMedia, Container, Grid, Paper, Typography } from "@mui/material";
+import { CardMedia, Container, Grid, imageListItemBarClasses, Paper, Typography } from "@mui/material";
 import { FC, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
@@ -27,6 +27,8 @@ export const ShowTodo: FC = () => {
   let todo = Object.fromEntries(
     Object.entries(todos).map(([key, value]) => [key, value])
   )
+
+  const imagePath = `http://localhost:8000/api/img/${todo.imagePath}`
 
   return(
     <>
@@ -79,7 +81,7 @@ export const ShowTodo: FC = () => {
                   <Grid item>
                     <CardMedia
                       component="img"
-                      src={sample1}
+                      src={todo.imagePath? imagePath : sample1}
                       sx={{
                         height: {
                           xs: '200px',

@@ -8,6 +8,7 @@ export type Todo = {
   title: string,
   content: string,
   image: File | null,
+  imagePath: string | undefined,
   isFinished: boolean,
   createdAt: Date | null,
 }
@@ -19,20 +20,12 @@ export type Todos = [
     title: string,
     content: string,
     image: File | null,
+    imagePath: string | undefined,
     isFinished: boolean,
     createdAt: Date | null,
   }
 ]
 
-// export type Todos = Array<{
-//   id: number;
-//   userId: number;
-//   title: string;
-//   content: string;
-//   image: File | null;
-//   isFinished: boolean;
-//   createdAt: Date | null;
-// }>
 
 interface createTodoAction extends Action {
   type: typeof ActionTypes.createTodo;

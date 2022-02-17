@@ -8,6 +8,7 @@ const initialState: Todos = [
     title: "",
     content: "",
     image: null,
+    imagePath: undefined,
     isFinished: false,
     createdAt: null
   }
