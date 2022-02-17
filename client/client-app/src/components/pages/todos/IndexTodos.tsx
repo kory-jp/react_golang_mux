@@ -38,7 +38,7 @@ export const IndexTodos: FC = () => {
           }}
         >
           {
-            todos.length > 0 && (
+            todos != null && todos.length > 0 && (
               <Grid container rowSpacing={1} columnSpacing={{xs: 1, sm: 2, md: 3}} paddingX={2}>
                 {
                   todos.map(todo => (
@@ -48,7 +48,7 @@ export const IndexTodos: FC = () => {
                   ))
                 }
               </Grid>
-            ) 
+            )
           } 
         </Box>
        )

@@ -14,7 +14,7 @@ type User struct {
 	Name      string    `json:"name" validate:"required,gte=2,lt=20"`
 	Email     string    `json:"email" validate:"required,email"`
 	Password  string    `json:"password" validate:"required,gte=5,lt=20"`
-	CreatedAt time.Time `json:"created_at"`
+	CreatedAt time.Time `json:"createdAt"`
 }
 
 type Users []User

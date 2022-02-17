@@ -2,7 +2,7 @@ import { Button, Divider, FormControl, Input, InputLabel, Paper, Stack, TextFiel
 import { Box } from "@mui/system";
 import CameraAltIcon from '@mui/icons-material/CameraAlt';
 import ClearIcon from '@mui/icons-material/Clear';
-import { FC, useCallback, useState } from "react";
+import React, { FC, useCallback, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import { createTodo } from "../../../reducks/todos/operations";
@@ -13,8 +13,6 @@ export const NewTodo: FC = () => {
   const dispatch = useDispatch()
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
-  // 型注意File型でないとformDataにappnedできない
-  // const [image, setImage] = useState<HTMLImageElement>()
   const [image, setImage] = useState<File>()
   const [preview, setPreview] =useState('')
   const userId = useSelector((state: RooState) => state.user.id)
@@ -45,7 +43,6 @@ export const NewTodo: FC = () => {
 
   const createFormData = useCallback(() => {
     const formData = new FormData()
-    // formDataの第二引数はstring,Blobを受け取る
     formData.append('user_id', String(userId))
     formData.append('title', title)
     formData.append('content', content)

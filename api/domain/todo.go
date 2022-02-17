@@ -7,13 +7,13 @@ import (
 
 type Todo struct {
 	ID         int         `json:"id"`
-	UserID     int         `json:"user_id"`
+	UserID     int         `json:"userId"`
 	Title      string      `json:"title"`
 	Content    string      `json:"content"`
 	Image      image.Image `json:"image"`
-	ImagePath  string      `json:"image_path"`
+	ImagePath  string      `json:"imagePath"`
 	IsFinished bool        `json:"isFinished"`
-	CreatedAt  time.Time   `json:"created_at"`
+	CreatedAt  time.Time   `json:"createdAt"`
 }
 
 type Todos []Todo
