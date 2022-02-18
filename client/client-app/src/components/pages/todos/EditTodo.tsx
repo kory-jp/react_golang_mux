@@ -2,21 +2,64 @@ import { Button, Divider, FormControl, Input, InputLabel, Paper, Stack, TextFiel
 import { Box } from "@mui/system";
 import CameraAltIcon from '@mui/icons-material/CameraAlt';
 import ClearIcon from '@mui/icons-material/Clear';
-import React, { FC, useCallback, useState } from "react";
+import React, { FC, useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-import { createTodo } from "../../../reducks/todos/operations";
+import { createTodo, showTodo } from "../../../reducks/todos/operations";
 import { PrimaryButton } from "../../atoms/button/PrimaryButton";
 import { RooState } from "../../../reducks/store/store";
+import { useParams } from "react-router-dom";
+import { nowLoadingState } from "../../../reducks/loading/actions";
+import axios from "axios";
+import { pushToast } from "../../../reducks/toasts/actions";
 
-export const NewTodo: FC = () => {
+type Params = {
+  id: string | undefined
+}
+
+export const EditTodo: FC = () => {
   const dispatch = useDispatch()
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
   const [image, setImage] = useState<File>()
   const [preview, setPreview] =useState('')
+  const params: Params = useParams();
+  const id: number = Number(params.id)
   const userId = useSelector((state: RooState) => state.user.id)
-  
+
+  const getTodoInfo = useCallback((id: number) => {
+      dispatch(nowLoadingState(true))
+      axios
+        .get(`http://localhost:8000/api/todos/${id}`,
+        {
+          withCredentials: true,
+          headers:{
+            'Accept': 'application/json',  
+            'Content-Type': 'multipart/form-data'
+          }
+        }
+        ).then((response) => {
+          const todo = response.data
+          console.log(todo)
+          setTitle(todo.title)
+          setContent(todo.content)
+          const imagePath = todo.imagePath? `http://localhost:8000/api/img/${todo.imagePath}` : ''
+          setPreview(imagePath)
+        })
+        .catch((error) => {
+          dispatch(pushToast({title: 'データ取得に失敗しました', severity: "error"}))
+        })
+        .finally(() => {
+          setTimeout(() => {
+            dispatch(nowLoadingState(false));
+          }, 800);
+        });
+  }, [])
+
+  useEffect(() => {
+    getTodoInfo(id)
+  }, [getTodoInfo])
+
   const inputTitle = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     setTitle(event.target.value)
   },[setTitle])
@@ -81,7 +124,7 @@ export const NewTodo: FC = () => {
             }
           }}
         >
-          新規TODO追加
+          TODO編集
         </Box>
         <Divider />
         <Box
@@ -148,7 +191,7 @@ export const NewTodo: FC = () => {
               disabled={title === '' || content === ''}
               onClick={onClickNewTodo}
             >
-              追加
+              更新
             </PrimaryButton>
           </Stack>
         </Box>
@@ -157,4 +200,4 @@ export const NewTodo: FC = () => {
   )
 }
 
-export default NewTodo;
+export default EditTodo;
