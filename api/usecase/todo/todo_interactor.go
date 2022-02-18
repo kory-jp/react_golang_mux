@@ -43,3 +43,14 @@ func (interactor *TodoInteractor) TodoByIdAndUserId(id int, userId int) (todo do
 	}
 	return
 }
+
+func (interactor *TodoInteractor) Change(t domain.Todo) (mess TodoMessage, err error) {
+	err = interactor.TodoRepository.Overwrite(t)
+	if err != nil {
+		log.SetFlags(log.Llongfile)
+		log.Panicln(err)
+		err = errors.New("更新に失敗しました")
+		return
+	}
+	return
+}

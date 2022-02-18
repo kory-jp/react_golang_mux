@@ -111,3 +111,22 @@ func (repo *TodoRepository) FindByIdAndUserId(identifier int, userIdentifier int
 	todo.CreatedAt = created_at
 	return
 }
+
+func (repo *TodoRepository) Overwrite(t domain.Todo) (err error) {
+	_, err = repo.Execute(`
+		update
+			todos
+		set
+			title = ?,
+			content = ?,
+			image_path = ?,
+			isFinished = ?
+		where
+			id = 3
+	`, t.Title, t.Content, t.ImagePath, t.IsFinished)
+	if err != nil {
+		log.SetFlags(log.Llongfile)
+		log.Panicln(err)
+	}
+	return
+}

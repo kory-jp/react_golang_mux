@@ -21,13 +21,14 @@ func Init() {
 	todoController := controllers.NewTodoController(NewSqlHandler())
 	userController := controllers.NewUserController(NewSqlHandler())
 	sessionController := controllers.NewSessionController(NewSqlHandler())
-	r.Methods("POST").Path("/api/new").HandlerFunc(todoController.Create)
-	r.Methods("GET").Path("/api/todos").HandlerFunc(todoController.Index)
-	r.Methods("GET").Path("/api/todos/{id:[0-9]+}").HandlerFunc(todoController.Show)
 	r.Methods("POST").Path("/api/registration").HandlerFunc(userController.Create)
 	r.Methods("POST").Path("/api/login").HandlerFunc(sessionController.Login)
 	r.Methods("GET").Path("/api/authenticate").HandlerFunc(sessionController.Authenticate)
 	r.Methods("DELETE").Path("/api/logout").HandlerFunc(sessionController.Logout)
+	r.Methods("POST").Path("/api/new").HandlerFunc(todoController.Create)
+	r.Methods("GET").Path("/api/todos").HandlerFunc(todoController.Index)
+	r.Methods("GET").Path("/api/todos/{id:[0-9]+}").HandlerFunc(todoController.Show)
+	r.Methods("POST").Path("/api/todos/update/{id:[0-9]+}").HandlerFunc(todoController.Update)
 	// ----- 画像配信URL ---------
 	r.PathPrefix("/api/img/").Handler(http.StripPrefix("/api/img/", http.FileServer(http.Dir("./img/"))))
 	// -----

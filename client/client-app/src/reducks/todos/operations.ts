@@ -88,7 +88,7 @@ export const showTodo = (id: number) => {
 export const updateTodo = (id: number, formdata: FormData) => {
   return async(dispatch: Dispatch<{}>) => {
     axios
-      .post(`http://localhost:8000/api/edit/${id}`,
+      .post(`http://localhost:8000/api/todos/update/${id}`,
       formdata,
       {
         withCredentials: true,
