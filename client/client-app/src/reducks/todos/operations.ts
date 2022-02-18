@@ -84,3 +84,29 @@ export const showTodo = (id: number) => {
       });
   }
 }
+
+export const updateTodo = (id: number, formdata: FormData) => {
+  return async(dispatch: Dispatch<{}>) => {
+    axios
+      .post(`http://localhost:8000/api/edit/${id}`,
+      formdata,
+      {
+        withCredentials: true,
+        headers:{
+          'Accept': 'application/json',  
+          'Content-Type': 'multipart/form-data'
+        }
+      }
+      )
+      .then((response) => {
+        const todo = response.data
+        dispatch(createTodoAction(todo))
+        dispatch(push("/todo"))
+        dispatch(pushToast({title: '更新されました', severity: "success"}))
+      })
+      .catch((error)=> {
+        console.log(error)
+        dispatch(pushToast({title: '更新に失敗しました', severity: "error"}))
+      })
+  }
+}

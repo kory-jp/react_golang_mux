@@ -1,13 +1,16 @@
-import { CardMedia, Container, Grid, imageListItemBarClasses, Paper, Typography } from "@mui/material";
-import { FC, useEffect } from "react";
+import { Button, CardMedia, Container, Grid, Paper, Typography } from "@mui/material";
+import { FC, useCallback, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
+import EditIcon from '@mui/icons-material/Edit';
 
 import LoadingLayout from "../../molecules/loading/LoadingLayout";
 import { RooState } from "../../../reducks/store/store";
 import sample1 from "../../../assets/images/sample1.jpeg"
 import { showTodo } from "../../../reducks/todos/operations";
 import useLoadingState from "../../../hooks/useLoadingState";
+import { Box } from "@mui/system";
+import { push } from "connected-react-router";
 
 type Params = {
   id: string | undefined
@@ -29,6 +32,10 @@ export const ShowTodo: FC = () => {
   )
 
   const imagePath = `http://localhost:8000/api/img/${todo.imagePath}`
+  
+  const onClickToEdit = useCallback(() => {
+    dispatch(push(`/todo/edit/${todo.id}`))
+  }, [todo])
 
   return(
     <>
@@ -69,45 +76,67 @@ export const ShowTodo: FC = () => {
                 </Typography>
               </Paper>
               <Grid 
-                container
-                spacing={3}
-                sx={{
-                  marginTop: {
-                    xs: '20px',
-                    md: '50px'
-                  }
-                }}
-              > 
-                  <Grid item>
-                    <CardMedia
-                      component="img"
-                      src={todo.imagePath? imagePath : sample1}
-                      sx={{
-                        height: {
-                          xs: '200px',
-                          md: '350px'
-                        },
-                        boxShadow: 8
-                      }}
-                    />
-                  </Grid>
-                  <Grid item>
-                    <Typography
-                      variant="h3"
-                      sx={{
-                        fontSize: {
-                          xs: '20px',
-                          md: '35px'
-                        }
-                      }}
-                    >
-                      show momo
-                    </Typography>
-                    <Typography>
-                      {todo.content}
-                    </Typography>
-                  </Grid>
+                container 
+                justifyContent="center"
+                spacing={4}
+                marginTop="20px"
+                marginBottom="20px"
+              >
+                <Grid 
+                  item
+                  xs={12}
+                  sm={4}
+                >
+                  <CardMedia
+                    component="img"
+                    src={todo.imagePath? imagePath : sample1}
+                    sx={{
+                      boxShadow: 8
+                    }}
+                  />
                 </Grid>
+                <Grid
+                  item
+                  xs={12}
+                  sm={8}
+                >
+                  <Typography
+                    variant="h3"
+                    sx={{
+                      fontSize: {
+                        xs: '20px',
+                        md: '35px'
+                      }
+                    }}
+                  >
+                    Memo
+                  </Typography>
+                  <Typography>
+                    {todo.content}
+                  </Typography>
+                </Grid>
+              </Grid>
+              <Paper
+                sx={{
+                  paddingY: {
+                    sx: "10px",
+                    md: "20px"
+                  },
+                  marginY: {
+                    sx: "10px",
+                    sm: "10px",
+                    md: "20px"
+                  },
+                  paddingLeft: "10px"
+                }}
+              >
+                <Button
+                  onClick={onClickToEdit}
+                >
+                  <EditIcon />
+                  Edit
+                </Button>
+              </Paper>
             </Paper>
           </Container>
         )
