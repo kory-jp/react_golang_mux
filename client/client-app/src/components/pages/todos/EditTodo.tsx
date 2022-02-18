@@ -5,7 +5,7 @@ import ClearIcon from '@mui/icons-material/Clear';
 import React, { FC, useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-import { createTodo, showTodo } from "../../../reducks/todos/operations";
+import { updateTodo } from "../../../reducks/todos/operations";
 import { PrimaryButton } from "../../atoms/button/PrimaryButton";
 import { RooState } from "../../../reducks/store/store";
 import { useParams } from "react-router-dom";
@@ -21,6 +21,7 @@ export const EditTodo: FC = () => {
   const dispatch = useDispatch()
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
+  const [imagePath, setImagePath] = useState('')
   const [image, setImage] = useState<File>()
   const [preview, setPreview] =useState('')
   const params: Params = useParams();
@@ -40,9 +41,9 @@ export const EditTodo: FC = () => {
         }
         ).then((response) => {
           const todo = response.data
-          console.log(todo)
           setTitle(todo.title)
           setContent(todo.content)
+          setImagePath(todo.imagePath)
           const imagePath = todo.imagePath? `http://localhost:8000/api/img/${todo.imagePath}` : ''
           setPreview(imagePath)
         })
@@ -81,22 +82,25 @@ export const EditTodo: FC = () => {
 
   const onClickCancelImage = useCallback(() => {
     setImage(undefined)
+    setImagePath('')
     setPreview('')
   }, [])
 
   const createFormData = useCallback(() => {
     const formData = new FormData()
+    formData.append('id', String(id))
     formData.append('user_id', String(userId))
     formData.append('title', title)
     formData.append('content', content)
     if (image) formData.append('image', image)
+    formData.append('imagePath', imagePath)
     return formData
-  }, [userId, title, content, image])
+  }, [userId, title, content, image, imagePath])
 
 
   const formData = createFormData()
-  const onClickNewTodo = useCallback(() => {
-    dispatch(createTodo(formData))
+  const onClickEditTodo = useCallback(() => {
+    dispatch(updateTodo(id, formData))
   }, [formData])
 
   return(
@@ -189,7 +193,7 @@ export const EditTodo: FC = () => {
             }
             <PrimaryButton
               disabled={title === '' || content === ''}
-              onClick={onClickNewTodo}
+              onClick={onClickEditTodo}
             >
               更新
             </PrimaryButton>

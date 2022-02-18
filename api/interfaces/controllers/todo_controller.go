@@ -47,8 +47,6 @@ func (controller *TodoController) Create(w http.ResponseWriter, r *http.Request)
 		fmt.Println("No Image File")
 		// fmt.Fprintln(w, "ファイルアップロードを確認できませんでした。")
 	} else {
-		fmt.Println("Ok! hello")
-		fmt.Printf("%T", file)
 		// 画像を保存するimgディレクトリが存在しない場合は作成する
 		err = os.MkdirAll("./img", os.ModePerm)
 		if err != nil {
@@ -79,7 +77,6 @@ func (controller *TodoController) Create(w http.ResponseWriter, r *http.Request)
 	todoType.Title = r.Form.Get("title")
 	todoType.Content = r.Form.Get("content")
 	todoType.ImagePath = uploadFileName
-	fmt.Println(*todoType)
 
 	mess, err := controller.Interactor.Add(*todoType)
 	if err != nil {
@@ -138,4 +135,70 @@ func (controller *TodoController) Show(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fmt.Fprintln(w, string(jsonTodo))
+}
+
+func (controller *TodoController) Update(w http.ResponseWriter, r *http.Request) {
+	var file multipart.File
+	var fileHeader *multipart.FileHeader
+	var err error
+	var uploadFileName string
+	if file, fileHeader, err = r.FormFile("image"); err != nil {
+		fmt.Println("No Image File by Edit")
+	} else {
+		err = os.MkdirAll("./img", os.ModePerm)
+		if err != nil {
+			fmt.Fprintln(w, "サーバーで障害が発生しました")
+			return
+		}
+		var saveImage *os.File
+		uploadFileName = fmt.Sprintf("%d%s", time.Now().UnixNano(), fileHeader.Filename)
+		saveImage, err = os.Create("./img/" + uploadFileName)
+		if err != nil {
+			fmt.Fprintln(w, "サーバ側でファイル確保できませんでした。")
+			return
+		}
+		defer saveImage.Close()
+		defer file.Close()
+		size, err := io.Copy(saveImage, file)
+		if err != nil {
+			fmt.Println(err)
+			fmt.Println("アップロードしたファイルの書き込みに失敗しました。")
+			os.Exit(1)
+		}
+		fmt.Println("書き込んだByte数=>", size)
+	}
+
+	todoType := new(domain.Todo)
+	todoType.ID, _ = strconv.Atoi(r.Form.Get("id"))
+	todoType.UserID, _ = strconv.Atoi(r.Form.Get("user_id"))
+	todoType.Title = r.Form.Get("title")
+	todoType.Content = r.Form.Get("content")
+	// -------
+
+	if r.Form.Get("imagePath") != "" {
+		if uploadFileName != "" {
+			// 画像変更
+			todoType.ImagePath = uploadFileName
+		} else {
+			// 画像変更無し
+			todoType.ImagePath = r.Form.Get("imagePath")
+		}
+	} else {
+		if uploadFileName != "" {
+			// 画像追加
+			todoType.ImagePath = uploadFileName
+		} else {
+			// 画像無し、削除
+			todoType.ImagePath = ""
+		}
+	}
+
+	// -------
+	mess, err := controller.Interactor.Change(*todoType)
+	if err != nil {
+		fmt.Fprintln(w, err)
+		return
+	}
+
+	fmt.Fprintln(w, mess)
 }
