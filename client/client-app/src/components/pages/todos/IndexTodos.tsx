@@ -9,6 +9,7 @@ import PostCard from "../../organisms/posts/PostCard";
 import { RooState } from "../../../reducks/store/store";
 import { Todos } from "../../../reducks/todos/types";
 import useLoadingState from "../../../hooks/useLoadingState";
+import Toast from "../../molecules/toast/Toast";
 
 export const IndexTodos: FC = () => {
   const dispatch = useDispatch()
@@ -50,6 +51,7 @@ export const IndexTodos: FC = () => {
               </Grid>
             )
           } 
+          <Toast />
         </Box>
        )
      }

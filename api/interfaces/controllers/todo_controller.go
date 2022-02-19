@@ -44,7 +44,7 @@ func (controller *TodoController) Create(w http.ResponseWriter, r *http.Request)
 	var uploadFileName string
 	// POSTされたファイルデータを取得する
 	if file, fileHeader, err = r.FormFile("image"); err != nil {
-		fmt.Println("No Image File")
+		fmt.Println("No Image File", err)
 		// fmt.Fprintln(w, "ファイルアップロードを確認できませんでした。")
 	} else {
 		// 画像を保存するimgディレクトリが存在しない場合は作成する
@@ -143,7 +143,7 @@ func (controller *TodoController) Update(w http.ResponseWriter, r *http.Request)
 	var err error
 	var uploadFileName string
 	if file, fileHeader, err = r.FormFile("image"); err != nil {
-		fmt.Println("No Image File by Edit")
+		fmt.Println("No Image File by Edit", err)
 	} else {
 		err = os.MkdirAll("./img", os.ModePerm)
 		if err != nil {
@@ -194,6 +194,7 @@ func (controller *TodoController) Update(w http.ResponseWriter, r *http.Request)
 	}
 
 	// -------
+	fmt.Println("197", todoType)
 	mess, err := controller.Interactor.Change(*todoType)
 	if err != nil {
 		fmt.Fprintln(w, err)

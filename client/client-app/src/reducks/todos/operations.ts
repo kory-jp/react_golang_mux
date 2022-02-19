@@ -102,7 +102,7 @@ export const updateTodo = (id: number, formdata: FormData) => {
         const todo = response.data
         dispatch(createTodoAction(todo))
         dispatch(push("/todo"))
-        dispatch(pushToast({title: '更新されました', severity: "success"}))
+        dispatch(pushToast({title: '更新しました', severity: "success"}))
       })
       .catch((error)=> {
         console.log(error)
