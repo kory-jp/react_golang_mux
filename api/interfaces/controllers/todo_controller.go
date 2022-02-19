@@ -202,3 +202,37 @@ func (controller *TodoController) Update(w http.ResponseWriter, r *http.Request)
 
 	fmt.Fprintln(w, mess)
 }
+
+func (controller *TodoController) Delete(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		log.SetFlags(log.Llongfile)
+		log.Println(err)
+	}
+	// session, err := store.Get(r, "session")
+	// if err != nil {
+	// 	log.SetFlags(log.Llongfile)
+	// 	log.Println(err)
+	// }
+	// mess, err = controller.Interactor.Remove(id, session.Values["userId"].(int))
+	mess, err := controller.Interactor.Remove(id)
+	if err != nil {
+		log.SetFlags(log.Llongfile)
+		log.Println(err)
+		err := errors.New("データ取得に失敗しました")
+		todosErr := &TodosError{Error: err.Error()}
+		e, _ := json.Marshal(todosErr)
+		fmt.Fprintln(w, string(e))
+	}
+
+	// jsonTodo, err := json.Marshal(todo)
+	// if err != nil {
+	// 	log.SetFlags(log.Llongfile)
+	// 	log.Println(err)
+	// }
+
+	// fmt.Fprintln(w, string(jsonTodo))
+
+	fmt.Fprintln(w, mess)
+}

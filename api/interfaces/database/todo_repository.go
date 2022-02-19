@@ -130,3 +130,17 @@ func (repo *TodoRepository) Overwrite(t domain.Todo) (err error) {
 	}
 	return
 }
+
+func (repo *TodoRepository) Erasure(id int) (err error) {
+	_, err = repo.Execute(`
+		delete from
+			todos
+		where
+			id = ?
+	`, id)
+	if err != nil {
+		log.SetFlags(log.Llongfile)
+		log.Panicln(err)
+	}
+	return
+}

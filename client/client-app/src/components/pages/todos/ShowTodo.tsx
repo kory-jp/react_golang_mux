@@ -3,11 +3,12 @@ import { FC, useCallback, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 import LoadingLayout from "../../molecules/loading/LoadingLayout";
 import { RooState } from "../../../reducks/store/store";
 import sample1 from "../../../assets/images/sample1.jpeg"
-import { showTodo } from "../../../reducks/todos/operations";
+import { deleteTodo, showTodo } from "../../../reducks/todos/operations";
 import useLoadingState from "../../../hooks/useLoadingState";
 import { Box } from "@mui/system";
 import { push } from "connected-react-router";
@@ -34,8 +35,12 @@ export const ShowTodo: FC = () => {
   const imagePath = `http://localhost:8000/api/img/${todo.imagePath}`
   
   const onClickToEdit = useCallback(() => {
-    dispatch(push(`/todo/edit/${todo.id}`))
-  }, [todo])
+    dispatch(push(`/todo/edit/${id}`))
+  }, [id])
+
+  const onClickDelete = useCallback(() => {
+    dispatch(deleteTodo(id))
+  }, [id])
 
   return(
     <>
@@ -135,6 +140,12 @@ export const ShowTodo: FC = () => {
                 >
                   <EditIcon />
                   Edit
+                </Button>
+                <Button
+                  onClick={onClickDelete}
+                >
+                  <DeleteIcon />
+                  Delete
                 </Button>
               </Paper>
             </Paper>

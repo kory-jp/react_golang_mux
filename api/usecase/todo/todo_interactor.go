@@ -54,3 +54,14 @@ func (interactor *TodoInteractor) Change(t domain.Todo) (mess TodoMessage, err e
 	}
 	return
 }
+
+func (interactor *TodoInteractor) Remove(id int) (mess TodoMessage, err error) {
+	err = interactor.TodoRepository.Erasure(id)
+	if err != nil {
+		log.SetFlags(log.Llongfile)
+		log.Panicln(err)
+		err = errors.New("削除に失敗しました")
+		return
+	}
+	return
+}
