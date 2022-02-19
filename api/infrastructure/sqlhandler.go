@@ -53,7 +53,12 @@ func NewSqlHandler() *SqlHandler {
 	cmdT := fmt.Sprintf(`
 		create table if not exists %s (
 			id integer primary key auto_increment,
-			content text
+			user_id integer NOT NULL,
+			title varchar(50) NOT NULL,
+			content text NOT NULL,
+			image_path varchar(100),
+			isFinished boolean NOT NULL,
+			created_at datetime default current_timestamp
 		)`, tableNameTodo)
 	_, errT := conn.Exec(cmdT)
 	if errT != nil {

@@ -10,7 +10,7 @@ type Props = {
 
 const PrimaryInputStyle = styled(Input)((props) => ({
   marginRight: "10px",
-  placeholder: props.placeholder
+  placeholder: props.placeholder,
 }))
 
 export const PrimaryInput = (props: Props) => {

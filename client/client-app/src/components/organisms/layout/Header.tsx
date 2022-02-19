@@ -1,25 +1,11 @@
-import {  Grid, Paper, styled } from "@mui/material";
+import {  Grid, Paper } from "@mui/material";
 import { Box } from "@mui/system";
+import { push } from "connected-react-router";
 import { useCallback, useEffect, VFC } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RooState } from "../../../reducks/store/store";
 import { isLoggedIn, logout } from "../../../reducks/users/opretions";
 import { SecondaryButton } from "../../atoms/button/SecondaryButton";
-
-const HeaderPaper = styled(Paper)({
-  padding: '15px',
-  marginBottom: '10px',
-})
-
-const HeaderTitle = styled(Box)({
-  fontSize: '30px',
-  fontWeight: 'bolder'
-})
-
-const HeaderUserName = styled(Box)({
-  fontSize: "20px",
-  paddingTop: '3px'
-})
 
 export const Header: VFC = () => {
   const dispatch = useDispatch()
@@ -29,26 +15,106 @@ export const Header: VFC = () => {
     dispatch(isLoggedIn())
   },[])
 
+  const onClickToNewTodo = useCallback(() => {
+    dispatch(push("/todo/new"))
+  },[])
+
   const onClickLogout = useCallback(() => {
     dispatch(logout())
   }, [])
 
+  const onClickToTop = useCallback(() => {
+    dispatch(push("/todo"))
+  }, [])
+
   return(
     <>
-      <HeaderPaper square>
-        <Grid container sx={{padding: '10px'}}>
-          <Grid item xs={1} md={2}/>
-          <Grid item xs={5} md={6}>
-            <HeaderTitle>
+      <Paper
+        square
+        sx={{
+          padding: {
+            sm: '10px',
+            md: '20px'
+          },
+          marginBottom: '10px'
+        }}
+      >
+        <Grid 
+          container
+          padding='20px'
+        >
+          <Grid 
+            item
+            md={6}
+            sx={{
+              paddingLeft: {
+                sm: 'noen',
+                md: '10%'
+              }
+            }}
+          >
+            <Box
+              fontWeight='bold'
+              sx={{
+                fontSize: {
+                  sm: '20px',
+                  md: '35px'
+                },
+                '&:hover': {
+                  cursor: 'pointer'
+                }
+              }}
+              onClick={onClickToTop}
+            >
               ToDO
-            </HeaderTitle>
+            </Box>
           </Grid>
-          <Grid item xs={3} md={2}>
-            <HeaderUserName>
+          <Grid 
+            item
+            md={2}
+            sx={{
+              display: {
+                xs: 'none',
+                sm: 'none',
+                md: 'block'
+              }
+            }}
+          >
+            <Box
+              fontSize='20px'
+              paddingTop='10px'
+            >
               {user.name}
-            </HeaderUserName>
+            </Box>
           </Grid>
-          <Grid item xs={3} md={2}>
+          <Grid 
+            item
+            md={2}
+            sx={{
+              display: {
+                xs: 'none',
+                sm: 'none',
+                md: 'block'
+              }
+            }}
+          >
+            <SecondaryButton
+              onClick={onClickToNewTodo}
+            >
+              Todo追加
+            </SecondaryButton>
+          </Grid>
+          <Grid 
+            item
+            md={2}
+            sx={{
+              display: {
+                xs: 'none',
+                sm: 'none',
+                md: 'block'
+              }
+            }}
+          >
             <SecondaryButton
               onClick={onClickLogout}
             >
@@ -56,7 +122,7 @@ export const Header: VFC = () => {
             </SecondaryButton>
           </Grid>
         </Grid>
-      </HeaderPaper>
+      </Paper>
     </>
   )
 }
