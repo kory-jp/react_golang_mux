@@ -32,7 +32,7 @@ mysql/initdb.d
 api/apiapp.log
 api/vendor
 api/env/
-api/tmp/
+api/tmp/main
 api/img/
 
 
