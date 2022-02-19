@@ -110,3 +110,25 @@ export const updateTodo = (id: number, formdata: FormData) => {
       })
   }
 }
+
+export const deleteTodo = (id: number) => {
+  return async(dispatch: Dispatch<{}>) => {
+    axios
+      .delete(`http://localhost:8000/api/todos/delete/${id}`,
+        {
+          withCredentials: true,
+          headers:{
+            'Accept': 'application/json',  
+            'Content-Type': 'multipart/form-data'
+          }
+        }
+      ).then((response) => {
+        dispatch(push("/todo"))
+        dispatch(pushToast({title: '削除しました', severity: "success"}))
+      })
+      .catch((error)=> {
+        console.log(error)
+        dispatch(pushToast({title: '削除に失敗しました', severity: "error"}))
+      })
+  }
+}

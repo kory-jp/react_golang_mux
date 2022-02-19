@@ -29,6 +29,7 @@ func Init() {
 	r.Methods("GET").Path("/api/todos").HandlerFunc(todoController.Index)
 	r.Methods("GET").Path("/api/todos/{id:[0-9]+}").HandlerFunc(todoController.Show)
 	r.Methods("POST").Path("/api/todos/update/{id:[0-9]+}").HandlerFunc(todoController.Update)
+	r.Methods("DELETE").Path("/api/todos/delete/{id:[0-9]+}").HandlerFunc(todoController.Delete)
 	// ----- 画像配信URL ---------
 	r.PathPrefix("/api/img/").Handler(http.StripPrefix("/api/img/", http.FileServer(http.Dir("./img/"))))
 	// -----

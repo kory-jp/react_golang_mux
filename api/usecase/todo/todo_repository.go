@@ -7,4 +7,5 @@ type TodoRepository interface {
 	FindByUserId(int) (domain.Todos, error)
 	FindByIdAndUserId(int, int) (domain.Todo, error)
 	Overwrite(domain.Todo) error
+	Erasure(int) error
 }
