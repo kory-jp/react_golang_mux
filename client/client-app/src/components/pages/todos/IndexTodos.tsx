@@ -43,7 +43,13 @@ export const IndexTodos: FC = () => {
               <Grid container rowSpacing={1} columnSpacing={{xs: 1, sm: 2, md: 3}} paddingX={2}>
                 {
                   todos.map(todo => (
-                    <Grid item key={todo.id}> 
+                    <Grid 
+                      item 
+                      key={todo.id}
+                      xs={12}
+                      sm={6}
+                      md={3}
+                    > 
                       <PostCard todo={todo}/>
                     </Grid>
                   ))
