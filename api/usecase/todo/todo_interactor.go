@@ -16,12 +16,14 @@ type TodoMessage struct {
 }
 
 func (interactor *TodoInteractor) Add(t domain.Todo) (mess TodoMessage, err error) {
-	err = interactor.TodoRepository.Store(t)
-	if err != nil {
-		log.SetFlags(log.Llongfile)
-		log.Panicln(err)
-		err = errors.New("保存に失敗しました")
-		return
+	if err = t.TodoValidate(); err == nil {
+		err = interactor.TodoRepository.Store(t)
+		if err != nil {
+			log.SetFlags(log.Llongfile)
+			log.Panicln(err)
+			err = errors.New("保存に失敗しました")
+			return
+		}
 	}
 	mess.Message = "保存しました"
 	return

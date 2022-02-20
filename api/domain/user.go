@@ -10,8 +10,10 @@ import (
 )
 
 type User struct {
-	ID        int       `json:"id"`
-	Name      string    `json:"name" validate:"required,gte=2,lt=20"`
+	ID   int    `json:"id"`
+	Name string `json:"name" validate:"required,gte=2,lt=20"`
+	// メールはユーザー識別のたユニークである必要があるが,vaildatorのuniqueは配列の中において重複するvalueをvaliationをするもの
+	// データベース上のuniqueを判断するためにMySQLにおいてエラー判断をさせ、controller上でエラー文を変換している
 	Email     string    `json:"email" validate:"required,email"`
 	Password  string    `json:"password" validate:"required,gte=5,lt=20"`
 	CreatedAt time.Time `json:"createdAt"`
@@ -24,7 +26,7 @@ func (u User) Encrypt(plaintext string) (cryptext string) {
 	return cryptext
 }
 
-func traslateField(field string) (value string) {
+func traslateUsersField(field string) (value string) {
 	switch field {
 	case "Name":
 		value = "名前"
@@ -36,13 +38,13 @@ func traslateField(field string) (value string) {
 	return
 }
 
-func UserValidate(user *User) (err error) {
+func (user *User) UserValidate() (err error) {
 	validate := validator.New()
 	err = validate.Struct(user)
 
 	if err != nil {
 		for _, err := range err.(validator.ValidationErrors) {
-			value := traslateField(err.Field())
+			value := traslateUsersField(err.Field())
 			switch err.ActualTag() {
 			case "required":
 				return fmt.Errorf("%sは必須です。", value)

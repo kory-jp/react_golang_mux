@@ -192,7 +192,7 @@ export const EditTodo: FC = () => {
               </Box> : null
             }
             <PrimaryButton
-              disabled={title === '' || content === ''}
+              disabled={title === ''}
               onClick={onClickEditTodo}
             >
               更新
