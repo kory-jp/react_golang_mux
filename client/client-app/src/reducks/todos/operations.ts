@@ -19,10 +19,13 @@ export const createTodo = (formdata: FormData) => {
       }
       )
       .then((response) => {
-        const todo = response.data
-        dispatch(createTodoAction(todo))
-        dispatch(push("/todo"))
-        dispatch(pushToast({title: '保存しました', severity: "success"}))
+        const mess = response.data.Message
+        if (mess != null) {
+          dispatch(push("/todo"))
+          dispatch(pushToast({title: mess, severity: "success"}))
+        } else {
+          dispatch(pushToast({title: '保存に失敗しました', severity: "error"}))
+        }
       })
       .catch((error)=> {
         console.log(error)
@@ -95,14 +98,17 @@ export const updateTodo = (id: number, formdata: FormData) => {
         headers:{
           'Accept': 'application/json',  
           'Content-Type': 'multipart/form-data'
-        }
+        } 
       }
       )
       .then((response) => {
-        const todo = response.data
-        dispatch(createTodoAction(todo))
-        dispatch(push("/todo"))
-        dispatch(pushToast({title: '更新しました', severity: "success"}))
+        const mess = response.data.Message
+        if (mess != null) {
+          dispatch(push("/todo"))
+          dispatch(pushToast({title: mess, severity: "success"}))
+        } else {
+          dispatch(pushToast({title: '更新に失敗しました', severity: "error"}))
+        }
       })
       .catch((error)=> {
         console.log(error)
@@ -123,8 +129,13 @@ export const deleteTodo = (id: number) => {
           }
         }
       ).then((response) => {
-        dispatch(push("/todo"))
-        dispatch(pushToast({title: '削除しました', severity: "success"}))
+        const mess = response.data.Message
+        if (mess != null) {
+          dispatch(push("/todo"))
+          dispatch(pushToast({title: mess, severity: "success"}))
+        } else {
+          dispatch(pushToast({title: '削除に失敗しました', severity: "error"}))
+        }
       })
       .catch((error)=> {
         console.log(error)

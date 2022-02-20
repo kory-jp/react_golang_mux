@@ -23,6 +23,7 @@ func (interactor *TodoInteractor) Add(t domain.Todo) (mess TodoMessage, err erro
 		err = errors.New("保存に失敗しました")
 		return
 	}
+	mess.Message = "保存しました"
 	return
 }
 
@@ -52,6 +53,7 @@ func (interactor *TodoInteractor) Change(t domain.Todo) (mess TodoMessage, err e
 		err = errors.New("更新に失敗しました")
 		return
 	}
+	mess.Message = "更新しました"
 	return
 }
 
@@ -63,5 +65,6 @@ func (interactor *TodoInteractor) Remove(id int) (mess TodoMessage, err error) {
 		err = errors.New("削除に失敗しました")
 		return
 	}
+	mess.Message = "削除しました"
 	return
 }

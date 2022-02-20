@@ -21,17 +21,16 @@ export const PostCard: VFC<Props> = (props) => {
 
   return(
     <>
-      <Card
-        sx={{
-          maxWidth: '345px',
-          minWidth: '225.555px'
-        }}
-      >
+      <Card>
         <CardMedia 
           component="img"
-          height="140"
+          // height="180"
           image={todo.imagePath? imagePath : sample1}
           sx={{
+            height : {
+              sx: "120px",
+              md: "200px"
+            },
             '&:hover': {
               cursor: 'pointer'
             }

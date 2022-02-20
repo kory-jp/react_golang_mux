@@ -42,7 +42,6 @@ func (controller *TodoController) Create(w http.ResponseWriter, r *http.Request)
 	var fileHeader *multipart.FileHeader
 	var err error
 	var uploadFileName string
-	// POSTされたファイルデータを取得する
 	if file, fileHeader, err = r.FormFile("image"); err != nil {
 		fmt.Println("No Image File", err)
 		// fmt.Fprintln(w, "ファイルアップロードを確認できませんでした。")
@@ -84,7 +83,12 @@ func (controller *TodoController) Create(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	fmt.Fprintln(w, mess)
+	jsonMess, err := json.Marshal(mess)
+	if err != nil {
+		log.SetFlags(log.Llongfile)
+		log.Println(err)
+	}
+	fmt.Fprintln(w, string(jsonMess))
 }
 
 func (controller *TodoController) Index(w http.ResponseWriter, r *http.Request) {
@@ -194,14 +198,18 @@ func (controller *TodoController) Update(w http.ResponseWriter, r *http.Request)
 	}
 
 	// -------
-	fmt.Println("197", todoType)
 	mess, err := controller.Interactor.Change(*todoType)
 	if err != nil {
 		fmt.Fprintln(w, err)
 		return
 	}
 
-	fmt.Fprintln(w, mess)
+	jsonMess, err := json.Marshal(mess)
+	if err != nil {
+		log.SetFlags(log.Llongfile)
+		log.Println(err)
+	}
+	fmt.Fprintln(w, string(jsonMess))
 }
 
 func (controller *TodoController) Delete(w http.ResponseWriter, r *http.Request) {
@@ -211,29 +219,17 @@ func (controller *TodoController) Delete(w http.ResponseWriter, r *http.Request)
 		log.SetFlags(log.Llongfile)
 		log.Println(err)
 	}
-	// session, err := store.Get(r, "session")
-	// if err != nil {
-	// 	log.SetFlags(log.Llongfile)
-	// 	log.Println(err)
-	// }
-	// mess, err = controller.Interactor.Remove(id, session.Values["userId"].(int))
+
 	mess, err := controller.Interactor.Remove(id)
+	if err != nil {
+		fmt.Fprintln(w, err)
+		return
+	}
+
+	jsonMess, err := json.Marshal(mess)
 	if err != nil {
 		log.SetFlags(log.Llongfile)
 		log.Println(err)
-		err := errors.New("データ取得に失敗しました")
-		todosErr := &TodosError{Error: err.Error()}
-		e, _ := json.Marshal(todosErr)
-		fmt.Fprintln(w, string(e))
 	}
-
-	// jsonTodo, err := json.Marshal(todo)
-	// if err != nil {
-	// 	log.SetFlags(log.Llongfile)
-	// 	log.Println(err)
-	// }
-
-	// fmt.Fprintln(w, string(jsonTodo))
-
-	fmt.Fprintln(w, mess)
+	fmt.Fprintln(w, string(jsonMess))
 }
