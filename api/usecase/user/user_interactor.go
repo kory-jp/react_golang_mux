@@ -11,9 +11,7 @@ type UserInteractor struct {
 }
 
 func (interactor *UserInteractor) Add(u domain.User) (user domain.User, err error) {
-	if err = domain.UserValidate(&u); err != nil {
-		log.Println(err)
-	} else {
+	if err = u.UserValidate(); err == nil {
 		identifier, validErr := interactor.UserRepository.Store(u)
 		err = validErr
 		if err != nil {

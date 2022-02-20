@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { RooState } from "../../../reducks/store/store";
 import { isLoggedIn, logout } from "../../../reducks/users/opretions";
 import { SecondaryButton } from "../../atoms/button/SecondaryButton";
+import Toast from "../../molecules/toast/Toast";
 
 export const Header: VFC = () => {
   const dispatch = useDispatch()
@@ -123,6 +124,7 @@ export const Header: VFC = () => {
           </Grid>
         </Grid>
       </Paper>
+      <Toast />
     </>
   )
 }

@@ -145,7 +145,7 @@ export const NewTodo: FC = () => {
               </Box> : null
             }
             <PrimaryButton
-              disabled={title === '' || content === ''}
+              disabled={title === ''}
               onClick={onClickNewTodo}
             >
               追加
