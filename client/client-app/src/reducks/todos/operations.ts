@@ -34,11 +34,12 @@ export const createTodo = (formdata: FormData) => {
   }
 }
 
-export const indexTodos = () => {
+export const indexTodos = (setSumPage: React.Dispatch<React.SetStateAction<number>>, queryPage: number) => {
   return async(dispatch: Dispatch<{}>) => {
     dispatch(nowLoadingState(true))
     axios
       .get("http://localhost:8000/api/todos",
+      // .get("http://localhost:8000/api/todos/?page=${queryPage}",
       {
         withCredentials: true,
         headers:{
@@ -49,6 +50,7 @@ export const indexTodos = () => {
       ).then((response) => {
         const todos = response.data
         dispatch(indexTodosAction(todos))
+        // setSumPage(response.data.page_length)
       })
       .catch((error) => {
         dispatch(pushToast({title: 'データ取得に失敗しました', severity: "error"}))
