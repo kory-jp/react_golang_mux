@@ -23,8 +23,10 @@ yarn-debug.log*
 yarn-error.log*
 
 
+# mysql
 mysql/mysql_data
 mysql/initdb.d
+mysql/logs
 
 
 ## api
@@ -33,6 +35,7 @@ api/apiapp.log
 api/vendor
 api/env/
 api/tmp/main
+api/tmp/air.log
 api/img/
 
 

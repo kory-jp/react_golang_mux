@@ -1,7 +1,8 @@
 # react_golang_mux
 
-mux を利用して react と golang の通信、cors 設定
-docker を利用しての環境構築
+## 概要
+
+フレームワークを利用しない golang,Typescript を利用した Redux 開発の練習のための TODO 開発
 
 ## 環境構築
 
@@ -66,8 +67,14 @@ docker exec -it react_container /bin/sh
 docker exec -it mysql_container /bin/sh
 ```
 
+## 各種ログ確認
+
 golang のログを確認
 
 ```
 docker logs go_container
 ```
+
+MySQL のクエリを確認
+
+`/mysql/lgos/mysqld.log`

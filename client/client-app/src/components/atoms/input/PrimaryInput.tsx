@@ -1,4 +1,5 @@
 import { Input, styled } from "@mui/material"
+import { FC } from "react"
 
 type Props = {
   placeholder: string
@@ -13,7 +14,7 @@ const PrimaryInputStyle = styled(Input)((props) => ({
   placeholder: props.placeholder,
 }))
 
-export const PrimaryInput = (props: Props) => {
+export const PrimaryInput: FC<Props> = (props: Props) => {
   return(
     <PrimaryInputStyle 
       placeholder={props.placeholder}

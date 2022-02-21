@@ -1,14 +1,14 @@
+import { Grid } from "@mui/material";
 import { Box } from "@mui/system";
 import { FC, useEffect } from "react";
-import { Grid } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 
-import { indexTodos } from "../../../reducks/todos/operations";
-import LoadingLayout from "../../molecules/loading/LoadingLayout";
 import PostCard from "../../organisms/posts/PostCard";
-import { RooState } from "../../../reducks/store/store";
-import { Todos } from "../../../reducks/todos/types";
 import useLoadingState from "../../../hooks/useLoadingState";
+import LoadingLayout from "../../molecules/loading/LoadingLayout";
+import { RooState } from "../../../reducks/store/store";
+import { indexTodos } from "../../../reducks/todos/operations";
+import { Todos } from "../../../reducks/todos/types";
 
 export const IndexTodos: FC = () => {
   const dispatch = useDispatch()
@@ -42,7 +42,13 @@ export const IndexTodos: FC = () => {
               <Grid container rowSpacing={1} columnSpacing={{xs: 1, sm: 2, md: 3}} paddingX={2}>
                 {
                   todos.map(todo => (
-                    <Grid item key={todo.id}> 
+                    <Grid 
+                      item 
+                      key={todo.id}
+                      xs={12}
+                      sm={6}
+                      md={3}
+                    > 
                       <PostCard todo={todo}/>
                     </Grid>
                   ))

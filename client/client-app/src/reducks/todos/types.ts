@@ -27,14 +27,9 @@ export type Todos = [
 ]
 
 
-interface createTodoAction extends Action {
-  type: typeof ActionTypes.createTodo;
-  payload: Todos;
-}
-
 interface indexTodosAction extends Action {
   type: typeof ActionTypes.indexTodos;
   payload: Todos;
 }
 
-export type TodosActionTypes = createTodoAction | indexTodosAction;
+export type TodosActionTypes = indexTodosAction;

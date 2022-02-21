@@ -1,13 +1,15 @@
+import { push } from "connected-react-router";
 import {  Grid, Paper } from "@mui/material";
 import { Box } from "@mui/system";
-import { push } from "connected-react-router";
-import { useCallback, useEffect, VFC } from "react";
+import { FC, useCallback, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
+
+import { PrimaryButton } from "../../atoms/button/PrimaryButton";
+import Toast from "../../molecules/toast/Toast";
 import { RooState } from "../../../reducks/store/store";
 import { isLoggedIn, logout } from "../../../reducks/users/opretions";
-import { SecondaryButton } from "../../atoms/button/SecondaryButton";
 
-export const Header: VFC = () => {
+export const Header: FC = () => {
   const dispatch = useDispatch()
   const user = useSelector((state: RooState) => state.user)
 
@@ -98,11 +100,11 @@ export const Header: VFC = () => {
               }
             }}
           >
-            <SecondaryButton
+            <PrimaryButton
               onClick={onClickToNewTodo}
             >
               Todo追加
-            </SecondaryButton>
+            </PrimaryButton>
           </Grid>
           <Grid 
             item
@@ -115,14 +117,15 @@ export const Header: VFC = () => {
               }
             }}
           >
-            <SecondaryButton
+            <PrimaryButton
               onClick={onClickLogout}
             >
               ログアウト
-            </SecondaryButton>
+            </PrimaryButton>
           </Grid>
         </Grid>
       </Paper>
+      <Toast />
     </>
   )
 }

@@ -16,13 +16,16 @@ type TodoMessage struct {
 }
 
 func (interactor *TodoInteractor) Add(t domain.Todo) (mess TodoMessage, err error) {
-	err = interactor.TodoRepository.Store(t)
-	if err != nil {
-		log.SetFlags(log.Llongfile)
-		log.Panicln(err)
-		err = errors.New("保存に失敗しました")
-		return
+	if err = t.TodoValidate(); err == nil {
+		err = interactor.TodoRepository.Store(t)
+		if err != nil {
+			log.SetFlags(log.Llongfile)
+			log.Panicln(err)
+			err = errors.New("保存に失敗しました")
+			return
+		}
 	}
+	mess.Message = "保存しました"
 	return
 }
 
@@ -45,13 +48,16 @@ func (interactor *TodoInteractor) TodoByIdAndUserId(id int, userId int) (todo do
 }
 
 func (interactor *TodoInteractor) Change(t domain.Todo) (mess TodoMessage, err error) {
-	err = interactor.TodoRepository.Overwrite(t)
-	if err != nil {
-		log.SetFlags(log.Llongfile)
-		log.Panicln(err)
-		err = errors.New("更新に失敗しました")
-		return
+	if err = t.TodoValidate(); err == nil {
+		err = interactor.TodoRepository.Overwrite(t)
+		if err != nil {
+			log.SetFlags(log.Llongfile)
+			log.Panicln(err)
+			err = errors.New("更新に失敗しました")
+			return
+		}
 	}
+	mess.Message = "更新しました"
 	return
 }
 
@@ -63,5 +69,6 @@ func (interactor *TodoInteractor) Remove(id int) (mess TodoMessage, err error) {
 		err = errors.New("削除に失敗しました")
 		return
 	}
+	mess.Message = "削除しました"
 	return
 }
