@@ -1,17 +1,17 @@
+import axios from "axios";
+import ClearIcon from '@mui/icons-material/Clear';
+import CameraAltIcon from '@mui/icons-material/CameraAlt';
 import { Button, Divider, FormControl, Input, InputLabel, Paper, Stack, TextField} from "@mui/material";
 import { Box } from "@mui/system";
-import CameraAltIcon from '@mui/icons-material/CameraAlt';
-import ClearIcon from '@mui/icons-material/Clear';
 import React, { FC, useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-
-import { updateTodo } from "../../../reducks/todos/operations";
-import { PrimaryButton } from "../../atoms/button/PrimaryButton";
-import { RooState } from "../../../reducks/store/store";
 import { useParams } from "react-router-dom";
+
+import { PrimaryButton } from "../../atoms/button/PrimaryButton";
 import { nowLoadingState } from "../../../reducks/loading/actions";
-import axios from "axios";
+import { RooState } from "../../../reducks/store/store";
 import { pushToast } from "../../../reducks/toasts/actions";
+import { updateTodo } from "../../../reducks/todos/operations";
 
 type Params = {
   id: string | undefined

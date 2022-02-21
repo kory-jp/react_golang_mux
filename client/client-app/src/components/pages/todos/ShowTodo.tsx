@@ -1,17 +1,16 @@
+import { push } from "connected-react-router";
+import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
 import { Button, CardMedia, Container, Grid, Paper, Typography } from "@mui/material";
 import { FC, useCallback, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
 
+import sample1 from "../../../assets/images/sample1.jpeg"
 import LoadingLayout from "../../molecules/loading/LoadingLayout";
 import { RooState } from "../../../reducks/store/store";
-import sample1 from "../../../assets/images/sample1.jpeg"
 import { deleteTodo, showTodo } from "../../../reducks/todos/operations";
 import useLoadingState from "../../../hooks/useLoadingState";
-import { Box } from "@mui/system";
-import { push } from "connected-react-router";
 
 type Params = {
   id: string | undefined

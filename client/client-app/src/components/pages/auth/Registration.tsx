@@ -1,13 +1,14 @@
-import { Box, Link, Typography } from "@mui/material";
 import { push } from "connected-react-router";
-import React, { useCallback, useEffect, useState } from "react";
+import { Box, Link, Typography } from "@mui/material";
+import React, { FC, useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { isLoggedOut, saveUserInfo } from "../../../reducks/users/opretions";
+
 import { PrimaryButton } from "../../atoms/button/PrimaryButton";
 import { PrimaryInput } from "../../atoms/input/PrimaryInput";
 import Toast from  "../../molecules/toast/Toast";
+import { isLoggedOut, saveUserInfo } from "../../../reducks/users/opretions";
 
-export const Registration = () => {
+export const Registration: FC = () => {
   const dispatch = useDispatch()
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')

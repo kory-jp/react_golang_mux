@@ -3,7 +3,7 @@ import { push } from "connected-react-router";
 import { Dispatch } from "react";
 import { nowLoadingState } from "../loading/actions";
 import { pushToast } from "../toasts/actions";
-import { createTodoAction, indexTodosAction } from "./actions";
+import { indexTodosAction } from "./actions";
 
 export const createTodo = (formdata: FormData) => {
   return async(dispatch: Dispatch<{}>) => {

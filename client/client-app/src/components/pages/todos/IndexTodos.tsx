@@ -1,15 +1,14 @@
+import { Grid } from "@mui/material";
 import { Box } from "@mui/system";
 import { FC, useEffect } from "react";
-import { Grid } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 
-import { indexTodos } from "../../../reducks/todos/operations";
-import LoadingLayout from "../../molecules/loading/LoadingLayout";
 import PostCard from "../../organisms/posts/PostCard";
-import { RooState } from "../../../reducks/store/store";
-import { Todos } from "../../../reducks/todos/types";
 import useLoadingState from "../../../hooks/useLoadingState";
-import Toast from "../../molecules/toast/Toast";
+import LoadingLayout from "../../molecules/loading/LoadingLayout";
+import { RooState } from "../../../reducks/store/store";
+import { indexTodos } from "../../../reducks/todos/operations";
+import { Todos } from "../../../reducks/todos/types";
 
 export const IndexTodos: FC = () => {
   const dispatch = useDispatch()
@@ -57,7 +56,6 @@ export const IndexTodos: FC = () => {
               </Grid>
             )
           } 
-          {/* <Toast /> */}
         </Box>
        )
      }
