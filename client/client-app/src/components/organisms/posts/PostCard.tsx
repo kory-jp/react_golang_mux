@@ -1,6 +1,6 @@
-import { Button, Card, CardActions, CardContent, CardMedia, Typography } from "@mui/material";
 import { push } from "connected-react-router";
-import { useCallback, VFC } from "react";
+import { Button, Card, CardActions, CardContent, CardMedia, Typography } from "@mui/material";
+import { FC, useCallback } from "react";
 import { useDispatch } from "react-redux";
 
 import sample1 from "../../../assets/images/sample1.jpeg"
@@ -10,7 +10,7 @@ type Props = {
   todo: Todo,
 }
 
-export const PostCard: VFC<Props> = (props) => {
+export const PostCard: FC<Props> = (props) => {
   const {todo} = props;
   const dispatch = useDispatch()
   const imagePath = `http://localhost:8000/api/img/${todo.imagePath}`

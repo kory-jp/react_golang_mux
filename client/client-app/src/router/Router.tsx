@@ -1,14 +1,15 @@
-import { VFC } from "react";
-import Registration from "../components/pages/auth/Registration";
+import { FC } from "react";
 import { Route, Switch } from 'react-router-dom';
-import DefaultTemplate from "../components/template/DefaultTemplate";
-import NewTodo from "../components/pages/todos/NewTodo";
-import IndexTodos from "../components/pages/todos/IndexTodos";
-import Login from "../components/pages/auth/Login";
-import ShowTodo from "../components/pages/todos/ShowTodo";
-import EditTodo from "../components/pages/todos/EditTodo";
 
-export const Router: VFC = () => {
+import Login from "../components/pages/auth/Login";
+import Registration from "../components/pages/auth/Registration";
+import EditTodo from "../components/pages/todos/EditTodo";
+import IndexTodos from "../components/pages/todos/IndexTodos";
+import NewTodo from "../components/pages/todos/NewTodo";
+import ShowTodo from "../components/pages/todos/ShowTodo";
+import DefaultTemplate from "../components/template/DefaultTemplate";
+
+export const Router: FC = () => {
   return(
     <Switch>
       <Route exact path={"/"} component={Login}/>

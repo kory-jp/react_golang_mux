@@ -16,9 +16,10 @@ const PrimaryButtonStyle = styled(Button)({
 type Props = {
   children: string
   onClick: () => void
-  disabled: boolean
+  disabled?: boolean
 }
 
+// 暫定的な{children}を含む型指定VFC
 export const PrimaryButton: VFC<Props> = (props) => {
   const {children, onClick} = props;
   return(
