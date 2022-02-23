@@ -29,8 +29,8 @@ func (interactor *TodoInteractor) Add(t domain.Todo) (mess TodoMessage, err erro
 	return
 }
 
-func (interactor *TodoInteractor) Todos(id int) (todos domain.Todos, err error) {
-	todos, err = interactor.TodoRepository.FindByUserId(id)
+func (interactor *TodoInteractor) Todos(id int, page int) (todos domain.Todos, sumPage float64, err error) {
+	todos, sumPage, err = interactor.TodoRepository.FindByUserId(id, page)
 	if err != nil {
 		log.SetFlags(log.Llongfile)
 		log.Println(err)

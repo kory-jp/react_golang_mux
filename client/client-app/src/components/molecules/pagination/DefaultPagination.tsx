@@ -12,7 +12,11 @@ type Props = {
 export const DefaultPagination: FC<Props> = (props) => {
   const {count, onChange, page} = props
   return(
-    <Box>
+    <Box
+      marginTop="30px"
+      display="flex"
+      justifyContent="space-around"
+    >
       <Pagination 
         count={count}
         onChange={onChange}
