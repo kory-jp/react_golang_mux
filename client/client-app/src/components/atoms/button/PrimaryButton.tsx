@@ -1,4 +1,4 @@
-import { VFC } from "react";
+import { ReactNode, VFC } from "react";
 import { Button, styled } from "@mui/material";
 
 const PrimaryButtonStyle = styled(Button)({
@@ -14,7 +14,7 @@ const PrimaryButtonStyle = styled(Button)({
 })
 
 type Props = {
-  children: string
+  children: ReactNode
   onClick: () => void
   disabled?: boolean
 }

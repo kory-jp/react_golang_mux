@@ -1,17 +1,22 @@
 import { push } from "connected-react-router";
-import {  Grid, Paper } from "@mui/material";
+import {  Button, Divider, Drawer, Grid, Paper } from "@mui/material";
 import { Box } from "@mui/system";
-import { FC, useCallback, useEffect } from "react";
+import { FC, useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import MenuIcon from '@mui/icons-material/Menu';
+import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutline';
+import LogoutIcon from '@mui/icons-material/Logout';
 
 import { PrimaryButton } from "../../atoms/button/PrimaryButton";
 import Toast from "../../molecules/toast/Toast";
 import { RooState } from "../../../reducks/store/store";
 import { isLoggedIn, logout } from "../../../reducks/users/opretions";
+import DefautlDrawer from "../../molecules/drawer/DefaultDrawer";
 
 export const Header: FC = () => {
   const dispatch = useDispatch()
   const user = useSelector((state: RooState) => state.user)
+  const [open ,setOpen] = useState(false)
 
   useEffect(() => {
     dispatch(isLoggedIn())
@@ -19,6 +24,7 @@ export const Header: FC = () => {
 
   const onClickToNewTodo = useCallback(() => {
     dispatch(push("/todo/new"))
+    setOpen(false)
   },[])
 
   const onClickLogout = useCallback(() => {
@@ -27,6 +33,14 @@ export const Header: FC = () => {
 
   const onClickToTop = useCallback(() => {
     dispatch(push("/todo"))
+  }, [])
+
+  const onClickOpenDrawer = useCallback(() => {
+    setOpen(true)
+  }, [])
+
+  const onClickCloseDrawer = useCallback(() => {
+    setOpen(false)
   }, [])
 
   return(
@@ -50,7 +64,7 @@ export const Header: FC = () => {
             md={6}
             sx={{
               paddingLeft: {
-                sm: 'noen',
+                sm: 'none',
                 md: '10%'
               }
             }}
@@ -103,6 +117,7 @@ export const Header: FC = () => {
             <PrimaryButton
               onClick={onClickToNewTodo}
             >
+              <DriveFileRenameOutlineIcon />
               Todo追加
             </PrimaryButton>
           </Grid>
@@ -120,12 +135,36 @@ export const Header: FC = () => {
             <PrimaryButton
               onClick={onClickLogout}
             >
+              <LogoutIcon />
               ログアウト
             </PrimaryButton>
+          </Grid>
+          <Grid
+            sx={{
+              display: {
+                xs: 'block',
+                sm: 'block',
+                md: 'none'
+              }
+            }}
+            marginLeft="auto"
+          >
+            <Button
+              onClick={onClickOpenDrawer}
+            >
+              <MenuIcon />
+            </Button>
           </Grid>
         </Grid>
       </Paper>
       <Toast />
+      <DefautlDrawer 
+        open={open}
+        user={user}
+        onClickCloseDrawer={onClickCloseDrawer}
+        onClickToNewTodo={onClickToNewTodo}
+        onClickLogout={onClickLogout}
+      />
     </>
   )
 }
