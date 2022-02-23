@@ -38,8 +38,7 @@ export const indexTodos = (setSumPage: React.Dispatch<React.SetStateAction<numbe
   return async(dispatch: Dispatch<{}>) => {
     dispatch(nowLoadingState(true))
     axios
-      .get("http://localhost:8000/api/todos",
-      // .get("http://localhost:8000/api/todos/?page=${queryPage}",
+      .get(`http://localhost:8000/api/todos?page=${queryPage}`,
       {
         withCredentials: true,
         headers:{
@@ -48,9 +47,8 @@ export const indexTodos = (setSumPage: React.Dispatch<React.SetStateAction<numbe
         }
       }
       ).then((response) => {
-        const todos = response.data
-        dispatch(indexTodosAction(todos))
-        // setSumPage(response.data.page_length)
+        dispatch(indexTodosAction(response.data.todos))
+        setSumPage(Number(response.data.sumPage))
       })
       .catch((error) => {
         dispatch(pushToast({title: 'データ取得に失敗しました', severity: "error"}))

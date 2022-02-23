@@ -3,6 +3,7 @@ package database
 import (
 	"fmt"
 	"log"
+	"math"
 	"time"
 
 	"github.com/kory-jp/react_golang_mux/api/domain"
@@ -32,7 +33,42 @@ func (repo *TodoRepository) Store(t domain.Todo) (err error) {
 	return
 }
 
-func (repo *TodoRepository) FindByUserId(identifier int) (todos domain.Todos, err error) {
+func (repo *TodoRepository) FindByUserId(identifier int, page int) (todos domain.Todos, sumPage float64, err error) {
+
+	// ---
+	fmt.Println("repo", page)
+	// 投稿されたTodoデータ総数を取得
+	var allTodosCount float64
+	row, err := repo.Query(`
+		select count(*) from 
+			todos 
+		where 
+			user_id = ?
+	`, identifier)
+	if err != nil {
+		log.SetFlags(log.Llongfile)
+		log.Panicln(err)
+	}
+	defer row.Close()
+
+	for row.Next() {
+		err = row.Scan(&allTodosCount)
+		if err != nil {
+			log.SetFlags(log.Llongfile)
+			log.Panicln(err)
+		}
+	}
+	row.Close()
+	// データ総数を1ページに表示したい件数を割り、ページ総数を算出
+	sumPage = math.Ceil(allTodosCount / 5)
+	// ---
+
+	var offsetNum int
+	if page == 1 {
+		offsetNum = 0
+	} else {
+		offsetNum = (page - 1) * 5
+	}
 	rows, err := repo.Query(`
 		select
 			*
@@ -40,7 +76,11 @@ func (repo *TodoRepository) FindByUserId(identifier int) (todos domain.Todos, er
 			todos
 		where
 			user_id = ?
-	`, identifier)
+		order by 
+			id desc
+		limit 5
+		offset ?
+	`, identifier, offsetNum)
 	if err != nil {
 		log.SetFlags(log.Llongfile)
 		log.Panicln(err)
@@ -65,7 +105,7 @@ func (repo *TodoRepository) FindByUserId(identifier int) (todos domain.Todos, er
 		todos = append(todos, todo)
 	}
 	rows.Close()
-	return todos, err
+	return todos, sumPage, err
 }
 
 func (repo *TodoRepository) FindByIdAndUserId(identifier int, userIdentifier int) (todo domain.Todo, err error) {
