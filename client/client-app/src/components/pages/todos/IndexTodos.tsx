@@ -1,6 +1,6 @@
 import { Grid } from "@mui/material";
 import { Box } from "@mui/system";
-import { FC, useEffect } from "react";
+import { ChangeEvent, FC, useCallback, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import PostCard from "../../organisms/posts/PostCard";
@@ -9,14 +9,22 @@ import LoadingLayout from "../../molecules/loading/LoadingLayout";
 import { RooState } from "../../../reducks/store/store";
 import { indexTodos } from "../../../reducks/todos/operations";
 import { Todos } from "../../../reducks/todos/types";
+import DefaultPagination from "../../molecules/pagination/DefaultPagination";
+import usePagination from "../../../hooks/usePagination";
+import { push } from "connected-react-router";
 
 export const IndexTodos: FC = () => {
   const dispatch = useDispatch()
   const loadingState = useLoadingState()
   const todos: Todos = useSelector((state: RooState) => state.todos)
+  const {sumPage, setSumPage, queryPage} = usePagination()
 
   useEffect(() => {
-    dispatch(indexTodos())
+    dispatch(indexTodos(setSumPage, queryPage))
+  }, [setSumPage, queryPage])
+
+  const changeCurrentPage = useCallback((event: React.ChangeEvent<unknown>, page: number) => {
+    dispatch(push(`/todo?page=${page}`))
   }, [])
 
   return(
@@ -56,6 +64,11 @@ export const IndexTodos: FC = () => {
               </Grid>
             )
           } 
+          <DefaultPagination 
+            count={sumPage}
+            onChange={changeCurrentPage}
+            page={queryPage}
+          />
         </Box>
        )
      }

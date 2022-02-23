@@ -9,6 +9,7 @@ import (
 	"mime/multipart"
 	"net/http"
 	"os"
+	"reflect"
 	"strconv"
 	"time"
 
@@ -24,6 +25,11 @@ type TodoController struct {
 
 type TodosError struct {
 	Error string
+}
+
+type ResponseFormat struct {
+	Todos   domain.Todos `json:"todos"`
+	SumPage float64      `json:"sumPage"`
 }
 
 func NewTodoController(sqlHandler database.SqlHandler) *TodoController {
@@ -92,8 +98,20 @@ func (controller *TodoController) Create(w http.ResponseWriter, r *http.Request)
 }
 
 func (controller *TodoController) Index(w http.ResponseWriter, r *http.Request) {
+
+	// ---
+	// URLから取得したいページ番目の情報
+	// fmt.Println(r.FormValue("page"))
+	page, err := strconv.Atoi(r.FormValue("page"))
+	if err != nil {
+		log.SetFlags(log.Llongfile)
+		log.Println(err)
+	}
+	fmt.Println(page)
+	fmt.Println(reflect.TypeOf(page))
+	// ---
 	session, _ := store.Get(r, "session")
-	todos, err := controller.Interactor.Todos(session.Values["userId"].(int))
+	todos, sumPage, err := controller.Interactor.Todos(session.Values["userId"].(int), page)
 	if err != nil {
 		log.SetFlags(log.Llongfile)
 		log.Println(err)
@@ -102,12 +120,26 @@ func (controller *TodoController) Index(w http.ResponseWriter, r *http.Request) 
 		e, _ := json.Marshal(todosErr)
 		fmt.Fprintln(w, string(e))
 	}
-	jsonTodos, err := json.Marshal(todos)
+	// jsonTodos, err := json.Marshal(todos)
+	// if err != nil {
+	// 	log.SetFlags(log.Llongfile)
+	// 	log.Println(err)
+	// }
+
+	// fmt.Println("ctr124", sumPage)
+	// w.Header().Set("X-Total-Pages", strconv.Itoa(sumPage))
+
+	// fmt.Fprintln(w, string(jsonTodos))
+	res := ResponseFormat{
+		Todos:   todos,
+		SumPage: sumPage,
+	}
+	jsonResponse, err := json.Marshal(res)
 	if err != nil {
 		log.SetFlags(log.Llongfile)
 		log.Println(err)
 	}
-	fmt.Fprintln(w, string(jsonTodos))
+	fmt.Fprintln(w, string(jsonResponse))
 }
 
 func (controller *TodoController) Show(w http.ResponseWriter, r *http.Request) {
