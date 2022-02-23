@@ -35,8 +35,6 @@ func (repo *TodoRepository) Store(t domain.Todo) (err error) {
 
 func (repo *TodoRepository) FindByUserId(identifier int, page int) (todos domain.Todos, sumPage float64, err error) {
 
-	// ---
-	fmt.Println("repo", page)
 	// 投稿されたTodoデータ総数を取得
 	var allTodosCount float64
 	row, err := repo.Query(`
