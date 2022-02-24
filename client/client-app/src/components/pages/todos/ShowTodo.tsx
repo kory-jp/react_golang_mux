@@ -1,8 +1,8 @@
 import { push } from "connected-react-router";
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
-import { Button, CardMedia, Container, Grid, Paper, Typography } from "@mui/material";
-import { FC, useCallback, useEffect } from "react";
+import { Button, CardMedia, Checkbox, Container, FormGroup, Grid, Paper, Typography } from "@mui/material";
+import { FC, useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 
@@ -11,6 +11,7 @@ import LoadingLayout from "../../molecules/loading/LoadingLayout";
 import { RooState } from "../../../reducks/store/store";
 import { deleteTodo, showTodo } from "../../../reducks/todos/operations";
 import useLoadingState from "../../../hooks/useLoadingState";
+import { FormControlLabel } from "@material-ui/core";
 
 type Params = {
   id: string | undefined
@@ -20,16 +21,14 @@ export const ShowTodo: FC = () => {
   const dispatch = useDispatch()
   const params: Params = useParams();
   const id: number = Number(params.id)
-  const todos = useSelector((state: RooState) => state.todos)
+  const todo = useSelector((state: RooState) => state.todo)
   const loadingState = useLoadingState()
+  const [finish, setFinish] = useState(false)
   
   useEffect(() => {
     dispatch(showTodo(id))
+    setFinish(todo.isFinished)
   }, [])
-
-  let todo = Object.fromEntries(
-    Object.entries(todos).map(([key, value]) => [key, value])
-  )
 
   const imagePath = `http://localhost:8000/api/img/${todo.imagePath}`
   
@@ -40,6 +39,10 @@ export const ShowTodo: FC = () => {
   const onClickDelete = useCallback(() => {
     dispatch(deleteTodo(id))
   }, [id])
+
+  // const onChangeIsFinished = useCallback(() => {
+  //   dispatch(updateIsFinished(id))
+  // }, [id])
 
   return(
     <>
@@ -134,14 +137,27 @@ export const ShowTodo: FC = () => {
                   paddingLeft: "10px"
                 }}
               >
+                <FormControlLabel 
+                  control={<Checkbox 
+                              checked={finish}
+                              // onChange={onChangeIsFinished}
+                            />} 
+                  label="finish"
+                />
                 <Button
                   onClick={onClickToEdit}
+                  sx={{
+                    color: 'black'
+                  }}
                 >
                   <EditIcon />
                   Edit
                 </Button>
                 <Button
                   onClick={onClickDelete}
+                  sx={{
+                    color: 'black'
+                  }}
                 >
                   <DeleteIcon />
                   Delete

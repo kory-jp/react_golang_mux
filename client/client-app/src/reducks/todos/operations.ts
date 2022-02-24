@@ -117,6 +117,25 @@ export const updateTodo = (id: number, formdata: FormData) => {
   }
 }
 
+export const updateIsFinished = (id: number, isFinished: boolean) => {
+  return async(dispatch: Dispatch<{}>) => {
+    axios
+      .post(`http://localhost:8000/api/todos/isfinished/${id}`,
+        {isFinished: isFinished},
+        {
+          withCredentials: true,
+          headers:{
+            'Accept': 'application/json',  
+            'Content-Type': 'multipart/form-data'
+          } 
+        }
+      ).catch((error) => {
+        console.log(error)
+        dispatch(pushToast({title: 'データ更新に失敗しました', severity: "error"}))
+      })
+  }
+}
+
 export const deleteTodo = (id: number) => {
   return async(dispatch: Dispatch<{}>) => {
     axios
