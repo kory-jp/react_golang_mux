@@ -1,7 +1,6 @@
 package database
 
 import (
-	"fmt"
 	"log"
 	"math"
 	"time"
@@ -141,6 +140,7 @@ func (repo *TodoRepository) FindByIdAndUserId(identifier int, userIdentifier int
 		log.SetFlags(log.Llongfile)
 		log.Println(err)
 	}
+	row.Close()
 	todo.ID = id
 	todo.UserID = userId
 	todo.Title = title
@@ -152,32 +152,49 @@ func (repo *TodoRepository) FindByIdAndUserId(identifier int, userIdentifier int
 }
 
 func (repo *TodoRepository) Overwrite(t domain.Todo) (err error) {
-	todo, err := repo.Execute(`
+	_, err = repo.Execute(`
 		update
 			todos
 		set
 			title = ?,
 			content = ?,
 			image_path = ?,
-			isFinished = ?
 		where
 			id = ?
-	`, t.Title, t.Content, t.ImagePath, t.IsFinished, t.ID)
+	`, t.Title, t.Content, t.ImagePath, t.ID)
 	if err != nil {
 		log.SetFlags(log.Llongfile)
 		log.Panicln(err)
 	}
-	fmt.Println("repo132", todo)
 	return
 }
 
-func (repo *TodoRepository) Erasure(id int) (err error) {
+func (repo *TodoRepository) ChangeBoolean(id int, t domain.Todo) (err error) {
+	_, err = repo.Execute(`
+		update
+			todos
+		set
+			isFinished = ?
+		where
+			id = ?
+	`, t.IsFinished, id)
+	if err != nil {
+		log.SetFlags(log.Llongfile)
+		log.Panicln(err)
+		return
+	}
+	return
+}
+
+func (repo *TodoRepository) Erasure(id int, userId int) (err error) {
 	_, err = repo.Execute(`
 		delete from
 			todos
 		where
 			id = ?
-	`, id)
+		and
+			user_id = ?
+	`, id, userId)
 	if err != nil {
 		log.SetFlags(log.Llongfile)
 		log.Panicln(err)

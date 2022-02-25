@@ -13,18 +13,7 @@ export type Todo = {
   createdAt: Date | null,
 }
 
-export type Todos = [
-  {
-    id: number,
-    userId: number,
-    title: string,
-    content: string,
-    image: File | null,
-    imagePath: string | undefined,
-    isFinished: boolean,
-    createdAt: Date | null,
-  }
-]
+export type Todos= Todo[]
 
 
 interface indexTodosAction extends Action {

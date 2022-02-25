@@ -1,16 +1,17 @@
 import { push } from "connected-react-router";
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
-import { Button, CardMedia, Container, Grid, Paper, Typography } from "@mui/material";
-import { FC, useCallback, useEffect } from "react";
+import { Box, Button, CardMedia, Checkbox, Container, Grid, Paper, Typography } from "@mui/material";
+import { FC, useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 
 import sample1 from "../../../assets/images/sample1.jpeg"
 import LoadingLayout from "../../molecules/loading/LoadingLayout";
 import { RooState } from "../../../reducks/store/store";
-import { deleteTodo, showTodo } from "../../../reducks/todos/operations";
+import { deleteTodo, showTodo, updateIsFinished } from "../../../reducks/todos/operations";
 import useLoadingState from "../../../hooks/useLoadingState";
+import { FormControlLabel } from "@material-ui/core";
 
 type Params = {
   id: string | undefined
@@ -20,16 +21,17 @@ export const ShowTodo: FC = () => {
   const dispatch = useDispatch()
   const params: Params = useParams();
   const id: number = Number(params.id)
-  const todos = useSelector((state: RooState) => state.todos)
+  const todo = useSelector((state: RooState) => state.todo)
   const loadingState = useLoadingState()
-  
+  const [finish, setFinish] = useState(false)
+
   useEffect(() => {
     dispatch(showTodo(id))
-  }, [])
+  }, [id])
 
-  let todo = Object.fromEntries(
-    Object.entries(todos).map(([key, value]) => [key, value])
-  )
+  useEffect(()=> {
+    setFinish(todo.isFinished)
+  },[todo])
 
   const imagePath = `http://localhost:8000/api/img/${todo.imagePath}`
   
@@ -41,6 +43,17 @@ export const ShowTodo: FC = () => {
     dispatch(deleteTodo(id))
   }, [id])
 
+  const onChangeIsFinished = useCallback(() => {
+    if (finish) {
+      setFinish(false)
+      dispatch(updateIsFinished(id, false))
+    } else {
+      setFinish(true)
+      dispatch(updateIsFinished(id, true))
+    }
+  }, [id, finish])
+
+
   return(
     <>
       {
@@ -50,15 +63,19 @@ export const ShowTodo: FC = () => {
           <Container maxWidth='lg'>
             <Paper
               sx={{
+                transition: '0.7s',
+                bgcolor: finish? 'text.disabled' : 'white',
+                marginTop: '30px',
                 padding: {
                   xs: '5px',
                   md: '20px'
                 },
-                marginTop: '30px'
               }}
             >
               <Paper
                 sx={{
+                  transition: '0.7s',
+                  bgcolor: finish? '#bdbdbd' : 'white',
                   padding: {
                     xs: '5px',
                     md: '15px'
@@ -68,15 +85,19 @@ export const ShowTodo: FC = () => {
               >
                 <Typography
                   variant="h2"
-                  fontWeight='bold'
-                  sx={{
-                    fontSize: {
-                      xs: '25px',
-                      md: '40px'
-                    }
-                  }}
                 >
-                  {todo.title}
+                  <Box
+                    sx={{
+                      fontSize: {
+                        xs: '20px',
+                        sm: '30px',
+                        md: '40px'
+                      },
+                    }}
+                    fontWeight="bold"
+                  >
+                    {todo.title}
+                  </Box>
                 </Typography>
               </Paper>
               <Grid 
@@ -106,14 +127,18 @@ export const ShowTodo: FC = () => {
                 >
                   <Typography
                     variant="h3"
-                    sx={{
-                      fontSize: {
-                        xs: '20px',
-                        md: '35px'
-                      }
-                    }}
                   >
-                    Memo
+                    <Box
+                      sx={{
+                        fontSize: {
+                          xs: '20px',
+                          sm: '30px',
+                          md: '40px'
+                        },
+                      }}                      
+                    >
+                      Memo
+                    </Box>
                   </Typography>
                   <Typography>
                     {todo.content}
@@ -134,18 +159,48 @@ export const ShowTodo: FC = () => {
                   paddingLeft: "10px"
                 }}
               >
-                <Button
-                  onClick={onClickToEdit}
-                >
-                  <EditIcon />
-                  Edit
-                </Button>
-                <Button
-                  onClick={onClickDelete}
-                >
-                  <DeleteIcon />
-                  Delete
-                </Button>
+                <Grid container>
+                  <Grid 
+                    item
+                    sx={{
+                      marginBottom: '5px'
+                    }}
+                  >
+                    <FormControlLabel 
+                      control={<Checkbox 
+                                  checked={finish}
+                                  value={finish}
+                                  onChange={onChangeIsFinished}
+                                />} 
+                      label="finish"
+                    />
+                  </Grid>
+                  <Grid 
+                    item
+                    sx={{
+                      marginBottom: '5px'
+                    }} 
+                  >
+                    <Button
+                      onClick={onClickToEdit}
+                      sx={{
+                        color: 'black'
+                      }}
+                    >
+                      <EditIcon />
+                      Edit
+                    </Button>
+                    <Button
+                      onClick={onClickDelete}
+                      sx={{
+                        color: 'black'
+                      }}
+                    >
+                      <DeleteIcon />
+                      Delete
+                    </Button>                    
+                  </Grid>
+                </Grid>
               </Paper>
             </Paper>
           </Container>

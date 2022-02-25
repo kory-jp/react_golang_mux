@@ -73,8 +73,9 @@ export const Header: FC = () => {
               fontWeight='bold'
               sx={{
                 fontSize: {
-                  sm: '20px',
-                  md: '35px'
+                  xs: '30px',
+                  sm: '30px',
+                  md: '40px'
                 },
                 '&:hover': {
                   cursor: 'pointer'
@@ -82,7 +83,7 @@ export const Header: FC = () => {
               }}
               onClick={onClickToTop}
             >
-              ToDO
+              ToDo
             </Box>
           </Grid>
           <Grid 
