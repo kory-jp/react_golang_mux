@@ -47,7 +47,7 @@ func (interactor *TodoInteractor) TodoByIdAndUserId(id int, userId int) (todo do
 	return
 }
 
-func (interactor *TodoInteractor) Change(t domain.Todo) (mess TodoMessage, err error) {
+func (interactor *TodoInteractor) UpdateTodo(t domain.Todo) (mess TodoMessage, err error) {
 	if err = t.TodoValidate(); err == nil {
 		err = interactor.TodoRepository.Overwrite(t)
 		if err != nil {
@@ -61,7 +61,30 @@ func (interactor *TodoInteractor) Change(t domain.Todo) (mess TodoMessage, err e
 	return
 }
 
-func (interactor *TodoInteractor) Remove(id int) (mess TodoMessage, err error) {
+func (interactor *TodoInteractor) IsFinishedTodo(id int, t domain.Todo, userId int) (mess TodoMessage, err error) {
+	err = interactor.TodoRepository.ChangeBoolean(id, t)
+	if err != nil {
+		log.SetFlags(log.Llongfile)
+		log.Panicln(err)
+		err = errors.New("更新に失敗しました")
+		return
+	}
+
+	todo, err := interactor.TodoRepository.FindByIdAndUserId(id, userId)
+	if err != nil {
+		log.SetFlags(log.Llongfile)
+		log.Println(err)
+	}
+
+	if todo.IsFinished {
+		mess.Message = "完了しました"
+	} else {
+		mess.Message = "未完了の項目が追加されました"
+	}
+	return
+}
+
+func (interactor *TodoInteractor) DeleteTodo(id int) (mess TodoMessage, err error) {
 	err = interactor.TodoRepository.Erasure(id)
 	if err != nil {
 		log.SetFlags(log.Llongfile)

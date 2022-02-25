@@ -214,10 +214,50 @@ func (controller *TodoController) Update(w http.ResponseWriter, r *http.Request)
 	}
 
 	// -------
-	mess, err := controller.Interactor.Change(*todoType)
+	mess, err := controller.Interactor.UpdateTodo(*todoType)
 	if err != nil {
 		fmt.Fprintln(w, err)
 		return
+	}
+
+	jsonMess, err := json.Marshal(mess)
+	if err != nil {
+		log.SetFlags(log.Llongfile)
+		log.Println(err)
+	}
+	fmt.Fprintln(w, string(jsonMess))
+}
+
+func (controller *TodoController) IsFinished(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		log.SetFlags(log.Llongfile)
+		log.Println(err)
+	}
+	todoType := new(domain.Todo)
+	bytesTodo, err := io.ReadAll(r.Body)
+	if err != nil {
+		log.SetFlags(log.Llongfile)
+		log.Println(err)
+	}
+	if err := json.Unmarshal(bytesTodo, todoType); err != nil {
+		log.SetFlags(log.Llongfile)
+		log.Println(err)
+		return
+	}
+
+	fmt.Println(todoType)
+
+	session, err := store.Get(r, "session")
+	if err != nil {
+		log.SetFlags(log.Llongfile)
+		log.Println(err)
+	}
+	mess, err := controller.Interactor.IsFinishedTodo(id, *todoType, session.Values["userId"].(int))
+	if err != nil {
+		log.SetFlags(log.Llongfile)
+		log.Println(err)
 	}
 
 	jsonMess, err := json.Marshal(mess)
@@ -236,7 +276,7 @@ func (controller *TodoController) Delete(w http.ResponseWriter, r *http.Request)
 		log.Println(err)
 	}
 
-	mess, err := controller.Interactor.Remove(id)
+	mess, err := controller.Interactor.DeleteTodo(id)
 	if err != nil {
 		fmt.Fprintln(w, err)
 		return

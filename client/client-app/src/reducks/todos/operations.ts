@@ -128,8 +128,10 @@ export const updateIsFinished = (id: number, isFinished: boolean) => {
             'Accept': 'application/json',  
             'Content-Type': 'multipart/form-data'
           } 
-        }
-      ).catch((error) => {
+        }).then((response) => {
+          const mess = response.data.Message
+          dispatch(pushToast({title: mess, severity: "success"}))
+        }).catch((error) => {
         console.log(error)
         dispatch(pushToast({title: 'データ更新に失敗しました', severity: "error"}))
       })

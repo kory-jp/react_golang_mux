@@ -9,7 +9,7 @@ import { useParams } from "react-router-dom";
 import sample1 from "../../../assets/images/sample1.jpeg"
 import LoadingLayout from "../../molecules/loading/LoadingLayout";
 import { RooState } from "../../../reducks/store/store";
-import { deleteTodo, showTodo } from "../../../reducks/todos/operations";
+import { deleteTodo, showTodo, updateIsFinished } from "../../../reducks/todos/operations";
 import useLoadingState from "../../../hooks/useLoadingState";
 import { FormControlLabel } from "@material-ui/core";
 
@@ -24,11 +24,14 @@ export const ShowTodo: FC = () => {
   const todo = useSelector((state: RooState) => state.todo)
   const loadingState = useLoadingState()
   const [finish, setFinish] = useState(false)
-  
+
   useEffect(() => {
     dispatch(showTodo(id))
+  }, [id])
+
+  useEffect(()=> {
     setFinish(todo.isFinished)
-  }, [])
+  },[todo])
 
   const imagePath = `http://localhost:8000/api/img/${todo.imagePath}`
   
@@ -40,9 +43,16 @@ export const ShowTodo: FC = () => {
     dispatch(deleteTodo(id))
   }, [id])
 
-  // const onChangeIsFinished = useCallback(() => {
-  //   dispatch(updateIsFinished(id))
-  // }, [id])
+  const onChangeIsFinished = useCallback(() => {
+    if (finish) {
+      setFinish(false)
+      dispatch(updateIsFinished(id, false))
+    } else {
+      setFinish(true)
+      dispatch(updateIsFinished(id, true))
+    }
+  }, [id, finish])
+
 
   return(
     <>
@@ -140,7 +150,8 @@ export const ShowTodo: FC = () => {
                 <FormControlLabel 
                   control={<Checkbox 
                               checked={finish}
-                              // onChange={onChangeIsFinished}
+                              value={finish}
+                              onChange={onChangeIsFinished}
                             />} 
                   label="finish"
                 />
