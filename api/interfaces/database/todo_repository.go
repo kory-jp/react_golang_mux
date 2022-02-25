@@ -1,6 +1,7 @@
 package database
 
 import (
+	"fmt"
 	"log"
 	"math"
 	"time"
@@ -152,16 +153,19 @@ func (repo *TodoRepository) FindByIdAndUserId(identifier int, userIdentifier int
 }
 
 func (repo *TodoRepository) Overwrite(t domain.Todo) (err error) {
+	fmt.Println(t.ID)
 	_, err = repo.Execute(`
 		update
 			todos
 		set
 			title = ?,
 			content = ?,
-			image_path = ?,
+			image_path = ?
 		where
 			id = ?
-	`, t.Title, t.Content, t.ImagePath, t.ID)
+		and
+			user_id = ?
+	`, t.Title, t.Content, t.ImagePath, t.ID, t.UserID)
 	if err != nil {
 		log.SetFlags(log.Llongfile)
 		log.Panicln(err)

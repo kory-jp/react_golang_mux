@@ -15,7 +15,6 @@ export const NewTodo: FC = () => {
   const [content, setContent] = useState('')
   const [image, setImage] = useState<File>()
   const [preview, setPreview] =useState('')
-  const userId = useSelector((state: RooState) => state.user.id)
   
   const inputTitle = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     setTitle(event.target.value)
@@ -43,12 +42,11 @@ export const NewTodo: FC = () => {
 
   const createFormData = useCallback(() => {
     const formData = new FormData()
-    formData.append('user_id', String(userId))
     formData.append('title', title)
     formData.append('content', content)
     if (image) formData.append('image', image)
     return formData
-  }, [userId, title, content, image])
+  }, [title, content, image])
 
 
   const formData = createFormData()
