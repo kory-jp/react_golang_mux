@@ -50,7 +50,6 @@ func (controller *TodoController) Create(w http.ResponseWriter, r *http.Request)
 	var uploadFileName string
 	if file, fileHeader, err = r.FormFile("image"); err != nil {
 		fmt.Println("No Image File", err)
-		// fmt.Fprintln(w, "ファイルアップロードを確認できませんでした。")
 	} else {
 		// 画像を保存するimgディレクトリが存在しない場合は作成する
 		err = os.MkdirAll("./img", os.ModePerm)
@@ -77,8 +76,14 @@ func (controller *TodoController) Create(w http.ResponseWriter, r *http.Request)
 		fmt.Println("書き込んだByte数=>", size)
 	}
 
+	session, err := store.Get(r, "session")
+	if err != nil {
+		log.SetFlags(log.Llongfile)
+		log.Println(err)
+	}
+
 	todoType := new(domain.Todo)
-	todoType.UserID, _ = strconv.Atoi(r.Form.Get("user_id"))
+	todoType.UserID = session.Values["userId"].(int)
 	todoType.Title = r.Form.Get("title")
 	todoType.Content = r.Form.Get("content")
 	todoType.ImagePath = uploadFileName
@@ -189,9 +194,15 @@ func (controller *TodoController) Update(w http.ResponseWriter, r *http.Request)
 		fmt.Println("書き込んだByte数=>", size)
 	}
 
+	session, err := store.Get(r, "session")
+	if err != nil {
+		log.SetFlags(log.Llongfile)
+		log.Println(err)
+	}
+
 	todoType := new(domain.Todo)
 	todoType.ID, _ = strconv.Atoi(r.Form.Get("id"))
-	todoType.UserID, _ = strconv.Atoi(r.Form.Get("user_id"))
+	todoType.UserID = session.Values["userId"].(int)
 	todoType.Title = r.Form.Get("title")
 	todoType.Content = r.Form.Get("content")
 	// -------
@@ -214,6 +225,7 @@ func (controller *TodoController) Update(w http.ResponseWriter, r *http.Request)
 		}
 	}
 
+	fmt.Println("ctr", todoType)
 	// -------
 	mess, err := controller.Interactor.UpdateTodo(*todoType)
 	if err != nil {

@@ -9,7 +9,6 @@ import { useParams } from "react-router-dom";
 
 import { PrimaryButton } from "../../atoms/button/PrimaryButton";
 import { nowLoadingState } from "../../../reducks/loading/actions";
-import { RooState } from "../../../reducks/store/store";
 import { pushToast } from "../../../reducks/toasts/actions";
 import { updateTodo } from "../../../reducks/todos/operations";
 
@@ -26,7 +25,6 @@ export const EditTodo: FC = () => {
   const [preview, setPreview] =useState('')
   const params: Params = useParams();
   const id: number = Number(params.id)
-  const userId = useSelector((state: RooState) => state.user.id)
 
   const getTodoInfo = useCallback((id: number) => {
       dispatch(nowLoadingState(true))
@@ -89,13 +87,12 @@ export const EditTodo: FC = () => {
   const createFormData = useCallback(() => {
     const formData = new FormData()
     formData.append('id', String(id))
-    formData.append('user_id', String(userId))
     formData.append('title', title)
     formData.append('content', content)
     if (image) formData.append('image', image)
     formData.append('imagePath', imagePath)
     return formData
-  }, [userId, title, content, image, imagePath])
+  }, [title, content, image, imagePath])
 
 
   const formData = createFormData()
@@ -160,7 +157,6 @@ export const EditTodo: FC = () => {
                 onChange={inputContent}
               />
             </FormControl>
-            {/* <FormControl> ----削除------ */}
             <InputLabel htmlFor="upImage">
               <Input 
                 id='upImage'
@@ -176,7 +172,6 @@ export const EditTodo: FC = () => {
                 <CameraAltIcon />
               </Button>
             </InputLabel>
-            {/* </FormControl> */}
             {
               preview ?
               <Box>
