@@ -29,8 +29,8 @@ func (interactor *TodoInteractor) Add(t domain.Todo) (mess TodoMessage, err erro
 	return
 }
 
-func (interactor *TodoInteractor) Todos(id int, page int) (todos domain.Todos, sumPage float64, err error) {
-	todos, sumPage, err = interactor.TodoRepository.FindByUserId(id, page)
+func (interactor *TodoInteractor) Todos(userId int, page int) (todos domain.Todos, sumPage float64, err error) {
+	todos, sumPage, err = interactor.TodoRepository.FindByUserId(userId, page)
 	if err != nil {
 		log.SetFlags(log.Llongfile)
 		log.Println(err)
@@ -84,13 +84,30 @@ func (interactor *TodoInteractor) IsFinishedTodo(id int, t domain.Todo, userId i
 	return
 }
 
-func (interactor *TodoInteractor) DeleteTodo(id int) (mess TodoMessage, err error) {
-	err = interactor.TodoRepository.Erasure(id)
+func (interactor *TodoInteractor) DeleteTodo(id int, userId int) (mess TodoMessage, err error) {
+	err = interactor.TodoRepository.Erasure(id, userId)
 	if err != nil {
 		log.SetFlags(log.Llongfile)
 		log.Panicln(err)
 		err = errors.New("削除に失敗しました")
 		return
+	}
+	mess.Message = "削除しました"
+	return
+}
+
+func (interactor *TodoInteractor) DeleteTodoInIndex(id int, userId int, page int) (todos domain.Todos, sumPage float64, mess TodoMessage, err error) {
+	err = interactor.TodoRepository.Erasure(id, userId)
+	if err != nil {
+		log.SetFlags(log.Llongfile)
+		log.Panicln(err)
+		err = errors.New("削除に失敗しました")
+		return
+	}
+	todos, sumPage, err = interactor.TodoRepository.FindByUserId(userId, page)
+	if err != nil {
+		log.SetFlags(log.Llongfile)
+		log.Println(err)
 	}
 	mess.Message = "削除しました"
 	return

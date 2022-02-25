@@ -57,7 +57,11 @@ export const IndexTodos: FC = () => {
                       sm={6}
                       md={3}
                     > 
-                      <PostCard todo={todo}/>
+                      <PostCard 
+                        todo={todo}
+                        setSumPage={setSumPage}
+                        queryPage={queryPage}
+                      />
                     </Grid>
                   ))
                 }

@@ -1,7 +1,7 @@
 import { push } from "connected-react-router";
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
-import { Button, CardMedia, Checkbox, Container, FormGroup, Grid, Paper, Typography } from "@mui/material";
+import { Box, Button, CardMedia, Checkbox, Container, Grid, Paper, Typography } from "@mui/material";
 import { FC, useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
@@ -63,15 +63,19 @@ export const ShowTodo: FC = () => {
           <Container maxWidth='lg'>
             <Paper
               sx={{
+                transition: '0.7s',
+                bgcolor: finish? 'text.disabled' : 'white',
+                marginTop: '30px',
                 padding: {
                   xs: '5px',
                   md: '20px'
                 },
-                marginTop: '30px'
               }}
             >
               <Paper
                 sx={{
+                  transition: '0.7s',
+                  bgcolor: finish? '#bdbdbd' : 'white',
                   padding: {
                     xs: '5px',
                     md: '15px'
@@ -81,15 +85,19 @@ export const ShowTodo: FC = () => {
               >
                 <Typography
                   variant="h2"
-                  fontWeight='bold'
-                  sx={{
-                    fontSize: {
-                      xs: '25px',
-                      md: '40px'
-                    }
-                  }}
                 >
-                  {todo.title}
+                  <Box
+                    sx={{
+                      fontSize: {
+                        xs: '20px',
+                        sm: '30px',
+                        md: '40px'
+                      },
+                    }}
+                    fontWeight="bold"
+                  >
+                    {todo.title}
+                  </Box>
                 </Typography>
               </Paper>
               <Grid 
@@ -119,14 +127,18 @@ export const ShowTodo: FC = () => {
                 >
                   <Typography
                     variant="h3"
-                    sx={{
-                      fontSize: {
-                        xs: '20px',
-                        md: '35px'
-                      }
-                    }}
                   >
-                    Memo
+                    <Box
+                      sx={{
+                        fontSize: {
+                          xs: '20px',
+                          sm: '30px',
+                          md: '40px'
+                        },
+                      }}                      
+                    >
+                      Memo
+                    </Box>
                   </Typography>
                   <Typography>
                     {todo.content}
@@ -147,32 +159,48 @@ export const ShowTodo: FC = () => {
                   paddingLeft: "10px"
                 }}
               >
-                <FormControlLabel 
-                  control={<Checkbox 
-                              checked={finish}
-                              value={finish}
-                              onChange={onChangeIsFinished}
-                            />} 
-                  label="finish"
-                />
-                <Button
-                  onClick={onClickToEdit}
-                  sx={{
-                    color: 'black'
-                  }}
-                >
-                  <EditIcon />
-                  Edit
-                </Button>
-                <Button
-                  onClick={onClickDelete}
-                  sx={{
-                    color: 'black'
-                  }}
-                >
-                  <DeleteIcon />
-                  Delete
-                </Button>
+                <Grid container>
+                  <Grid 
+                    item
+                    sx={{
+                      marginBottom: '5px'
+                    }}
+                  >
+                    <FormControlLabel 
+                      control={<Checkbox 
+                                  checked={finish}
+                                  value={finish}
+                                  onChange={onChangeIsFinished}
+                                />} 
+                      label="finish"
+                    />
+                  </Grid>
+                  <Grid 
+                    item
+                    sx={{
+                      marginBottom: '5px'
+                    }} 
+                  >
+                    <Button
+                      onClick={onClickToEdit}
+                      sx={{
+                        color: 'black'
+                      }}
+                    >
+                      <EditIcon />
+                      Edit
+                    </Button>
+                    <Button
+                      onClick={onClickDelete}
+                      sx={{
+                        color: 'black'
+                      }}
+                    >
+                      <DeleteIcon />
+                      Delete
+                    </Button>                    
+                  </Grid>
+                </Grid>
               </Paper>
             </Paper>
           </Container>
