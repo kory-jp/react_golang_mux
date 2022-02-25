@@ -186,13 +186,15 @@ func (repo *TodoRepository) ChangeBoolean(id int, t domain.Todo) (err error) {
 	return
 }
 
-func (repo *TodoRepository) Erasure(id int) (err error) {
+func (repo *TodoRepository) Erasure(id int, userId int) (err error) {
 	_, err = repo.Execute(`
 		delete from
 			todos
 		where
 			id = ?
-	`, id)
+		and
+			user_id = ?
+	`, id, userId)
 	if err != nil {
 		log.SetFlags(log.Llongfile)
 		log.Panicln(err)

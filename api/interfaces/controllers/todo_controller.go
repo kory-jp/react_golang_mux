@@ -29,6 +29,7 @@ type TodosError struct {
 type ResponseFormat struct {
 	Todos   domain.Todos `json:"todos"`
 	SumPage float64      `json:"sumPage"`
+	Message string       `json:"message"`
 }
 
 func NewTodoController(sqlHandler database.SqlHandler) *TodoController {
@@ -247,8 +248,6 @@ func (controller *TodoController) IsFinished(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	fmt.Println(todoType)
-
 	session, err := store.Get(r, "session")
 	if err != nil {
 		log.SetFlags(log.Llongfile)
@@ -275,8 +274,12 @@ func (controller *TodoController) Delete(w http.ResponseWriter, r *http.Request)
 		log.SetFlags(log.Llongfile)
 		log.Println(err)
 	}
-
-	mess, err := controller.Interactor.DeleteTodo(id)
+	session, err := store.Get(r, "session")
+	if err != nil {
+		log.SetFlags(log.Llongfile)
+		log.Println(err)
+	}
+	mess, err := controller.Interactor.DeleteTodo(id, session.Values["userId"].(int))
 	if err != nil {
 		fmt.Fprintln(w, err)
 		return
@@ -288,4 +291,39 @@ func (controller *TodoController) Delete(w http.ResponseWriter, r *http.Request)
 		log.Println(err)
 	}
 	fmt.Fprintln(w, string(jsonMess))
+}
+
+func (controller *TodoController) DeleteInIndex(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		log.SetFlags(log.Llongfile)
+		log.Println(err)
+	}
+	page, err := strconv.Atoi(r.FormValue("page"))
+	if err != nil {
+		log.SetFlags(log.Llongfile)
+		log.Println(err)
+	}
+	session, err := store.Get(r, "session")
+	if err != nil {
+		log.SetFlags(log.Llongfile)
+		log.Println(err)
+	}
+	todos, sumPage, mess, err := controller.Interactor.DeleteTodoInIndex(id, session.Values["userId"].(int), page)
+	if err != nil {
+		fmt.Fprintln(w, err)
+		return
+	}
+	res := ResponseFormat{
+		Todos:   todos,
+		SumPage: sumPage,
+		Message: mess.Message,
+	}
+	jsonResponse, err := json.Marshal(res)
+	if err != nil {
+		log.SetFlags(log.Llongfile)
+		log.Println(err)
+	}
+	fmt.Fprintln(w, string(jsonResponse))
 }

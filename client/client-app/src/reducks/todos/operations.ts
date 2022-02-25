@@ -164,3 +164,44 @@ export const deleteTodo = (id: number) => {
       })
   }
 }
+
+export const deleteTodoInIndex = (
+                                  id: number, 
+                                  setSumPage: React.Dispatch<React.SetStateAction<number>>, 
+                                  queryPage: number
+                                 ) => {
+                                   return async(dispatch: Dispatch<{}>) => {
+                                     dispatch(nowLoadingState(true))
+                                     axios
+                                      .delete(`http://localhost:8000/api/todos/deleteinindex/${id}?page=${queryPage}`,
+                                      {
+                                         withCredentials: true,
+                                         headers:{
+                                           'Accept': 'application/json',  
+                                           'Content-Type': 'multipart/form-data'
+                                         }
+                                      }
+                                     ).then((response) => {
+                                      const mess = response.data.message
+                                      if (mess != null) {
+                                        dispatch(pushToast({title: mess, severity: "success"}))
+                                        dispatch(indexTodosAction(response.data.todos))
+                                        setSumPage(Number(response.data.sumPage))
+                                        if (queryPage > Number(response.data.sumPage)) {
+                                          dispatch(push(`todo?page=${queryPage - 1 }`))
+                                        }
+                                      } else {
+                                        dispatch(pushToast({title: '削除に失敗しました', severity: "error"}))
+                                      }
+                                     })
+                                     .catch((error)=> {
+                                      console.log(error)
+                                      dispatch(pushToast({title: '削除に失敗しました', severity: "error"}))
+                                    })
+                                    .finally(() => {
+                                      setTimeout(() => {
+                                        dispatch(nowLoadingState(false));
+                                      }, 800);
+                                    });
+                                   }
+                                 }

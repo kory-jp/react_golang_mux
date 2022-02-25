@@ -1,20 +1,23 @@
 import { push } from "connected-react-router";
-import { Button, Card, CardActions, CardContent, CardMedia, Checkbox, FormControlLabel, Grid, Link, Typography } from "@mui/material";
-import { FC, useCallback, useEffect, useState } from "react";
+import { Button, Card, CardActions, CardContent, CardMedia, Checkbox, FormControlLabel, Grid, Typography } from "@mui/material";
+import { Dispatch, FC, SetStateAction, useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import DeleteIcon from '@mui/icons-material/Delete';
 import StickyNote2Icon from '@mui/icons-material/StickyNote2';
 
 import sample1 from "../../../assets/images/sample1.jpeg"
 import { Todo } from "../../../reducks/todos/types";
-import { deleteTodo, updateIsFinished } from "../../../reducks/todos/operations";
+import { deleteTodoInIndex, updateIsFinished } from "../../../reducks/todos/operations";
+// import usePagination from "../../../hooks/usePagination";
 
 type Props = {
   todo: Todo,
+  setSumPage: Dispatch<SetStateAction<number>>,
+  queryPage: number
 }
 
 export const PostCard: FC<Props> = (props) => {
-  const {todo} = props;
+  const {todo, setSumPage, queryPage} = props;
   const dispatch = useDispatch()
   const [finish, setFinish] = useState(false)
   const imagePath = `http://localhost:8000/api/img/${todo.imagePath}`
@@ -38,7 +41,7 @@ export const PostCard: FC<Props> = (props) => {
   }, [todo, finish])
 
   const onClickDelete = useCallback(() => {
-    dispatch(deleteTodo(todo.id))
+    dispatch(deleteTodoInIndex(todo.id, setSumPage, queryPage))
   }, [todo])
 
   return(
@@ -53,10 +56,7 @@ export const PostCard: FC<Props> = (props) => {
           component="img"
           image={todo.imagePath? imagePath : sample1}
           sx={{
-            height : {
-              sx: "120px",
-              md: "200px"
-            },
+            height : '200px',
             transition: '0.7s',
             filter: finish? 'grayscale(100%)' : '',
             '&:hover': {
