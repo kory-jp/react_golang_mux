@@ -15,55 +15,23 @@ type SqlHandler struct {
 	Conn *sql.DB
 }
 
-const (
-	tableNameTodo = "todos"
-	tableNameUser = "users"
-)
-
 func NewSqlHandler() *SqlHandler {
-	DSN := fmt.Sprintf("%s:%s@%s/%s?parseTime=true",
+	DSN := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true",
 		config.Config.UserName,
 		config.Config.Password,
+		config.Config.DBHost,
 		config.Config.DBPort,
 		config.Config.DBname,
 	)
-	conn, _ := sql.Open(config.Config.SQLDriver, DSN)
+	conn, err := sql.Open(config.Config.SQLDriver, DSN)
+	if err != nil {
+		fmt.Println(err)
+	}
 	errP := conn.Ping()
 	if errP != nil {
 		fmt.Println("データベース接続失敗")
 	} else {
 		fmt.Println("データベース接続成功")
-	}
-
-	cmdU := fmt.Sprintf(`
-		create table if not exists %s (
-			id integer primary key auto_increment,
-			name varchar(50) NOT NULL,
-			email varchar(50) NOT NULL UNIQUE,
-			password varchar(50) NOT NULL,
-			created_at datetime default current_timestamp
-		)
-	`, tableNameUser)
-	_, errU := conn.Exec(cmdU)
-	if errU != nil {
-		log.SetFlags(log.Llongfile)
-		log.Println(errU)
-	}
-
-	cmdT := fmt.Sprintf(`
-		create table if not exists %s (
-			id integer primary key auto_increment,
-			user_id integer NOT NULL,
-			title varchar(50) NOT NULL,
-			content text NOT NULL,
-			image_path varchar(100),
-			isFinished boolean NOT NULL,
-			created_at datetime default current_timestamp
-		)`, tableNameTodo)
-	_, errT := conn.Exec(cmdT)
-	if errT != nil {
-		log.SetFlags(log.Llongfile)
-		log.Println(errT)
 	}
 
 	sqlHandler := new(SqlHandler)

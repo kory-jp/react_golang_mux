@@ -67,6 +67,22 @@ docker exec -it react_container /bin/sh
 docker exec -it mysql_container /bin/sh
 ```
 
+## テストデータ投入
+
+```
+docker exec -it go_container /bin/sh
+go run infrastructure/seeds/development/seeder.go
+```
+
+テストユーザーによるログイン
+
+```
+メールアドレス:
+sam@exm.com
+パスワード
+password
+```
+
 ## 各種ログ確認
 
 golang のログを確認

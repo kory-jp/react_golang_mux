@@ -13,6 +13,7 @@ type ConfigList struct {
 	SQLDriver string
 	UserName  string
 	Password  string
+	DBHost    string
 	DBPort    string
 	DBname    string
 	Static    string
@@ -36,6 +37,7 @@ func LoadConfig() {
 		SQLDriver: cfg.Section("db").Key("driver").String(),
 		UserName:  cfg.Section("db").Key("user_name").String(),
 		Password:  cfg.Section("db").Key("password").String(),
+		DBHost:    cfg.Section("db").Key("host").String(),
 		DBPort:    cfg.Section("db").Key("port").String(),
 		DBname:    cfg.Section("db").Key("db_name").String(),
 		Static:    cfg.Section("api").Key("static").String(),

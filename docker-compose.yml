@@ -17,7 +17,6 @@ services:
       - ./mysql/logs:/var/log/mysql
     ports:
       - 3306:3306
-
   client:
     build:
       # ?Git位置を指定
@@ -49,7 +48,6 @@ services:
       - apparmor:unconfined
     cap_add:
       - SYS_PTRACE
-
 
   nginx:
     image: nginx
