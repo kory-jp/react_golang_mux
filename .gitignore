@@ -25,7 +25,6 @@ yarn-error.log*
 
 # mysql
 mysql/mysql_data
-mysql/initdb.d
 mysql/logs
 
 
