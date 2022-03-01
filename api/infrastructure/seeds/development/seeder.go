@@ -8,14 +8,6 @@ import (
 )
 
 func main() {
-	// con := seed.NewSqlHandler()
-	// if err := seed.UsersSeed(con); err != nil {
-	// 	fmt.Println(err)
-	// } else {
-	// 	if err := seed.TodosSeed(con); err != nil {
-	// 		fmt.Println(err)
-	// 	}
-	// }
 	con := infrastructure.NewSqlHandler()
 	if err := seed.UsersSeed(con); err != nil {
 		fmt.Println(err)
