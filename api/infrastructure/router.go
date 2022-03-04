@@ -17,6 +17,8 @@ func Init() {
 		log.Panicln(err)
 	}
 
+	log.SetFlags(log.Ltime | log.Llongfile)
+
 	r := mux.NewRouter()
 	todoController := controllers.NewTodoController(NewSqlHandler())
 	userController := controllers.NewUserController(NewSqlHandler())
