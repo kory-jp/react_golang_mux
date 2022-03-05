@@ -42,13 +42,15 @@ func NewTodoController(sqlHandler database.SqlHandler) *TodoController {
 	}
 }
 
-func GetUserId(r *http.Request) (userId int) {
+func GetUserId(r *http.Request) (userId int, err error) {
 	session, err := store.Get(r, "session")
 	if err != nil {
 		log.Println(err)
+		fmt.Println(err)
+		return 0, err
 	}
 	userId = session.Values["userId"].(int)
-	return
+	return userId, nil
 }
 
 func (controller *TodoController) Create(w http.ResponseWriter, r *http.Request) {
@@ -98,7 +100,14 @@ func (controller *TodoController) Create(w http.ResponseWriter, r *http.Request)
 		fmt.Println("書き込んだByte数=>", size)
 	}
 
-	userId := GetUserId(r)
+	userId, err := GetUserId(r)
+	if err != nil {
+		err := errors.New("保存処理に失敗しました")
+		todosErr := &TodosError{Error: err.Error()}
+		e, _ := json.Marshal(todosErr)
+		fmt.Fprintln(w, string(e))
+		return
+	}
 
 	todoType := new(domain.Todo)
 	todoType.UserID = userId
@@ -126,7 +135,14 @@ func (controller *TodoController) Index(w http.ResponseWriter, r *http.Request) 
 	if err != nil {
 		log.Println(err)
 	}
-	userId := GetUserId(r)
+	userId, err := GetUserId(r)
+	if err != nil {
+		err := errors.New("データ取得に失敗しました")
+		todosErr := &TodosError{Error: err.Error()}
+		e, _ := json.Marshal(todosErr)
+		fmt.Fprintln(w, string(e))
+		return
+	}
 	todos, sumPage, err := controller.Interactor.Todos(userId, page)
 	if err != nil {
 		log.Println(err)
@@ -152,7 +168,14 @@ func (controller *TodoController) Show(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 	}
-	userId := GetUserId(r)
+	userId, err := GetUserId(r)
+	if err != nil {
+		err := errors.New("データ取得に失敗しました")
+		todosErr := &TodosError{Error: err.Error()}
+		e, _ := json.Marshal(todosErr)
+		fmt.Fprintln(w, string(e))
+		return
+	}
 	todo, err := controller.Interactor.TodoByIdAndUserId(id, userId)
 	if err != nil {
 		log.Println(err)
@@ -215,8 +238,14 @@ func (controller *TodoController) Update(w http.ResponseWriter, r *http.Request)
 	}
 
 	// session, err := store.Get(r, "session")
-	userId := GetUserId(r)
-
+	userId, err := GetUserId(r)
+	if err != nil {
+		err := errors.New("保存処理に失敗しました")
+		todosErr := &TodosError{Error: err.Error()}
+		e, _ := json.Marshal(todosErr)
+		fmt.Fprintln(w, string(e))
+		return
+	}
 	todoType := new(domain.Todo)
 	todoType.ID, _ = strconv.Atoi(r.Form.Get("id"))
 	todoType.UserID = userId
@@ -272,8 +301,14 @@ func (controller *TodoController) IsFinished(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	userId := GetUserId(r)
-
+	userId, err := GetUserId(r)
+	if err != nil {
+		err := errors.New("保存処理に失敗しました")
+		todosErr := &TodosError{Error: err.Error()}
+		e, _ := json.Marshal(todosErr)
+		fmt.Fprintln(w, string(e))
+		return
+	}
 	mess, err := controller.Interactor.IsFinishedTodo(id, *todoType, userId)
 	if err != nil {
 		log.Println(err)
@@ -292,7 +327,14 @@ func (controller *TodoController) Delete(w http.ResponseWriter, r *http.Request)
 	if err != nil {
 		log.Println(err)
 	}
-	userId := GetUserId(r)
+	userId, err := GetUserId(r)
+	if err != nil {
+		err := errors.New("削除処理に失敗しました")
+		todosErr := &TodosError{Error: err.Error()}
+		e, _ := json.Marshal(todosErr)
+		fmt.Fprintln(w, string(e))
+		return
+	}
 	mess, err := controller.Interactor.DeleteTodo(id, userId)
 	if err != nil {
 		fmt.Fprintln(w, err)
@@ -317,7 +359,14 @@ func (controller *TodoController) DeleteInIndex(w http.ResponseWriter, r *http.R
 		log.Println(err)
 	}
 
-	userId := GetUserId(r)
+	userId, err := GetUserId(r)
+	if err != nil {
+		err := errors.New("削除処理に失敗しました")
+		todosErr := &TodosError{Error: err.Error()}
+		e, _ := json.Marshal(todosErr)
+		fmt.Fprintln(w, string(e))
+		return
+	}
 	todos, sumPage, mess, err := controller.Interactor.DeleteTodoInIndex(id, userId, page)
 	if err != nil {
 		fmt.Fprintln(w, err)

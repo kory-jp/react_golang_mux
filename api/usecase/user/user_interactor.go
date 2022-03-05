@@ -12,6 +12,7 @@ type UserInteractor struct {
 
 func (interactor *UserInteractor) Add(u domain.User) (user domain.User, err error) {
 	if err = u.UserValidate(); err == nil {
+		u.Password = u.Encrypt(u.Password)
 		identifier, validErr := interactor.UserRepository.Store(u)
 		err = validErr
 		if err != nil {
