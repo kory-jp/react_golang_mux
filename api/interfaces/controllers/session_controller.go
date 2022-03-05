@@ -22,7 +22,7 @@ type SessionController struct {
 }
 
 type SessionValidError struct {
-	Detail string
+	Error string
 }
 
 func NewSessionController(sqlHandler database.SqlHandler) *SessionController {
@@ -40,24 +40,30 @@ var store = sessions.NewCookieStore([]byte(os.Getenv("SESSION_KEY")))
 func (controller *SessionController) Login(w http.ResponseWriter, r *http.Request) {
 	bytesUser, err := io.ReadAll(r.Body)
 	if err != nil {
-		log.SetFlags(log.Llongfile)
 		log.Println(err)
 	}
 	userType := new(domain.User)
 	if err := json.Unmarshal(bytesUser, userType); err != nil {
-		log.SetFlags(log.Llongfile)
 		log.Println(err)
 		return
 	}
 	user, err := controller.Interactor.Login(*userType)
 	if err != nil {
-		log.SetFlags(log.Llongfile)
 		log.Println(err)
-		validErr := &SessionValidError{Detail: err.Error()}
+		validErr := &SessionValidError{Error: err.Error()}
 		e, _ := json.Marshal(validErr)
 		fmt.Fprintln(w, string(e))
 	} else {
-		token, _ := MakeRandomStr(10)
+		token, err := MakeRandomStr(10)
+		if err != nil {
+			fmt.Println(err)
+			log.Println(err)
+			err := errors.New("認証に失敗しました")
+			validErr := &SessionValidError{Error: err.Error()}
+			e, _ := json.Marshal(validErr)
+			fmt.Fprintln(w, string(e))
+			return
+		}
 		session, _ := store.New(r, "session")
 		session.Values["token"] = token
 		session.Values["userId"] = user.ID
@@ -68,7 +74,6 @@ func (controller *SessionController) Login(w http.ResponseWriter, r *http.Reques
 		}
 		jsonUser, err := json.Marshal(user)
 		if err != nil {
-			log.SetFlags(log.Llongfile)
 			log.Println(err)
 		}
 		session.Save(r, w)
@@ -81,17 +86,24 @@ func (controller *SessionController) Authenticate(w http.ResponseWriter, r *http
 	session, _ := store.Get(r, "session")
 	cookie, err := r.Cookie("cookie-name")
 	if err != nil {
-		log.SetFlags(log.Llongfile)
 		log.Println(err)
 	}
 	if session.Values["token"] == cookie.Value {
 		if userId, ok := session.Values["userId"].(int); ok {
 			user, err := controller.Interactor.IsLoggedin(userId)
 			if err != nil {
-				log.SetFlags(log.Llongfile)
 				log.Println(err)
 			}
-			token, _ := MakeRandomStr(10)
+			token, err := MakeRandomStr(10)
+			if err != nil {
+				fmt.Println(err)
+				log.Println(err)
+				err := errors.New("認証に失敗しました")
+				validErr := &SessionValidError{Error: err.Error()}
+				e, _ := json.Marshal(validErr)
+				fmt.Fprintln(w, string(e))
+				return
+			}
 			session.Values["token"] = token
 			session.Values["userId"] = user.ID
 			cookie := &http.Cookie{
@@ -101,7 +113,6 @@ func (controller *SessionController) Authenticate(w http.ResponseWriter, r *http
 			}
 			jsonUser, err := json.Marshal(user)
 			if err != nil {
-				log.SetFlags(log.Llongfile)
 				log.Println(err)
 			}
 			session.Save(r, w)
@@ -110,7 +121,7 @@ func (controller *SessionController) Authenticate(w http.ResponseWriter, r *http
 		}
 	} else {
 		err := errors.New("ログインをしてください")
-		validErr := &SessionValidError{Detail: err.Error()}
+		validErr := &SessionValidError{Error: err.Error()}
 		e, _ := json.Marshal(validErr)
 		fmt.Fprintln(w, string(e))
 	}
@@ -127,18 +138,17 @@ func (controller *SessionController) Logout(w http.ResponseWriter, r *http.Reque
 	http.SetCookie(w, &cookie)
 }
 
-func MakeRandomStr(digit uint32) (string, error) {
+func MakeRandomStr(digit uint32) (token string, err error) {
 	const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
 	b := make([]byte, digit)
 	if _, err := rand.Read(b); err != nil {
-		log.SetFlags(log.Llongfile)
 		log.Println(err)
+		return "", err
 	}
 
-	var result string
 	for _, v := range b {
-		result += string(letters[int(v)%len(letters)])
+		token += string(letters[int(v)%len(letters)])
 	}
-	return result, nil
+	return token, nil
 }

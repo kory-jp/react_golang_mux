@@ -12,7 +12,6 @@ type UserRepository struct {
 }
 
 func (repo *UserRepository) Store(u domain.User) (id int, err error) {
-	cryptext := u.Encrypt(u.Password)
 	result, err := repo.Execute(`
 		insert into
 			users(
@@ -22,7 +21,7 @@ func (repo *UserRepository) Store(u domain.User) (id int, err error) {
 				created_at
 			)
 		values (?, ?, ?, ?)
-	`, u.Name, u.Email, cryptext, time.Now())
+	`, u.Name, u.Email, u.Password, time.Now())
 	if err != nil {
 		log.SetFlags(log.Llongfile)
 		log.Println(err)

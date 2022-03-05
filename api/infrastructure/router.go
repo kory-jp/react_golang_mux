@@ -11,13 +11,12 @@ import (
 )
 
 func Init() {
+	log.SetFlags(log.Ltime | log.Llongfile)
 	err := godotenv.Load("env/dev.env")
 	if err != nil {
-		log.SetFlags(log.Llongfile)
+		log.Println(err)
 		log.Panicln(err)
 	}
-
-	log.SetFlags(log.Ltime | log.Llongfile)
 
 	r := mux.NewRouter()
 	todoController := controllers.NewTodoController(NewSqlHandler())

@@ -4,6 +4,8 @@ import (
 	"errors"
 	"log"
 
+	"golang.org/x/crypto/bcrypt"
+
 	"github.com/kory-jp/react_golang_mux/api/domain"
 )
 
@@ -20,12 +22,18 @@ func (interactor *SessionInteractor) Login(u domain.User) (user domain.User, err
 	if err != nil {
 		log.SetFlags(log.Llongfile)
 		log.Println(err)
-		err = errors.New("メールアドレスに一致するユーザーがおりません")
+		err = errors.New("認証に失敗しました")
 	} else {
-		if userFindByEmail.Password == u.Encrypt(u.Password) {
+		// if userFindByEmail.Password == u.Encrypt(u.Password) {
+		// 	user = userFindByEmail
+		// } else {
+		// 	err = errors.New("認証に失敗しました")
+		// }
+		err = bcrypt.CompareHashAndPassword([]byte(userFindByEmail.Password), []byte(u.Password))
+		if err == nil {
 			user = userFindByEmail
 		} else {
-			err = errors.New("パスワードが一致しませんでした")
+			err = errors.New("認証に失敗しました")
 		}
 	}
 	return

@@ -35,8 +35,9 @@ export const saveUserInfo = (name: string, email: string, password: string, pass
           }
         }
       ).then((response) => {
-        if (response.data.Detail) {
-          dispatch(pushToast({title: response.data.Detail, severity: "error"}))
+        console.log(response)
+        if (response.data.Error) {
+          dispatch(pushToast({title: response.data.Error, severity: "error"}))
           return
         } else {
           const userData: User = response.data.user
@@ -74,8 +75,8 @@ export const login = (email: string, password: string) => {
           }
         }
       ).then((response) => {
-        if (response.data.Detail) {
-          dispatch(pushToast({title: response.data.Detail, severity: "error"}))
+        if (response.data.Error) {
+          dispatch(pushToast({title: response.data.Error, severity: "error"}))
           return
         } else {
           const userData: User = response.data
@@ -102,9 +103,9 @@ export const isLoggedIn = () => {
           }
         }
       ).then((response) => {
-        if (response.data.Detail) {
+        if (response.data.Error) {
           dispatch(push("/"))
-          dispatch(pushToast({title: response.data.Detail, severity: "error"}))
+          dispatch(pushToast({title: response.data.Error, severity: "error"}))
           return
         } else {
           const userData: User = response.data
