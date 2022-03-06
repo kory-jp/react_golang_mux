@@ -20,15 +20,9 @@ type SessionValidError struct {
 func (interactor *SessionInteractor) Login(u domain.User) (user domain.User, err error) {
 	userFindByEmail, err := interactor.SessionRepository.FindByEmail(u)
 	if err != nil {
-		log.SetFlags(log.Llongfile)
 		log.Println(err)
 		err = errors.New("認証に失敗しました")
 	} else {
-		// if userFindByEmail.Password == u.Encrypt(u.Password) {
-		// 	user = userFindByEmail
-		// } else {
-		// 	err = errors.New("認証に失敗しました")
-		// }
 		err = bcrypt.CompareHashAndPassword([]byte(userFindByEmail.Password), []byte(u.Password))
 		if err == nil {
 			user = userFindByEmail
@@ -42,7 +36,6 @@ func (interactor *SessionInteractor) Login(u domain.User) (user domain.User, err
 func (interactor *SessionInteractor) IsLoggedin(uid int) (user domain.User, err error) {
 	user, err = interactor.SessionRepository.FindById(uid)
 	if err != nil {
-		log.SetFlags(log.Llongfile)
 		log.Println(err)
 	}
 	return

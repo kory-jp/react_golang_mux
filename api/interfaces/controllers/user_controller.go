@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -21,6 +22,14 @@ type UserValidError struct {
 	Error string
 }
 
+func (serr *UserValidError) MakeErr(mess string) (errStr string) {
+	err := errors.New(mess)
+	usersErr := &UserValidError{Error: err.Error()}
+	e, _ := json.Marshal(usersErr)
+	errStr = string(e)
+	return
+}
+
 func NewUserController(sqlHandler database.SqlHandler) *UserController {
 	return &UserController{
 		Interactor: usecase.UserInteractor{
@@ -34,12 +43,14 @@ func NewUserController(sqlHandler database.SqlHandler) *UserController {
 func (controller *UserController) Create(w http.ResponseWriter, r *http.Request) {
 	bytesUser, err := io.ReadAll(r.Body)
 	if err != nil {
-		log.SetFlags(log.Llongfile)
+		fmt.Println(err)
 		log.Println(err)
+		errStr := new(UserValidError).MakeErr("データ取得に失敗しました")
+		fmt.Fprintln(w, errStr)
+		return
 	}
 	userType := new(domain.User)
 	if err := json.Unmarshal(bytesUser, userType); err != nil {
-		log.SetFlags(log.Llongfile)
 		log.Println(err)
 		return
 	}
@@ -56,7 +67,6 @@ func (controller *UserController) Create(w http.ResponseWriter, r *http.Request)
 
 	jsonUser, err := json.Marshal(user)
 	if err != nil {
-		log.SetFlags(log.Llongfile)
 		log.Panicln(err)
 	}
 	fmt.Fprintln(w, string(jsonUser))
