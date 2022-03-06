@@ -25,6 +25,14 @@ type SessionValidError struct {
 	Error string
 }
 
+func (serr *SessionValidError) MakeErr(mess string) (errStr string) {
+	err := errors.New(mess)
+	todosErr := &SessionValidError{Error: err.Error()}
+	e, _ := json.Marshal(todosErr)
+	errStr = string(e)
+	return
+}
+
 func NewSessionController(sqlHandler database.SqlHandler) *SessionController {
 	return &SessionController{
 		Interactor: usecase.SessionInteractor{
@@ -40,7 +48,11 @@ var store = sessions.NewCookieStore([]byte(os.Getenv("SESSION_KEY")))
 func (controller *SessionController) Login(w http.ResponseWriter, r *http.Request) {
 	bytesUser, err := io.ReadAll(r.Body)
 	if err != nil {
+		fmt.Println(err)
 		log.Println(err)
+		errStr := new(SessionValidError).MakeErr("データ取得に失敗しました")
+		fmt.Fprintln(w, errStr)
+		return
 	}
 	userType := new(domain.User)
 	if err := json.Unmarshal(bytesUser, userType); err != nil {
@@ -50,18 +62,15 @@ func (controller *SessionController) Login(w http.ResponseWriter, r *http.Reques
 	user, err := controller.Interactor.Login(*userType)
 	if err != nil {
 		log.Println(err)
-		validErr := &SessionValidError{Error: err.Error()}
-		e, _ := json.Marshal(validErr)
-		fmt.Fprintln(w, string(e))
+		errStr := new(SessionValidError).MakeErr(err.Error())
+		fmt.Fprintln(w, errStr)
 	} else {
 		token, err := MakeRandomStr(10)
 		if err != nil {
 			fmt.Println(err)
 			log.Println(err)
-			err := errors.New("認証に失敗しました")
-			validErr := &SessionValidError{Error: err.Error()}
-			e, _ := json.Marshal(validErr)
-			fmt.Fprintln(w, string(e))
+			errStr := new(SessionValidError).MakeErr("認証に失敗しました")
+			fmt.Fprintln(w, errStr)
 			return
 		}
 		session, _ := store.New(r, "session")
@@ -98,10 +107,8 @@ func (controller *SessionController) Authenticate(w http.ResponseWriter, r *http
 			if err != nil {
 				fmt.Println(err)
 				log.Println(err)
-				err := errors.New("認証に失敗しました")
-				validErr := &SessionValidError{Error: err.Error()}
-				e, _ := json.Marshal(validErr)
-				fmt.Fprintln(w, string(e))
+				errStr := new(SessionValidError).MakeErr("認証に失敗しました")
+				fmt.Fprintln(w, errStr)
 				return
 			}
 			session.Values["token"] = token
@@ -120,10 +127,8 @@ func (controller *SessionController) Authenticate(w http.ResponseWriter, r *http
 			fmt.Fprintln(w, string(jsonUser))
 		}
 	} else {
-		err := errors.New("ログインをしてください")
-		validErr := &SessionValidError{Error: err.Error()}
-		e, _ := json.Marshal(validErr)
-		fmt.Fprintln(w, string(e))
+		errStr := new(SessionValidError).MakeErr("ログインしてください")
+		fmt.Fprintln(w, errStr)
 	}
 }
 

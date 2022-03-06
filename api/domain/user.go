@@ -24,11 +24,6 @@ type Users []User
 
 func (u User) Encrypt(plaintext string) (hash string) {
 	byteHash, _ := bcrypt.GenerateFromPassword([]byte(plaintext), bcrypt.DefaultCost)
-	// if err != nil {
-	// 	fmt.Println(err)
-	// 	log.Println(err)
-	// 	return "", err
-	// }
 	hash = string(byteHash)
 	return hash
 }

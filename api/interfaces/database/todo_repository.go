@@ -27,7 +27,6 @@ func (repo *TodoRepository) Store(t domain.Todo) (err error) {
 		value (?, ?, ?, ?, ?, ?)
 	`, t.UserID, t.Title, t.Content, t.ImagePath, false, time.Now())
 	if err != nil {
-		log.SetFlags(log.Llongfile)
 		log.Panicln(err)
 	}
 	return
@@ -44,7 +43,6 @@ func (repo *TodoRepository) FindByUserId(identifier int, page int) (todos domain
 			user_id = ?
 	`, identifier)
 	if err != nil {
-		log.SetFlags(log.Llongfile)
 		log.Panicln(err)
 	}
 	defer row.Close()
@@ -52,7 +50,6 @@ func (repo *TodoRepository) FindByUserId(identifier int, page int) (todos domain
 	for row.Next() {
 		err = row.Scan(&allTodosCount)
 		if err != nil {
-			log.SetFlags(log.Llongfile)
 			log.Panicln(err)
 		}
 	}
@@ -80,7 +77,6 @@ func (repo *TodoRepository) FindByUserId(identifier int, page int) (todos domain
 		offset ?
 	`, identifier, offsetNum)
 	if err != nil {
-		log.SetFlags(log.Llongfile)
 		log.Panicln(err)
 	}
 	defer rows.Close()
@@ -97,7 +93,6 @@ func (repo *TodoRepository) FindByUserId(identifier int, page int) (todos domain
 			&todo.CreatedAt,
 		)
 		if err != nil {
-			log.SetFlags(log.Llongfile)
 			log.Panicln(err)
 		}
 		todos = append(todos, todo)
@@ -124,7 +119,6 @@ func (repo *TodoRepository) FindByIdAndUserId(identifier int, userIdentifier int
 			user_id = ?
 	`, identifier, userIdentifier)
 	if err != nil {
-		log.SetFlags(log.Llongfile)
 		log.Panicln(err)
 	}
 	defer row.Close()
@@ -138,7 +132,6 @@ func (repo *TodoRepository) FindByIdAndUserId(identifier int, userIdentifier int
 	var created_at time.Time
 	row.Next()
 	if err = row.Scan(&id, &userId, &title, &content, &imagePath, &isFinished, &created_at); err != nil {
-		log.SetFlags(log.Llongfile)
 		log.Println(err)
 	}
 	row.Close()
@@ -167,7 +160,6 @@ func (repo *TodoRepository) Overwrite(t domain.Todo) (err error) {
 			user_id = ?
 	`, t.Title, t.Content, t.ImagePath, t.ID, t.UserID)
 	if err != nil {
-		log.SetFlags(log.Llongfile)
 		log.Panicln(err)
 	}
 	return
@@ -183,7 +175,6 @@ func (repo *TodoRepository) ChangeBoolean(id int, t domain.Todo) (err error) {
 			id = ?
 	`, t.IsFinished, id)
 	if err != nil {
-		log.SetFlags(log.Llongfile)
 		log.Panicln(err)
 		return
 	}
@@ -200,7 +191,6 @@ func (repo *TodoRepository) Erasure(id int, userId int) (err error) {
 			user_id = ?
 	`, id, userId)
 	if err != nil {
-		log.SetFlags(log.Llongfile)
 		log.Panicln(err)
 	}
 	return
