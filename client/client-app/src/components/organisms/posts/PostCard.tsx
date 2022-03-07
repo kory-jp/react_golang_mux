@@ -20,7 +20,7 @@ export const PostCard: FC<Props> = (props) => {
   const {todo, setSumPage, queryPage} = props;
   const dispatch = useDispatch()
   const [finish, setFinish] = useState(false)
-  const imagePath = `http://localhost:8000/api/img/${todo.imagePath}`
+  const imagePath = process.env.REACT_APP_API_URL + `img/${todo.imagePath}`
 
   useEffect(() => {
     setFinish(todo.isFinished)

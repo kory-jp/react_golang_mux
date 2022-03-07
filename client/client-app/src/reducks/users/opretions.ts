@@ -20,8 +20,9 @@ export const saveUserInfo = (name: string, email: string, password: string, pass
       dispatch(pushToast({title: 'パスワードが一致しておりません', severity: "error"}))
       return
     }
+    const apiURL = process.env.REACT_APP_API_URL + "registration"
     axios
-      .post("http://localhost:8000/api/registration",
+      .post(apiURL,
         {
           name: name,
           email: email,
@@ -61,8 +62,9 @@ export const login = (email: string, password: string) => {
       dispatch(pushToast({title: '必要項目の入力がありません', severity: "error"}))
       return
     }
+    const apiURL = process.env.REACT_APP_API_URL + "login"
     await axios
-      .post("http://localhost:8000/api/login",
+      .post(apiURL,
         {
           email: email,
           password: password
@@ -93,8 +95,9 @@ export const login = (email: string, password: string) => {
 
 export const isLoggedIn = () => {
   return async (dispatch: Dispatch<{}>) => {
+    const apiURL = process.env.REACT_APP_API_URL + "authenticate"
     await axios
-      .get("http://localhost:8000/api/authenticate",
+      .get(apiURL,
         {
           withCredentials: true,
           headers: {
@@ -120,8 +123,9 @@ export const isLoggedIn = () => {
 
 export const isLoggedOut = () => {
   return async (dispatch: Dispatch<{}>) => {
+    const apiURL = process.env.REACT_APP_API_URL + "authenticate"
     await axios
-      .get("http://localhost:8000/api/authenticate",
+      .get(apiURL,
       {
         withCredentials: true,
         headers: {
@@ -141,8 +145,9 @@ export const isLoggedOut = () => {
 
 export const logout = () => {
   return async (dispatch: Dispatch<{}>) => {
+    const apiURL = process.env.REACT_APP_API_URL + "logout"
     await axios
-      .delete("http://localhost:8000/api/logout",
+      .delete(apiURL,
         {
           withCredentials: true,
           headers: {
