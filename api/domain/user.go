@@ -1,10 +1,11 @@
 package domain
 
 import (
-	"crypto/sha1"
 	"errors"
 	"fmt"
 	"time"
+
+	"golang.org/x/crypto/bcrypt"
 
 	"github.com/go-playground/validator/v10"
 )
@@ -21,9 +22,10 @@ type User struct {
 
 type Users []User
 
-func (u User) Encrypt(plaintext string) (cryptext string) {
-	cryptext = fmt.Sprintf("%x", sha1.Sum([]byte(plaintext)))
-	return cryptext
+func (u User) Encrypt(plaintext string) (hash string) {
+	byteHash, _ := bcrypt.GenerateFromPassword([]byte(plaintext), bcrypt.DefaultCost)
+	hash = string(byteHash)
+	return hash
 }
 
 func traslateUsersField(field string) (value string) {

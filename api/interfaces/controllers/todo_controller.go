@@ -9,6 +9,7 @@ import (
 	"mime/multipart"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strconv"
 	"time"
 
@@ -24,6 +25,14 @@ type TodoController struct {
 
 type TodosError struct {
 	Error string
+}
+
+func (serr *TodosError) MakeErr(mess string) (errStr string) {
+	err := errors.New(mess)
+	todosErr := &TodosError{Error: err.Error()}
+	e, _ := json.Marshal(todosErr)
+	errStr = string(e)
+	return
 }
 
 type ResponseFormat struct {
@@ -42,48 +51,86 @@ func NewTodoController(sqlHandler database.SqlHandler) *TodoController {
 	}
 }
 
+func GetUserId(r *http.Request) (userId int, err error) {
+	session, err := store.Get(r, "session")
+	if err != nil {
+		log.Println(err)
+		fmt.Println(err)
+		return 0, err
+	}
+	userId = session.Values["userId"].(int)
+	return userId, nil
+}
+
 func (controller *TodoController) Create(w http.ResponseWriter, r *http.Request) {
 
 	var file multipart.File
 	var fileHeader *multipart.FileHeader
 	var err error
 	var uploadFileName string
+	err = r.ParseMultipartForm(32 << 20)
+	if err != nil {
+		fmt.Println(err)
+		log.Println(err)
+		errStr := new(TodosError).MakeErr("画像の容量が大きく保存できません")
+		fmt.Fprintln(w, errStr)
+		return
+	}
 	if file, fileHeader, err = r.FormFile("image"); err != nil {
-		fmt.Println("No Image File", err)
+		if err == http.ErrMissingFile {
+			fmt.Println("画像が投稿されていません")
+		} else if err != nil {
+			fmt.Println(err)
+			log.Println(err)
+			errStr := new(TodosError).MakeErr("画像の取り込み失敗しました")
+			fmt.Fprintln(w, errStr)
+			return
+		}
 	} else {
+		defer file.Close()
 		// 画像を保存するimgディレクトリが存在しない場合は作成する
 		err = os.MkdirAll("./img", os.ModePerm)
 		if err != nil {
-			fmt.Fprintln(w, "サーバーで障害が発生しました")
+			fmt.Println(err)
+			log.Println(err)
+			errStr := new(TodosError).MakeErr("サーバーで障害が発生しました")
+			fmt.Fprintln(w, errStr)
 			return
 		}
 		// サーバー側に保存するために空ファイルを作成
 		var saveImage *os.File
 		uploadFileName = fmt.Sprintf("%d%s", time.Now().UnixNano(), fileHeader.Filename)
-		saveImage, err = os.Create("./img/" + uploadFileName)
+		imageFilePath := "./img/" + uploadFileName
+		formatPath := filepath.Clean(imageFilePath)
+		saveImage, err = os.Create(formatPath)
 		if err != nil {
-			fmt.Fprintln(w, "サーバ側でファイル確保できませんでした。")
+			fmt.Println(err)
+			log.Println(err)
+			errStr := new(TodosError).MakeErr("サーバーで障害が発生しました")
+			fmt.Fprintln(w, errStr)
 			return
 		}
 		defer saveImage.Close()
-		defer file.Close()
 		size, err := io.Copy(saveImage, file)
 		if err != nil {
 			fmt.Println(err)
-			fmt.Println("アップロードしたファイルの書き込みに失敗しました。")
-			os.Exit(1)
+			log.Println(err)
+			errStr := new(TodosError).MakeErr("サーバーで障害が発生しました")
+			fmt.Fprintln(w, errStr)
+			return
 		}
 		fmt.Println("書き込んだByte数=>", size)
 	}
 
-	session, err := store.Get(r, "session")
+	userId, err := GetUserId(r)
 	if err != nil {
-		log.SetFlags(log.Llongfile)
-		log.Println(err)
+		errStr := new(TodosError).MakeErr("保存処理に失敗しました")
+		fmt.Fprintln(w, errStr)
+		return
 	}
 
 	todoType := new(domain.Todo)
-	todoType.UserID = session.Values["userId"].(int)
+	todoType.UserID = userId
 	todoType.Title = r.Form.Get("title")
 	todoType.Content = r.Form.Get("content")
 	todoType.ImagePath = uploadFileName
@@ -96,7 +143,6 @@ func (controller *TodoController) Create(w http.ResponseWriter, r *http.Request)
 
 	jsonMess, err := json.Marshal(mess)
 	if err != nil {
-		log.SetFlags(log.Llongfile)
 		log.Println(err)
 	}
 	fmt.Fprintln(w, string(jsonMess))
@@ -107,18 +153,23 @@ func (controller *TodoController) Index(w http.ResponseWriter, r *http.Request) 
 	// URLから取得したいページ番目の情報
 	page, err := strconv.Atoi(r.FormValue("page"))
 	if err != nil {
-		log.SetFlags(log.Llongfile)
 		log.Println(err)
 	}
-	session, _ := store.Get(r, "session")
-	todos, sumPage, err := controller.Interactor.Todos(session.Values["userId"].(int), page)
+	userId, err := GetUserId(r)
 	if err != nil {
-		log.SetFlags(log.Llongfile)
+		fmt.Println(err)
 		log.Println(err)
-		err := errors.New("データ取得に失敗しました")
-		todosErr := &TodosError{Error: err.Error()}
-		e, _ := json.Marshal(todosErr)
-		fmt.Fprintln(w, string(e))
+		errStr := new(TodosError).MakeErr("データ取得に失敗しました")
+		fmt.Fprintln(w, errStr)
+		return
+	}
+	todos, sumPage, err := controller.Interactor.Todos(userId, page)
+	if err != nil {
+		fmt.Println(err)
+		log.Println(err)
+		errStr := new(TodosError).MakeErr("データ取得に失敗しました")
+		fmt.Fprintln(w, errStr)
+		return
 	}
 	res := ResponseFormat{
 		Todos:   todos,
@@ -126,7 +177,6 @@ func (controller *TodoController) Index(w http.ResponseWriter, r *http.Request) 
 	}
 	jsonResponse, err := json.Marshal(res)
 	if err != nil {
-		log.SetFlags(log.Llongfile)
 		log.Println(err)
 	}
 	fmt.Fprintln(w, string(jsonResponse))
@@ -136,27 +186,27 @@ func (controller *TodoController) Show(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
-		log.SetFlags(log.Llongfile)
 		log.Println(err)
 	}
-	session, err := store.Get(r, "session")
+	userId, err := GetUserId(r)
 	if err != nil {
-		log.SetFlags(log.Llongfile)
+		fmt.Println(err)
 		log.Println(err)
+		errStr := new(TodosError).MakeErr("データ取得に失敗しました")
+		fmt.Fprintln(w, errStr)
+		return
 	}
-	todo, err := controller.Interactor.TodoByIdAndUserId(id, session.Values["userId"].(int))
+	todo, err := controller.Interactor.TodoByIdAndUserId(id, userId)
 	if err != nil {
-		log.SetFlags(log.Llongfile)
+		fmt.Println(err)
 		log.Println(err)
-		err := errors.New("データ取得に失敗しました")
-		todosErr := &TodosError{Error: err.Error()}
-		e, _ := json.Marshal(todosErr)
-		fmt.Fprintln(w, string(e))
+		errStr := new(TodosError).MakeErr("データ取得に失敗しました")
+		fmt.Fprintln(w, errStr)
+		return
 	}
 
 	jsonTodo, err := json.Marshal(todo)
 	if err != nil {
-		log.SetFlags(log.Llongfile)
 		log.Println(err)
 	}
 
@@ -168,41 +218,71 @@ func (controller *TodoController) Update(w http.ResponseWriter, r *http.Request)
 	var fileHeader *multipart.FileHeader
 	var err error
 	var uploadFileName string
+	err = r.ParseMultipartForm(32 << 20)
+	if err != nil {
+		fmt.Println(err)
+		log.Println(err)
+		errStr := new(TodosError).MakeErr("画像の容量が大きく保存できません")
+		fmt.Fprintln(w, errStr)
+		return
+	}
 	if file, fileHeader, err = r.FormFile("image"); err != nil {
-		fmt.Println("No Image File by Edit", err)
+		if err == http.ErrMissingFile {
+			fmt.Println("画像が投稿されていません")
+		} else if err != nil {
+			fmt.Println(err)
+			log.Println(err)
+			errStr := new(TodosError).MakeErr("画像の取り込みに失敗しました")
+			fmt.Fprintln(w, errStr)
+			return
+		}
 	} else {
+		defer file.Close()
 		err = os.MkdirAll("./img", os.ModePerm)
 		if err != nil {
-			fmt.Fprintln(w, "サーバーで障害が発生しました")
+			fmt.Println(err)
+			log.Println(err)
+			errStr := new(TodosError).MakeErr("サーバーで障害が発生しました")
+			fmt.Fprintln(w, errStr)
 			return
 		}
 		var saveImage *os.File
 		uploadFileName = fmt.Sprintf("%d%s", time.Now().UnixNano(), fileHeader.Filename)
-		saveImage, err = os.Create("./img/" + uploadFileName)
+		imageFilePath := "./img/" + uploadFileName
+		formatPath := filepath.Clean(imageFilePath)
+		saveImage, err = os.Create(formatPath)
 		if err != nil {
-			fmt.Fprintln(w, "サーバ側でファイル確保できませんでした。")
+			//  "サーバ側でファイル確保できませんでした
+			fmt.Println(err)
+			log.Println(err)
+			errStr := new(TodosError).MakeErr("サーバーで障害が発生しました")
+			fmt.Fprintln(w, errStr)
 			return
 		}
 		defer saveImage.Close()
-		defer file.Close()
 		size, err := io.Copy(saveImage, file)
 		if err != nil {
+			// アップロードしたファイルの書き込みに失敗しました。"
 			fmt.Println(err)
-			fmt.Println("アップロードしたファイルの書き込みに失敗しました。")
-			os.Exit(1)
+			log.Println(err)
+			errStr := new(TodosError).MakeErr("サーバーで障害が発生しました")
+			fmt.Fprintln(w, errStr)
+			return
 		}
 		fmt.Println("書き込んだByte数=>", size)
 	}
 
-	session, err := store.Get(r, "session")
+	userId, err := GetUserId(r)
 	if err != nil {
-		log.SetFlags(log.Llongfile)
+		fmt.Println(err)
 		log.Println(err)
+		errStr := new(TodosError).MakeErr("保存処理に失敗しました")
+		fmt.Fprintln(w, errStr)
+		return
 	}
-
 	todoType := new(domain.Todo)
 	todoType.ID, _ = strconv.Atoi(r.Form.Get("id"))
-	todoType.UserID = session.Values["userId"].(int)
+	todoType.UserID = userId
 	todoType.Title = r.Form.Get("title")
 	todoType.Content = r.Form.Get("content")
 	// -------
@@ -225,7 +305,6 @@ func (controller *TodoController) Update(w http.ResponseWriter, r *http.Request)
 		}
 	}
 
-	fmt.Println("ctr", todoType)
 	// -------
 	mess, err := controller.Interactor.UpdateTodo(*todoType)
 	if err != nil {
@@ -235,7 +314,6 @@ func (controller *TodoController) Update(w http.ResponseWriter, r *http.Request)
 
 	jsonMess, err := json.Marshal(mess)
 	if err != nil {
-		log.SetFlags(log.Llongfile)
 		log.Println(err)
 	}
 	fmt.Fprintln(w, string(jsonMess))
@@ -245,35 +323,33 @@ func (controller *TodoController) IsFinished(w http.ResponseWriter, r *http.Requ
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
-		log.SetFlags(log.Llongfile)
 		log.Println(err)
 	}
 	todoType := new(domain.Todo)
 	bytesTodo, err := io.ReadAll(r.Body)
 	if err != nil {
-		log.SetFlags(log.Llongfile)
 		log.Println(err)
 	}
 	if err := json.Unmarshal(bytesTodo, todoType); err != nil {
-		log.SetFlags(log.Llongfile)
 		log.Println(err)
 		return
 	}
 
-	session, err := store.Get(r, "session")
+	userId, err := GetUserId(r)
 	if err != nil {
-		log.SetFlags(log.Llongfile)
+		fmt.Println(err)
 		log.Println(err)
+		errStr := new(TodosError).MakeErr("保存処理に失敗しました")
+		fmt.Fprintln(w, errStr)
+		return
 	}
-	mess, err := controller.Interactor.IsFinishedTodo(id, *todoType, session.Values["userId"].(int))
+	mess, err := controller.Interactor.IsFinishedTodo(id, *todoType, userId)
 	if err != nil {
-		log.SetFlags(log.Llongfile)
 		log.Println(err)
 	}
 
 	jsonMess, err := json.Marshal(mess)
 	if err != nil {
-		log.SetFlags(log.Llongfile)
 		log.Println(err)
 	}
 	fmt.Fprintln(w, string(jsonMess))
@@ -283,15 +359,17 @@ func (controller *TodoController) Delete(w http.ResponseWriter, r *http.Request)
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
-		log.SetFlags(log.Llongfile)
 		log.Println(err)
 	}
-	session, err := store.Get(r, "session")
+	userId, err := GetUserId(r)
 	if err != nil {
-		log.SetFlags(log.Llongfile)
+		fmt.Println(err)
 		log.Println(err)
+		errStr := new(TodosError).MakeErr("削除処理に失敗しました")
+		fmt.Fprintln(w, errStr)
+		return
 	}
-	mess, err := controller.Interactor.DeleteTodo(id, session.Values["userId"].(int))
+	mess, err := controller.Interactor.DeleteTodo(id, userId)
 	if err != nil {
 		fmt.Fprintln(w, err)
 		return
@@ -299,7 +377,6 @@ func (controller *TodoController) Delete(w http.ResponseWriter, r *http.Request)
 
 	jsonMess, err := json.Marshal(mess)
 	if err != nil {
-		log.SetFlags(log.Llongfile)
 		log.Println(err)
 	}
 	fmt.Fprintln(w, string(jsonMess))
@@ -309,20 +386,22 @@ func (controller *TodoController) DeleteInIndex(w http.ResponseWriter, r *http.R
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
-		log.SetFlags(log.Llongfile)
 		log.Println(err)
 	}
 	page, err := strconv.Atoi(r.FormValue("page"))
 	if err != nil {
-		log.SetFlags(log.Llongfile)
 		log.Println(err)
 	}
-	session, err := store.Get(r, "session")
+
+	userId, err := GetUserId(r)
 	if err != nil {
-		log.SetFlags(log.Llongfile)
+		fmt.Println(err)
 		log.Println(err)
+		errStr := new(TodosError).MakeErr("削除処理に失敗しました")
+		fmt.Fprintln(w, errStr)
+		return
 	}
-	todos, sumPage, mess, err := controller.Interactor.DeleteTodoInIndex(id, session.Values["userId"].(int), page)
+	todos, sumPage, mess, err := controller.Interactor.DeleteTodoInIndex(id, userId, page)
 	if err != nil {
 		fmt.Fprintln(w, err)
 		return
@@ -334,7 +413,6 @@ func (controller *TodoController) DeleteInIndex(w http.ResponseWriter, r *http.R
 	}
 	jsonResponse, err := json.Marshal(res)
 	if err != nil {
-		log.SetFlags(log.Llongfile)
 		log.Println(err)
 	}
 	fmt.Fprintln(w, string(jsonResponse))

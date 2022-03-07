@@ -3,7 +3,6 @@ package infrastructure
 import (
 	"database/sql"
 	"fmt"
-	"log"
 
 	_ "github.com/go-sql-driver/mysql"
 
@@ -51,7 +50,6 @@ func (handler *SqlHandler) Execute(statement string, args ...interface{}) (datab
 	res := SqlResult{}
 	result, err := handler.Conn.Exec(statement, args...)
 	if err != nil {
-		log.SetFlags(log.Llongfile)
 		return res, err
 	}
 	res.Result = result

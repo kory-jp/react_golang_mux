@@ -25,7 +25,6 @@ func (repo *SessionRepository) FindByEmail(u domain.User) (user domain.User, err
 			email = ?
 	`, u.Email)
 	if err != nil {
-		log.SetFlags(log.Llongfile)
 		log.Println(err)
 		return
 	}
@@ -38,7 +37,6 @@ func (repo *SessionRepository) FindByEmail(u domain.User) (user domain.User, err
 	var created_at time.Time
 	row.Next()
 	if err = row.Scan(&id, &name, &email, &password, &created_at); err != nil {
-		log.SetFlags(log.Llongfile)
 		log.Println(err)
 		return
 	}
@@ -64,7 +62,6 @@ func (repo *SessionRepository) FindById(uid int) (user domain.User, err error) {
 			id = ?
 	`, uid)
 	if err != nil {
-		log.SetFlags(log.Llongfile)
 		log.Println(err)
 		return
 	}
@@ -77,7 +74,6 @@ func (repo *SessionRepository) FindById(uid int) (user domain.User, err error) {
 	var created_at time.Time
 	row.Next()
 	if err = row.Scan(&id, &name, &email, &password, &created_at); err != nil {
-		log.SetFlags(log.Llongfile)
 		log.Println(err)
 		return
 	}

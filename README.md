@@ -75,6 +75,20 @@ cd golang_react_mux
 
 環境変数設定
 
+React 側
+
+```
+touch client/client-app/.env
+```
+
+client/client-app/.env へキー(環境変数)を入力
+
+```
+REACT_APP_API_URL="http://localhost:8000/api/"
+```
+
+golang 側
+
 ```
 touch api/env/dev.env
 ```
