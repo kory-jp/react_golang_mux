@@ -61,19 +61,21 @@ client(react)/Atomic Design を採用
 
 ## ローカルでの起動方法
 
-クローン
+- クローン
 
 ```
 git clone git@github.com:kory-jp/react_golang_mux.git
 ```
 
-ルートディレクトリへ移動
+
+- ルートディレクトリへ移動
 
 ```
 cd golang_react_mux
 ```
 
-環境変数設定
+
+- 環境変数設定
 
 React 側
 
@@ -99,24 +101,29 @@ api/env/dev.env へキー(環境変数)を入力
 SESSION_KEY = ********
 ```
 
-docker 起動
+
+- docker 起動
 
 ```
 docker-compose build
 docker-compose up -d
 ```
 
-サイトアクセス
+
+- サイトアクセス
 
 [Todo](http://localhost:8080/)
 
-コンテナログイン
+
+- コンテナログイン
 
 ```
 docker exec -it go_container /bin/sh
 docker exec -it react_container /bin/sh
 docker exec -it mysql_container /bin/sh
 ```
+
+
 
 ## テストデータ投入
 
