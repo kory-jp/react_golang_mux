@@ -28,8 +28,9 @@ export const EditTodo: FC = () => {
 
   const getTodoInfo = useCallback((id: number) => {
       dispatch(nowLoadingState(true))
+      const apiURL = process.env.REACT_APP_API_URL + `todos/${id}`
       axios
-        .get(`http://localhost:8000/api/todos/${id}`,
+        .get(apiURL,
         {
           withCredentials: true,
           headers:{
@@ -42,7 +43,7 @@ export const EditTodo: FC = () => {
           setTitle(todo.title)
           setContent(todo.content)
           setImagePath(todo.imagePath)
-          const imagePath = todo.imagePath? `http://localhost:8000/api/img/${todo.imagePath}` : ''
+          const imagePath = todo.imagePath? process.env.REACT_APP_API_URL + `img/${todo.imagePath}` : ''
           setPreview(imagePath)
         })
         .catch((error) => {

@@ -9,6 +9,7 @@ import (
 	"mime/multipart"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strconv"
 	"time"
 
@@ -99,7 +100,9 @@ func (controller *TodoController) Create(w http.ResponseWriter, r *http.Request)
 		// サーバー側に保存するために空ファイルを作成
 		var saveImage *os.File
 		uploadFileName = fmt.Sprintf("%d%s", time.Now().UnixNano(), fileHeader.Filename)
-		saveImage, err = os.Create("./img/" + uploadFileName)
+		imageFilePath := "./img/" + uploadFileName
+		formatPath := filepath.Clean(imageFilePath)
+		saveImage, err = os.Create(formatPath)
 		if err != nil {
 			fmt.Println(err)
 			log.Println(err)
@@ -245,7 +248,9 @@ func (controller *TodoController) Update(w http.ResponseWriter, r *http.Request)
 		}
 		var saveImage *os.File
 		uploadFileName = fmt.Sprintf("%d%s", time.Now().UnixNano(), fileHeader.Filename)
-		saveImage, err = os.Create("./img/" + uploadFileName)
+		imageFilePath := "./img/" + uploadFileName
+		formatPath := filepath.Clean(imageFilePath)
+		saveImage, err = os.Create(formatPath)
 		if err != nil {
 			//  "サーバ側でファイル確保できませんでした
 			fmt.Println(err)

@@ -33,7 +33,7 @@ export const ShowTodo: FC = () => {
     setFinish(todo.isFinished)
   },[todo])
 
-  const imagePath = `http://localhost:8000/api/img/${todo.imagePath}`
+  const imagePath = process.env.REACT_APP_API_URL + `img/${todo.imagePath}`
   
   const onClickToEdit = useCallback(() => {
     dispatch(push(`/todo/edit/${id}`))

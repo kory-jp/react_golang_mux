@@ -1,7 +1,7 @@
 FROM golang:alpine
 WORKDIR /app/api
 RUN export GOPATH= && export GO111MODULE=on 
-COPY ./api /app/api
+COPY ./ /app/api
 RUN apk upgrade --update && \
   apk --no-cache add git gcc musl-dev
 RUN go get github.com/go-sql-driver/mysql && \

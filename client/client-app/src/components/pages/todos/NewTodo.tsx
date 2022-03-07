@@ -6,7 +6,6 @@ import React, { FC, useCallback, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import { PrimaryButton } from "../../atoms/button/PrimaryButton";
-import { RooState } from "../../../reducks/store/store";
 import { createTodo } from "../../../reducks/todos/operations";
 
 export const NewTodo: FC = () => {
