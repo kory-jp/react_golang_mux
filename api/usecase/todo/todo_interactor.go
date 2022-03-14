@@ -23,12 +23,17 @@ func (interactor *TodoInteractor) Add(t domain.Todo) (mess TodoMessage, err erro
 			err = errors.New("保存に失敗しました")
 			return
 		}
+		mess.Message = "保存しました"
 	}
-	mess.Message = "保存しました"
 	return
 }
 
 func (interactor *TodoInteractor) Todos(userId int, page int) (todos domain.Todos, sumPage float64, err error) {
+	if userId == 0 || page == 0 {
+		err = errors.New("データ取得に失敗しました")
+		return nil, 0, err
+	}
+
 	todos, sumPage, err = interactor.TodoRepository.FindByUserId(userId, page)
 	if err != nil {
 		log.Println(err)

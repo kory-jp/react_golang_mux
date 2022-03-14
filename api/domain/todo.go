@@ -46,7 +46,9 @@ func (todo *Todo) TodoValidate() (err error) {
 			case "gte":
 				return fmt.Errorf("%sは%s文字以上が必須です。", value, err.Param())
 			case "lt":
-				return fmt.Errorf("%sは%s文字以内の入力になります。", value, err.Param())
+				return fmt.Errorf("%sは%s文字未満の入力になります。", value, err.Param())
+			case "max":
+				return fmt.Errorf("%sは%s文字を超えて入力はできません。", value, err.Param())
 			}
 		}
 	}
