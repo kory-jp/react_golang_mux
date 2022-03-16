@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"errors"
+	"fmt"
 	"log"
 
 	"github.com/kory-jp/react_golang_mux/api/domain"
@@ -19,7 +20,8 @@ func (interactor *TodoInteractor) Add(t domain.Todo) (mess TodoMessage, err erro
 	if err = t.TodoValidate(); err == nil {
 		err = interactor.TodoRepository.Store(t)
 		if err != nil {
-			log.Panicln(err)
+			fmt.Println(err)
+			log.Println(err)
 			err = errors.New("保存に失敗しました")
 			return
 		}
@@ -31,11 +33,14 @@ func (interactor *TodoInteractor) Add(t domain.Todo) (mess TodoMessage, err erro
 func (interactor *TodoInteractor) Todos(userId int, page int) (todos domain.Todos, sumPage float64, err error) {
 	if userId == 0 || page == 0 {
 		err = errors.New("データ取得に失敗しました")
+		fmt.Println(err)
+		log.Println(err)
 		return nil, 0, err
 	}
 
 	todos, sumPage, err = interactor.TodoRepository.FindByUserId(userId, page)
 	if err != nil {
+		fmt.Println(err)
 		log.Println(err)
 	}
 	return
@@ -44,6 +49,7 @@ func (interactor *TodoInteractor) Todos(userId int, page int) (todos domain.Todo
 func (interactor *TodoInteractor) TodoByIdAndUserId(id int, userId int) (todo domain.Todo, err error) {
 	todo, err = interactor.TodoRepository.FindByIdAndUserId(id, userId)
 	if err != nil {
+		fmt.Println(err)
 		log.Println(err)
 	}
 	return
@@ -53,7 +59,8 @@ func (interactor *TodoInteractor) UpdateTodo(t domain.Todo) (mess TodoMessage, e
 	if err = t.TodoValidate(); err == nil {
 		err = interactor.TodoRepository.Overwrite(t)
 		if err != nil {
-			log.Panicln(err)
+			fmt.Println(err)
+			log.Println(err)
 			err = errors.New("更新に失敗しました")
 			return
 		}
@@ -65,13 +72,15 @@ func (interactor *TodoInteractor) UpdateTodo(t domain.Todo) (mess TodoMessage, e
 func (interactor *TodoInteractor) IsFinishedTodo(id int, t domain.Todo, userId int) (mess TodoMessage, err error) {
 	err = interactor.TodoRepository.ChangeBoolean(id, t)
 	if err != nil {
-		log.Panicln(err)
+		fmt.Println(err)
+		log.Println(err)
 		err = errors.New("更新に失敗しました")
 		return
 	}
 
 	todo, err := interactor.TodoRepository.FindByIdAndUserId(id, userId)
 	if err != nil {
+		fmt.Println(err)
 		log.Println(err)
 	}
 
@@ -86,7 +95,8 @@ func (interactor *TodoInteractor) IsFinishedTodo(id int, t domain.Todo, userId i
 func (interactor *TodoInteractor) DeleteTodo(id int, userId int) (mess TodoMessage, err error) {
 	err = interactor.TodoRepository.Erasure(id, userId)
 	if err != nil {
-		log.Panicln(err)
+		fmt.Println(err)
+		log.Println(err)
 		err = errors.New("削除に失敗しました")
 		return
 	}
@@ -97,12 +107,14 @@ func (interactor *TodoInteractor) DeleteTodo(id int, userId int) (mess TodoMessa
 func (interactor *TodoInteractor) DeleteTodoInIndex(id int, userId int, page int) (todos domain.Todos, sumPage float64, mess TodoMessage, err error) {
 	err = interactor.TodoRepository.Erasure(id, userId)
 	if err != nil {
-		log.Panicln(err)
+		fmt.Println(err)
+		log.Println(err)
 		err = errors.New("削除に失敗しました")
 		return
 	}
 	todos, sumPage, err = interactor.TodoRepository.FindByUserId(userId, page)
 	if err != nil {
+		fmt.Println(err)
 		log.Println(err)
 	}
 	mess.Message = "削除しました"
