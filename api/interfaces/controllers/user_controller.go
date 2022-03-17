@@ -51,7 +51,10 @@ func (controller *UserController) Create(w http.ResponseWriter, r *http.Request)
 	}
 	userType := new(domain.User)
 	if err := json.Unmarshal(bytesUser, userType); err != nil {
+		fmt.Println(err)
 		log.Println(err)
+		errStr := new(UserValidError).MakeErr("データ取得に失敗しました")
+		fmt.Fprintln(w, errStr)
 		return
 	}
 	user, err := controller.Interactor.Add(*userType)
@@ -67,7 +70,11 @@ func (controller *UserController) Create(w http.ResponseWriter, r *http.Request)
 
 	jsonUser, err := json.Marshal(user)
 	if err != nil {
-		log.Panicln(err)
+		fmt.Println(err)
+		log.Println(err)
+		errStr := new(UserValidError).MakeErr("データ取得に失敗しました")
+		fmt.Fprintln(w, errStr)
+		return
 	}
 	fmt.Fprintln(w, string(jsonUser))
 }

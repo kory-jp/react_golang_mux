@@ -106,7 +106,7 @@ func TestAdd(t *testing.T) {
 			tt.prepareMockFn(TodoRepository, tt.args)
 			mess, err := inter.Add(tt.args)
 			if err == nil {
-				if mess != tt.wantMess {
+				if mess.Message != tt.wantMess.Message {
 					t.Error("actual:", mess, "want:", tt.wantMess)
 				}
 			} else if err.Error() != tt.wantErr.Error() {

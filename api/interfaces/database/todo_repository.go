@@ -27,13 +27,14 @@ func (repo *TodoRepository) Store(t domain.Todo) (err error) {
 		value (?, ?, ?, ?, ?, ?)
 	`, t.UserID, t.Title, t.Content, t.ImagePath, false, time.Now())
 	if err != nil {
-		log.Panicln(err)
+		fmt.Println(err)
+		log.Println(err)
+		return err
 	}
-	return
+	return err
 }
 
 func (repo *TodoRepository) FindByUserId(identifier int, page int) (todos domain.Todos, sumPage float64, err error) {
-
 	// 投稿されたTodoデータ総数を取得
 	var allTodosCount float64
 	row, err := repo.Query(`
@@ -43,14 +44,18 @@ func (repo *TodoRepository) FindByUserId(identifier int, page int) (todos domain
 			user_id = ?
 	`, identifier)
 	if err != nil {
-		log.Panicln(err)
+		fmt.Println(err)
+		log.Println(err)
+		return nil, 0.0, err
 	}
 	defer row.Close()
 
 	for row.Next() {
 		err = row.Scan(&allTodosCount)
 		if err != nil {
-			log.Panicln(err)
+			fmt.Println(err)
+			log.Println(err)
+			return nil, 0, err
 		}
 	}
 	row.Close()
@@ -77,7 +82,9 @@ func (repo *TodoRepository) FindByUserId(identifier int, page int) (todos domain
 		offset ?
 	`, identifier, offsetNum)
 	if err != nil {
-		log.Panicln(err)
+		fmt.Println(err)
+		log.Println(err)
+		return nil, 0, err
 	}
 	defer rows.Close()
 
@@ -93,7 +100,9 @@ func (repo *TodoRepository) FindByUserId(identifier int, page int) (todos domain
 			&todo.CreatedAt,
 		)
 		if err != nil {
-			log.Panicln(err)
+			fmt.Println(err)
+			log.Println(err)
+			return nil, 0, err
 		}
 		todos = append(todos, todo)
 	}
@@ -101,7 +110,7 @@ func (repo *TodoRepository) FindByUserId(identifier int, page int) (todos domain
 	return todos, sumPage, err
 }
 
-func (repo *TodoRepository) FindByIdAndUserId(identifier int, userIdentifier int) (todo domain.Todo, err error) {
+func (repo *TodoRepository) FindByIdAndUserId(identifier int, userIdentifier int) (todo *domain.Todo, err error) {
 	row, err := repo.Query(`
 		select
 			id,
@@ -119,7 +128,9 @@ func (repo *TodoRepository) FindByIdAndUserId(identifier int, userIdentifier int
 			user_id = ?
 	`, identifier, userIdentifier)
 	if err != nil {
-		log.Panicln(err)
+		fmt.Println(err)
+		log.Println(err)
+		return nil, err
 	}
 	defer row.Close()
 
@@ -132,21 +143,24 @@ func (repo *TodoRepository) FindByIdAndUserId(identifier int, userIdentifier int
 	var created_at time.Time
 	row.Next()
 	if err = row.Scan(&id, &userId, &title, &content, &imagePath, &isFinished, &created_at); err != nil {
+		fmt.Println(err)
 		log.Println(err)
+		return nil, err
 	}
 	row.Close()
-	todo.ID = id
-	todo.UserID = userId
-	todo.Title = title
-	todo.Content = content
-	todo.ImagePath = imagePath
-	todo.IsFinished = isFinished
-	todo.CreatedAt = created_at
-	return
+	todo = &domain.Todo{
+		ID:         id,
+		UserID:     userId,
+		Title:      title,
+		Content:    content,
+		ImagePath:  imagePath,
+		IsFinished: isFinished,
+		CreatedAt:  created_at,
+	}
+	return todo, nil
 }
 
 func (repo *TodoRepository) Overwrite(t domain.Todo) (err error) {
-	fmt.Println(t.ID)
 	_, err = repo.Execute(`
 		update
 			todos
@@ -160,9 +174,11 @@ func (repo *TodoRepository) Overwrite(t domain.Todo) (err error) {
 			user_id = ?
 	`, t.Title, t.Content, t.ImagePath, t.ID, t.UserID)
 	if err != nil {
-		log.Panicln(err)
+		fmt.Println(err)
+		log.Println(err)
+		return err
 	}
-	return
+	return err
 }
 
 func (repo *TodoRepository) ChangeBoolean(id int, t domain.Todo) (err error) {
@@ -175,10 +191,11 @@ func (repo *TodoRepository) ChangeBoolean(id int, t domain.Todo) (err error) {
 			id = ?
 	`, t.IsFinished, id)
 	if err != nil {
-		log.Panicln(err)
-		return
+		fmt.Println(err)
+		log.Println(err)
+		return err
 	}
-	return
+	return err
 }
 
 func (repo *TodoRepository) Erasure(id int, userId int) (err error) {
@@ -191,7 +208,9 @@ func (repo *TodoRepository) Erasure(id int, userId int) (err error) {
 			user_id = ?
 	`, id, userId)
 	if err != nil {
-		log.Panicln(err)
+		fmt.Println(err)
+		log.Println(err)
+		return err
 	}
-	return
+	return err
 }

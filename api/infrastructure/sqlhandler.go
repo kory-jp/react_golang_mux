@@ -3,6 +3,7 @@ package infrastructure
 import (
 	"database/sql"
 	"fmt"
+	"log"
 
 	_ "github.com/go-sql-driver/mysql"
 
@@ -25,6 +26,7 @@ func NewSqlHandler() *SqlHandler {
 	conn, err := sql.Open(config.Config.SQLDriver, DSN)
 	if err != nil {
 		fmt.Println(err)
+		log.Println(err)
 	}
 	errP := conn.Ping()
 	if errP != nil {
@@ -50,6 +52,8 @@ func (handler *SqlHandler) Execute(statement string, args ...interface{}) (datab
 	res := SqlResult{}
 	result, err := handler.Conn.Exec(statement, args...)
 	if err != nil {
+		fmt.Println(err)
+		log.Println(err)
 		return res, err
 	}
 	res.Result = result
@@ -59,6 +63,8 @@ func (handler *SqlHandler) Execute(statement string, args ...interface{}) (datab
 func (handler *SqlHandler) Query(statement string, args ...interface{}) (database.Row, error) {
 	rows, err := handler.Conn.Query(statement, args...)
 	if err != nil {
+		fmt.Println(err)
+		log.Println(err)
 		return new(SqlRow), err
 	}
 	row := new(SqlRow)
