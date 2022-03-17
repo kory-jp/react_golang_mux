@@ -16,7 +16,7 @@ type TodoMessage struct {
 	Message string
 }
 
-func (interactor *TodoInteractor) Add(t domain.Todo) (mess TodoMessage, err error) {
+func (interactor *TodoInteractor) Add(t domain.Todo) (mess *TodoMessage, err error) {
 	if err = t.TodoValidate(); err == nil {
 		err = interactor.TodoRepository.Store(t)
 		if err != nil {
@@ -25,9 +25,12 @@ func (interactor *TodoInteractor) Add(t domain.Todo) (mess TodoMessage, err erro
 			err = errors.New("保存に失敗しました")
 			return
 		}
-		mess.Message = "保存しました"
+		mess = &TodoMessage{
+			Message: "保存しました",
+		}
+		return mess, nil
 	}
-	return
+	return nil, err
 }
 
 func (interactor *TodoInteractor) Todos(userId int, page int) (todos domain.Todos, sumPage float64, err error) {
@@ -42,66 +45,81 @@ func (interactor *TodoInteractor) Todos(userId int, page int) (todos domain.Todo
 	if err != nil {
 		fmt.Println(err)
 		log.Println(err)
+		err = errors.New("データ取得に失敗しました")
+		return nil, 0, err
 	}
-	return
+	return todos, sumPage, nil
 }
 
-func (interactor *TodoInteractor) TodoByIdAndUserId(id int, userId int) (todo domain.Todo, err error) {
+func (interactor *TodoInteractor) TodoByIdAndUserId(id int, userId int) (todo *domain.Todo, err error) {
 	todo, err = interactor.TodoRepository.FindByIdAndUserId(id, userId)
 	if err != nil {
 		fmt.Println(err)
 		log.Println(err)
+		err = errors.New("データ取得に失敗しました")
+		return nil, err
 	}
-	return
+	return todo, nil
 }
 
-func (interactor *TodoInteractor) UpdateTodo(t domain.Todo) (mess TodoMessage, err error) {
+func (interactor *TodoInteractor) UpdateTodo(t domain.Todo) (mess *TodoMessage, err error) {
 	if err = t.TodoValidate(); err == nil {
 		err = interactor.TodoRepository.Overwrite(t)
 		if err != nil {
 			fmt.Println(err)
 			log.Println(err)
 			err = errors.New("更新に失敗しました")
-			return
+			return nil, err
 		}
+		mess = &TodoMessage{
+			Message: "更新しました",
+		}
+		return mess, nil
 	}
-	mess.Message = "更新しました"
-	return
+	return nil, err
 }
 
-func (interactor *TodoInteractor) IsFinishedTodo(id int, t domain.Todo, userId int) (mess TodoMessage, err error) {
+func (interactor *TodoInteractor) IsFinishedTodo(id int, t domain.Todo, userId int) (mess *TodoMessage, err error) {
 	err = interactor.TodoRepository.ChangeBoolean(id, t)
 	if err != nil {
 		fmt.Println(err)
 		log.Println(err)
 		err = errors.New("更新に失敗しました")
-		return
+		return nil, err
 	}
 
 	todo, err := interactor.TodoRepository.FindByIdAndUserId(id, userId)
 	if err != nil {
 		fmt.Println(err)
 		log.Println(err)
+		err = errors.New("情報の取得に失敗しました")
+		return nil, err
 	}
 
 	if todo.IsFinished {
-		mess.Message = "完了しました"
+		mess = &TodoMessage{
+			Message: "完了しました",
+		}
 	} else {
-		mess.Message = "未完了の項目が追加されました"
+		mess = &TodoMessage{
+			Message: "未完了の項目が追加されました",
+		}
 	}
-	return
+	return mess, nil
 }
 
-func (interactor *TodoInteractor) DeleteTodo(id int, userId int) (mess TodoMessage, err error) {
+func (interactor *TodoInteractor) DeleteTodo(id int, userId int) (mess *TodoMessage, err error) {
 	err = interactor.TodoRepository.Erasure(id, userId)
 	if err != nil {
 		fmt.Println(err)
 		log.Println(err)
 		err = errors.New("削除に失敗しました")
-		return
+		return nil, err
 	}
-	mess.Message = "削除しました"
-	return
+	mess = &TodoMessage{
+		Message: "削除しました",
+	}
+	return mess, nil
 }
 
 func (interactor *TodoInteractor) DeleteTodoInIndex(id int, userId int, page int) (todos domain.Todos, sumPage float64, mess TodoMessage, err error) {
