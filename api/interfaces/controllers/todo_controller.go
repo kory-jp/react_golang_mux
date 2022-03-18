@@ -124,6 +124,8 @@ func (controller *TodoController) Create(w http.ResponseWriter, r *http.Request)
 
 	userId, err := GetUserId(r)
 	if err != nil {
+		fmt.Println(err)
+		log.Println(err)
 		errStr := new(TodosError).MakeErr("保存処理に失敗しました")
 		fmt.Fprintln(w, errStr)
 		return
@@ -143,7 +145,10 @@ func (controller *TodoController) Create(w http.ResponseWriter, r *http.Request)
 
 	jsonMess, err := json.Marshal(mess)
 	if err != nil {
+		fmt.Println(err)
 		log.Println(err)
+		errStr := new(TodosError).MakeErr("保存処理に失敗しました")
+		fmt.Fprintln(w, errStr)
 	}
 	fmt.Fprintln(w, string(jsonMess))
 }
@@ -153,7 +158,11 @@ func (controller *TodoController) Index(w http.ResponseWriter, r *http.Request) 
 	// URLから取得したいページ番目の情報
 	page, err := strconv.Atoi(r.FormValue("page"))
 	if err != nil {
+		fmt.Println(err)
 		log.Println(err)
+		errStr := new(TodosError).MakeErr("データ取得に失敗しました")
+		fmt.Fprintln(w, errStr)
+		return
 	}
 	userId, err := GetUserId(r)
 	if err != nil {
@@ -165,10 +174,7 @@ func (controller *TodoController) Index(w http.ResponseWriter, r *http.Request) 
 	}
 	todos, sumPage, err := controller.Interactor.Todos(userId, page)
 	if err != nil {
-		fmt.Println(err)
-		log.Println(err)
-		errStr := new(TodosError).MakeErr("データ取得に失敗しました")
-		fmt.Fprintln(w, errStr)
+		fmt.Fprintln(w, err)
 		return
 	}
 	res := ResponseFormat{
@@ -177,7 +183,11 @@ func (controller *TodoController) Index(w http.ResponseWriter, r *http.Request) 
 	}
 	jsonResponse, err := json.Marshal(res)
 	if err != nil {
+		fmt.Println(err)
 		log.Println(err)
+		errStr := new(TodosError).MakeErr("データ取得に失敗しました")
+		fmt.Fprintln(w, errStr)
+		return
 	}
 	fmt.Fprintln(w, string(jsonResponse))
 }
@@ -186,7 +196,11 @@ func (controller *TodoController) Show(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
+		fmt.Println(err)
 		log.Println(err)
+		errStr := new(TodosError).MakeErr("データ取得に失敗しました")
+		fmt.Fprintln(w, errStr)
+		return
 	}
 	userId, err := GetUserId(r)
 	if err != nil {
@@ -198,16 +212,17 @@ func (controller *TodoController) Show(w http.ResponseWriter, r *http.Request) {
 	}
 	todo, err := controller.Interactor.TodoByIdAndUserId(id, userId)
 	if err != nil {
-		fmt.Println(err)
-		log.Println(err)
-		errStr := new(TodosError).MakeErr("データ取得に失敗しました")
-		fmt.Fprintln(w, errStr)
+		fmt.Fprintln(w, err)
 		return
 	}
 
 	jsonTodo, err := json.Marshal(todo)
 	if err != nil {
+		fmt.Println(err)
 		log.Println(err)
+		errStr := new(TodosError).MakeErr("データ取得に失敗しました")
+		fmt.Fprintln(w, errStr)
+		return
 	}
 
 	fmt.Fprintln(w, string(jsonTodo))
@@ -314,7 +329,11 @@ func (controller *TodoController) Update(w http.ResponseWriter, r *http.Request)
 
 	jsonMess, err := json.Marshal(mess)
 	if err != nil {
+		fmt.Println(err)
 		log.Println(err)
+		errStr := new(TodosError).MakeErr("データ取得に失敗しました")
+		fmt.Fprintln(w, errStr)
+		return
 	}
 	fmt.Fprintln(w, string(jsonMess))
 }
@@ -328,10 +347,17 @@ func (controller *TodoController) IsFinished(w http.ResponseWriter, r *http.Requ
 	todoType := new(domain.Todo)
 	bytesTodo, err := io.ReadAll(r.Body)
 	if err != nil {
+		fmt.Println(err)
 		log.Println(err)
+		errStr := new(TodosError).MakeErr("データ取得に失敗しました")
+		fmt.Fprintln(w, errStr)
+		return
 	}
 	if err := json.Unmarshal(bytesTodo, todoType); err != nil {
+		fmt.Println(err)
 		log.Println(err)
+		errStr := new(TodosError).MakeErr("データ取得に失敗しました")
+		fmt.Fprintln(w, errStr)
 		return
 	}
 
@@ -345,12 +371,17 @@ func (controller *TodoController) IsFinished(w http.ResponseWriter, r *http.Requ
 	}
 	mess, err := controller.Interactor.IsFinishedTodo(id, *todoType, userId)
 	if err != nil {
-		log.Println(err)
+		fmt.Fprintln(w, err)
+		return
 	}
 
 	jsonMess, err := json.Marshal(mess)
 	if err != nil {
+		fmt.Println(err)
 		log.Println(err)
+		errStr := new(TodosError).MakeErr("データ取得に失敗しました")
+		fmt.Fprintln(w, errStr)
+		return
 	}
 	fmt.Fprintln(w, string(jsonMess))
 }
@@ -359,7 +390,11 @@ func (controller *TodoController) Delete(w http.ResponseWriter, r *http.Request)
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
+		fmt.Println(err)
 		log.Println(err)
+		errStr := new(TodosError).MakeErr("データ取得に失敗しました")
+		fmt.Fprintln(w, errStr)
+		return
 	}
 	userId, err := GetUserId(r)
 	if err != nil {
@@ -377,7 +412,11 @@ func (controller *TodoController) Delete(w http.ResponseWriter, r *http.Request)
 
 	jsonMess, err := json.Marshal(mess)
 	if err != nil {
+		fmt.Println(err)
 		log.Println(err)
+		errStr := new(TodosError).MakeErr("データ取得に失敗しました")
+		fmt.Fprintln(w, errStr)
+		return
 	}
 	fmt.Fprintln(w, string(jsonMess))
 }
@@ -386,11 +425,19 @@ func (controller *TodoController) DeleteInIndex(w http.ResponseWriter, r *http.R
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
+		fmt.Println(err)
 		log.Println(err)
+		errStr := new(TodosError).MakeErr("データ取得に失敗しました")
+		fmt.Fprintln(w, errStr)
+		return
 	}
 	page, err := strconv.Atoi(r.FormValue("page"))
 	if err != nil {
+		fmt.Println(err)
 		log.Println(err)
+		errStr := new(TodosError).MakeErr("データ取得に失敗しました")
+		fmt.Fprintln(w, errStr)
+		return
 	}
 
 	userId, err := GetUserId(r)
@@ -413,7 +460,11 @@ func (controller *TodoController) DeleteInIndex(w http.ResponseWriter, r *http.R
 	}
 	jsonResponse, err := json.Marshal(res)
 	if err != nil {
+		fmt.Println(err)
 		log.Println(err)
+		errStr := new(TodosError).MakeErr("データ取得に失敗しました")
+		fmt.Fprintln(w, errStr)
+		return
 	}
 	fmt.Fprintln(w, string(jsonResponse))
 }

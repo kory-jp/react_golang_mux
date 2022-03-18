@@ -1,6 +1,7 @@
 package database
 
 import (
+	"fmt"
 	"log"
 	"time"
 
@@ -23,19 +24,21 @@ func (repo *UserRepository) Store(u domain.User) (id int, err error) {
 		values (?, ?, ?, ?)
 	`, u.Name, u.Email, u.Password, time.Now())
 	if err != nil {
-		log.SetFlags(log.Llongfile)
+		fmt.Println(err)
 		log.Println(err)
-		return
+		return 0, err
 	}
 	id64, err := result.LastInsertId()
 	if err != nil {
-		return
+		fmt.Println(err)
+		log.Println(err)
+		return 0, err
 	}
 	id = int(id64)
-	return
+	return id, nil
 }
 
-func (repo *UserRepository) FindById(identifier int) (user domain.User, err error) {
+func (repo *UserRepository) FindById(identifier int) (user *domain.User, err error) {
 	row, err := repo.Query(`
 		select
 			id,
@@ -49,9 +52,9 @@ func (repo *UserRepository) FindById(identifier int) (user domain.User, err erro
 			id = ?
 	`, identifier)
 	if err != nil {
-		log.SetFlags(log.Llongfile)
+		fmt.Println(err)
 		log.Println(err)
-		return
+		return nil, err
 	}
 	defer row.Close()
 	var id int
@@ -61,13 +64,15 @@ func (repo *UserRepository) FindById(identifier int) (user domain.User, err erro
 	var created_at time.Time
 	row.Next()
 	if err = row.Scan(&id, &name, &email, &password, &created_at); err != nil {
-		log.SetFlags(log.Llongfile)
+		fmt.Println(err)
 		log.Println(err)
+		return nil, err
 	}
-	user.ID = id
-	user.Name = name
-	user.Email = email
-	user.Password = password
-	user.CreatedAt = created_at
-	return
+	user = &domain.User{
+		ID:        id,
+		Name:      name,
+		Password:  password,
+		CreatedAt: created_at,
+	}
+	return user, nil
 }

@@ -1,6 +1,7 @@
 package database
 
 import (
+	"fmt"
 	"log"
 	"time"
 
@@ -11,7 +12,7 @@ type SessionRepository struct {
 	SqlHandler
 }
 
-func (repo *SessionRepository) FindByEmail(u domain.User) (user domain.User, err error) {
+func (repo *SessionRepository) FindByEmail(u domain.User) (user *domain.User, err error) {
 	row, err := repo.Query(`
 		select
 			id,
@@ -25,8 +26,9 @@ func (repo *SessionRepository) FindByEmail(u domain.User) (user domain.User, err
 			email = ?
 	`, u.Email)
 	if err != nil {
+		fmt.Println(err)
 		log.Println(err)
-		return
+		return nil, err
 	}
 	defer row.Close()
 
@@ -37,18 +39,21 @@ func (repo *SessionRepository) FindByEmail(u domain.User) (user domain.User, err
 	var created_at time.Time
 	row.Next()
 	if err = row.Scan(&id, &name, &email, &password, &created_at); err != nil {
+		fmt.Println(err)
 		log.Println(err)
-		return
+		return nil, err
 	}
-	user.ID = id
-	user.Name = name
-	user.Email = email
-	user.Password = password
-	user.CreatedAt = created_at
-	return
+	user = &domain.User{
+		ID:        id,
+		Name:      name,
+		Email:     email,
+		Password:  password,
+		CreatedAt: created_at,
+	}
+	return user, nil
 }
 
-func (repo *SessionRepository) FindById(uid int) (user domain.User, err error) {
+func (repo *SessionRepository) FindById(uid int) (user *domain.User, err error) {
 	row, err := repo.Query(`
 		select
 			id,
@@ -62,8 +67,9 @@ func (repo *SessionRepository) FindById(uid int) (user domain.User, err error) {
 			id = ?
 	`, uid)
 	if err != nil {
+		fmt.Println(err)
 		log.Println(err)
-		return
+		return nil, err
 	}
 	defer row.Close()
 
@@ -74,13 +80,16 @@ func (repo *SessionRepository) FindById(uid int) (user domain.User, err error) {
 	var created_at time.Time
 	row.Next()
 	if err = row.Scan(&id, &name, &email, &password, &created_at); err != nil {
+		fmt.Println(err)
 		log.Println(err)
-		return
+		return nil, err
 	}
-	user.ID = id
-	user.Name = name
-	user.Email = email
-	user.Password = password
-	user.CreatedAt = created_at
-	return
+	user = &domain.User{
+		ID:        id,
+		Name:      name,
+		Email:     email,
+		Password:  password,
+		CreatedAt: created_at,
+	}
+	return user, nil
 }

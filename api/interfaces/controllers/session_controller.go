@@ -56,12 +56,14 @@ func (controller *SessionController) Login(w http.ResponseWriter, r *http.Reques
 	}
 	userType := new(domain.User)
 	if err := json.Unmarshal(bytesUser, userType); err != nil {
+		fmt.Println(err)
 		log.Println(err)
+		errStr := new(SessionValidError).MakeErr("データ取得に失敗しました")
+		fmt.Fprintln(w, errStr)
 		return
 	}
 	user, err := controller.Interactor.Login(*userType)
 	if err != nil {
-		log.Println(err)
 		errStr := new(SessionValidError).MakeErr(err.Error())
 		fmt.Fprintln(w, errStr)
 	} else {
@@ -83,7 +85,11 @@ func (controller *SessionController) Login(w http.ResponseWriter, r *http.Reques
 		}
 		jsonUser, err := json.Marshal(user)
 		if err != nil {
+			fmt.Println(err)
 			log.Println(err)
+			errStr := new(SessionValidError).MakeErr("データ取得に失敗しました")
+			fmt.Fprintln(w, errStr)
+			return
 		}
 		session.Save(r, w)
 		http.SetCookie(w, cookie)
@@ -92,16 +98,29 @@ func (controller *SessionController) Login(w http.ResponseWriter, r *http.Reques
 }
 
 func (controller *SessionController) Authenticate(w http.ResponseWriter, r *http.Request) {
-	session, _ := store.Get(r, "session")
+	session, err := store.Get(r, "session")
+	if err != nil {
+		fmt.Println(err)
+		log.Println(err)
+		errStr := new(SessionValidError).MakeErr("データ取得に失敗しました")
+		fmt.Fprintln(w, errStr)
+		return
+	}
 	cookie, err := r.Cookie("cookie-name")
 	if err != nil {
+		fmt.Println(err)
 		log.Println(err)
+		errStr := new(SessionValidError).MakeErr("データ取得に失敗しました")
+		fmt.Fprintln(w, errStr)
+		return
 	}
 	if session.Values["token"] == cookie.Value {
 		if userId, ok := session.Values["userId"].(int); ok {
 			user, err := controller.Interactor.IsLoggedin(userId)
 			if err != nil {
-				log.Println(err)
+				errStr := new(SessionValidError).MakeErr(err.Error())
+				fmt.Fprintln(w, errStr)
+				return
 			}
 			token, err := MakeRandomStr(10)
 			if err != nil {
@@ -120,7 +139,11 @@ func (controller *SessionController) Authenticate(w http.ResponseWriter, r *http
 			}
 			jsonUser, err := json.Marshal(user)
 			if err != nil {
+				fmt.Println(err)
 				log.Println(err)
+				errStr := new(SessionValidError).MakeErr("データ取得に失敗しました")
+				fmt.Fprintln(w, errStr)
+				return
 			}
 			session.Save(r, w)
 			http.SetCookie(w, cookie)
@@ -133,7 +156,14 @@ func (controller *SessionController) Authenticate(w http.ResponseWriter, r *http
 }
 
 func (controller *SessionController) Logout(w http.ResponseWriter, r *http.Request) {
-	session, _ := store.Get(r, "cookie-name")
+	session, err := store.Get(r, "session")
+	if err != nil {
+		fmt.Println(err)
+		log.Println(err)
+		errStr := new(SessionValidError).MakeErr("データ取得に失敗しました")
+		fmt.Fprintln(w, errStr)
+		return
+	}
 	session.Values["token"] = nil
 	cookie := http.Cookie{
 		Name:     "cookie-name",

@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"errors"
+	"fmt"
 	"log"
 
 	"golang.org/x/crypto/bcrypt"
@@ -17,26 +18,34 @@ type SessionValidError struct {
 	Detail string
 }
 
-func (interactor *SessionInteractor) Login(u domain.User) (user domain.User, err error) {
+func (interactor *SessionInteractor) Login(u domain.User) (user *domain.User, err error) {
 	userFindByEmail, err := interactor.SessionRepository.FindByEmail(u)
 	if err != nil {
+		fmt.Println(err)
 		log.Println(err)
 		err = errors.New("認証に失敗しました")
+		return nil, err
 	} else {
 		err = bcrypt.CompareHashAndPassword([]byte(userFindByEmail.Password), []byte(u.Password))
 		if err == nil {
 			user = userFindByEmail
 		} else {
+			fmt.Println(err)
+			log.Println(err)
 			err = errors.New("認証に失敗しました")
+			return nil, err
 		}
 	}
-	return
+	return user, nil
 }
 
-func (interactor *SessionInteractor) IsLoggedin(uid int) (user domain.User, err error) {
+func (interactor *SessionInteractor) IsLoggedin(uid int) (user *domain.User, err error) {
 	user, err = interactor.SessionRepository.FindById(uid)
 	if err != nil {
+		fmt.Println(err)
 		log.Println(err)
+		err = errors.New("認証に失敗しました")
+		return nil, err
 	}
-	return
+	return user, nil
 }
