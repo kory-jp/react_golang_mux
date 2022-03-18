@@ -52,6 +52,12 @@ func (interactor *TodoInteractor) Todos(userId int, page int) (todos domain.Todo
 }
 
 func (interactor *TodoInteractor) TodoByIdAndUserId(id int, userId int) (todo *domain.Todo, err error) {
+	if id == 0 || userId == 0 {
+		err = errors.New("データ取得に失敗しました")
+		fmt.Println(err)
+		log.Println(err)
+		return nil, err
+	}
 	todo, err = interactor.TodoRepository.FindByIdAndUserId(id, userId)
 	if err != nil {
 		fmt.Println(err)
@@ -80,6 +86,13 @@ func (interactor *TodoInteractor) UpdateTodo(t domain.Todo) (mess *TodoMessage, 
 }
 
 func (interactor *TodoInteractor) IsFinishedTodo(id int, t domain.Todo, userId int) (mess *TodoMessage, err error) {
+	if id == 0 || userId == 0 {
+		err = errors.New("データ取得に失敗しました")
+		fmt.Println(err)
+		log.Println(err)
+		return nil, err
+	}
+
 	err = interactor.TodoRepository.ChangeBoolean(id, t)
 	if err != nil {
 		fmt.Println(err)
@@ -109,6 +122,13 @@ func (interactor *TodoInteractor) IsFinishedTodo(id int, t domain.Todo, userId i
 }
 
 func (interactor *TodoInteractor) DeleteTodo(id int, userId int) (mess *TodoMessage, err error) {
+	if id == 0 || userId == 0 {
+		err = errors.New("データ取得に失敗しました")
+		fmt.Println(err)
+		log.Println(err)
+		return nil, err
+	}
+
 	err = interactor.TodoRepository.Erasure(id, userId)
 	if err != nil {
 		fmt.Println(err)
@@ -122,19 +142,29 @@ func (interactor *TodoInteractor) DeleteTodo(id int, userId int) (mess *TodoMess
 	return mess, nil
 }
 
-func (interactor *TodoInteractor) DeleteTodoInIndex(id int, userId int, page int) (todos domain.Todos, sumPage float64, mess TodoMessage, err error) {
+func (interactor *TodoInteractor) DeleteTodoInIndex(id int, userId int, page int) (todos domain.Todos, sumPage float64, mess *TodoMessage, err error) {
+	if id == 0 || userId == 0 || page == 0 {
+		err = errors.New("データ取得に失敗しました")
+		fmt.Println(err)
+		log.Println(err)
+		return nil, 0, nil, err
+	}
+
 	err = interactor.TodoRepository.Erasure(id, userId)
 	if err != nil {
 		fmt.Println(err)
 		log.Println(err)
 		err = errors.New("削除に失敗しました")
-		return
+		return nil, 0, nil, err
 	}
 	todos, sumPage, err = interactor.TodoRepository.FindByUserId(userId, page)
 	if err != nil {
 		fmt.Println(err)
 		log.Println(err)
+		return nil, 0, nil, err
 	}
-	mess.Message = "削除しました"
-	return
+	mess = &TodoMessage{
+		Message: "削除しました",
+	}
+	return todos, sumPage, mess, nil
 }
