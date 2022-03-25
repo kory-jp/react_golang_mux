@@ -34,7 +34,7 @@ func Init() {
 	r.Methods("DELETE").Path("/api/todos/delete/{id:[0-9]+}").HandlerFunc(todoController.Delete)
 	r.Methods("DELETE").Path("/api/todos/deleteinindex/{id:[0-9]+}").HandlerFunc(todoController.DeleteInIndex)
 	// ----- 画像配信URL ---------
-	r.PathPrefix("/api/img/").Handler(http.StripPrefix("/api/img/", http.FileServer(http.Dir("./img/"))))
+	r.PathPrefix("/api/img/").Handler(http.StripPrefix("/api/img/", http.FileServer(http.Dir("./assets/dev/img"))))
 	// -----
 	c := cors.New(cors.Options{
 		AllowedOrigins:   []string{"http://localhost:8080"},

@@ -41,7 +41,7 @@ func TestCreate(t *testing.T) {
 		t.Fatalf("Failed to create file writer. %s", err)
 	}
 
-	readFile, err := os.Open("test.png")
+	readFile, err := os.Open("../../assets/test/img/test.png")
 	if err != nil {
 		t.Fatalf("Failde to create file writer. %s", err)
 	}
@@ -54,6 +54,13 @@ func TestCreate(t *testing.T) {
 		t.Fatalf("Failed to create file writer. %s", err)
 	}
 	titleWriter.Write([]byte("test title"))
+
+	// --- 本文データ ---
+	contentWriter, err := writer.CreateFormField("content")
+	if err != nil {
+		t.Fatalf("Failed to create file writer. %s", err)
+	}
+	contentWriter.Write([]byte("test content"))
 
 	// --- フィールドの書き込みが終了後にClose ---
 	writer.Close()
@@ -80,20 +87,34 @@ func TestCreate(t *testing.T) {
 	// --- interfaces/database/todo_repository.go Storeにて実行されるExecuteのMock + 戻り値のResultのMock
 
 	result := mock_database.NewMockResult(c)
-	statement := "insert into todos(user_id, title, content, image_path, isFinished, created_at) value (?, ?, ?, ?, ?, ?)"
+	statement := `
+		insert into
+			todos(
+				user_id,
+				title,
+				content,
+				image_path,
+				isFinished,
+				created_at
+			)
+		value (?, ?, ?, ?, ?, ?)
+	`
 	todo := domain.Todo{
 		UserID:     1,
 		Title:      "test title",
 		Content:    "test content",
-		ImagePath:  "testimage",
+		ImagePath:  "test.png",
 		IsFinished: false,
 		CreatedAt:  time.Now(),
 	}
 
 	exeMock := func(m *mock_database.MockSqlHandler, r *mock_database.MockResult, statement string, todo domain.Todo) {
+		r.EXPECT().RowsAffected().Return(int64(0), nil).AnyTimes()
 		m.EXPECT().
-			Execute(statement, todo.UserID, todo.Title, todo.Content, todo.ImagePath, false, time.Now()).
-			Return(r.EXPECT().RowsAffected().Return(int64(0), nil), nil)
+			// --- 保存される画像名は自動生成される文字列となるためテストデータにおいて同名の画像名を引数として渡すことができないため
+			// gomock.Any()を利用してどのような引数でも受け取れる手法を用いている(created_atも同様) ---
+			Execute(statement, todo.UserID, todo.Title, todo.Content, gomock.Any(), false, gomock.Any()).
+			Return(r, nil)
 	}
 
 	exeMock(sqlhandler, result, statement, todo)
@@ -105,14 +126,9 @@ func TestCreate(t *testing.T) {
 		// ctrl.Create(w, req)
 		// mux.ServeHTTP(w, req)
 		ctrl.Create(w, req)
-		fmt.Println(w.Body.String())
+		fmt.Println("130:", w.Body.String())
 		if w.Code != 200 {
 			t.Error(w.Code)
 		}
 	})
-	fmt.Println("59:", req.Body)
-
-	if w.Code != 200 {
-		t.Error(w.Code)
-	}
 }

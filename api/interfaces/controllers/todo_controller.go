@@ -89,18 +89,42 @@ func (controller *TodoController) Create(w http.ResponseWriter, r *http.Request)
 	} else {
 		defer file.Close()
 		// 画像を保存するimgディレクトリが存在しない場合は作成する
-		err = os.MkdirAll("./img", os.ModePerm)
-		if err != nil {
-			fmt.Println(err)
-			log.Println(err)
-			errStr := new(TodosError).MakeErr("サーバーで障害が発生しました")
-			fmt.Fprintln(w, errStr)
-			return
+		// devModeの画像保存先とtestModeの画像の保存先を"api/assets/dev/img"を共通化
+		// devModeからtestModeでカレントディレクトリが異なるので、os.Getwdでそれぞれパスを指定する
+		p, _ := os.Getwd()
+		if string(p) == "/app/api" {
+			fmt.Println("dev")
+			err = os.MkdirAll("./assets/dev/img", os.ModePerm)
+			if err != nil {
+				fmt.Println(err)
+				log.Println(err)
+				errStr := new(TodosError).MakeErr("サーバーで障害が発生しました")
+				fmt.Fprintln(w, errStr)
+				return
+			}
+		} else {
+			fmt.Println("test")
+			err = os.MkdirAll("../../assets/dev/img", os.ModePerm)
+			if err != nil {
+				fmt.Println(err)
+				log.Println(err)
+				errStr := new(TodosError).MakeErr("サーバーで障害が発生しました")
+				fmt.Fprintln(w, errStr)
+				return
+			}
 		}
+
 		// サーバー側に保存するために空ファイルを作成
 		var saveImage *os.File
 		uploadFileName = fmt.Sprintf("%d%s", time.Now().UnixNano(), fileHeader.Filename)
-		imageFilePath := "./img/" + uploadFileName
+		var imageFilePath string
+		if string(p) == "/app/api" {
+			fmt.Println("129:", "dev")
+			imageFilePath = "./assets/dev/img/" + uploadFileName
+		} else {
+			fmt.Println("132:", "test")
+			imageFilePath = "../../assets/dev/img/" + uploadFileName
+		}
 		formatPath := filepath.Clean(imageFilePath)
 		saveImage, err = os.Create(formatPath)
 		if err != nil {
