@@ -103,7 +103,6 @@ func (controller *TodoController) Create(w http.ResponseWriter, r *http.Request)
 				return
 			}
 		} else {
-			fmt.Println("test")
 			err = os.MkdirAll("../../assets/dev/img", os.ModePerm)
 			if err != nil {
 				fmt.Println(err)
@@ -119,10 +118,8 @@ func (controller *TodoController) Create(w http.ResponseWriter, r *http.Request)
 		uploadFileName = fmt.Sprintf("%d%s", time.Now().UnixNano(), fileHeader.Filename)
 		var imageFilePath string
 		if string(p) == "/app/api" {
-			fmt.Println("129:", "dev")
 			imageFilePath = "./assets/dev/img/" + uploadFileName
 		} else {
-			fmt.Println("132:", "test")
 			imageFilePath = "../../assets/dev/img/" + uploadFileName
 		}
 		formatPath := filepath.Clean(imageFilePath)
@@ -160,6 +157,14 @@ func (controller *TodoController) Create(w http.ResponseWriter, r *http.Request)
 	todoType.Title = r.Form.Get("title")
 	todoType.Content = r.Form.Get("content")
 	todoType.ImagePath = uploadFileName
+
+	if err = todoType.TodoValidate(); err != nil {
+		fmt.Println(err)
+		log.Println(err)
+		errStr := new(TodosError).MakeErr(err.Error())
+		fmt.Fprintln(w, errStr)
+		return
+	}
 
 	mess, err := controller.Interactor.Add(*todoType)
 	if err != nil {
