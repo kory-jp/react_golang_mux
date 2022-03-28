@@ -8,10 +8,12 @@ import (
 	"mime/multipart"
 	"net/http/httptest"
 	"os"
+	"strconv"
 	"strings"
 	"testing"
 
 	"github.com/kory-jp/react_golang_mux/api/domain"
+
 	mock_database "github.com/kory-jp/react_golang_mux/api/interfaces/mock"
 
 	"github.com/golang/mock/gomock"
@@ -25,6 +27,12 @@ var store = sessions.NewCookieStore([]byte(os.Getenv("SESSION_KEY")))
 type TodoMessage struct {
 	Message string
 	Error   string
+}
+
+type Response struct {
+	Todos   domain.Todos
+	SumPage int
+	Message string
 }
 
 func TestCreate(t *testing.T) {
@@ -238,6 +246,152 @@ func TestCreate(t *testing.T) {
 				if tm.Error != tt.responseMessage {
 					t.Error("actual:", tm.Error, "want:", tt.responseMessage)
 					return
+				}
+			}
+		})
+	}
+}
+
+var allTodosCount float64
+
+func TestIndex(t *testing.T) {
+	c := gomock.NewController(t)
+	defer c.Finish()
+	sqlhandler := mock_database.NewMockSqlHandler(c)
+	ctrl := controllers.NewTodoController(sqlhandler)
+	row := mock_database.NewMockRow(c)
+
+	// 現在の投稿済みTodo総数取得
+	statement1 := `
+		select count(*) from
+			todos
+		where
+			user_id = ?
+	`
+
+	statement2 := `
+		select
+			*
+		from
+			todos
+		where
+			user_id = ?
+		order by
+			id desc
+		limit 5
+		offset ?
+	`
+	var todo domain.Todo
+
+	cases := []struct {
+		name                     string
+		userId                   int
+		nowPage                  int
+		prepareGetNumTodosMockFn func(m *mock_database.MockSqlHandler, r *mock_database.MockRow, statement string, userId int)
+		prepareGetTodosMockFn    func(m *mock_database.MockSqlHandler, r *mock_database.MockRow, statement string, userId int, offset int, todo domain.Todo)
+		message                  string
+	}{
+		{
+			name:    "必須項目が入力された場合、データ取得に成功",
+			userId:  1,
+			nowPage: 1,
+			prepareGetNumTodosMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockRow, statement string, userId int) {
+				r.EXPECT().Next().Return(false).AnyTimes()
+				r.EXPECT().Scan(&allTodosCount).Return(nil).AnyTimes()
+				r.EXPECT().Err().Return(nil).AnyTimes()
+				r.EXPECT().Close().Return(nil).AnyTimes()
+				m.EXPECT().Query(statement, userId).Return(r, nil).AnyTimes()
+			},
+			prepareGetTodosMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockRow, statement string, userId int, offset int, todo domain.Todo) {
+				r.EXPECT().Scan(&todo.ID, &todo.UserID, &todo.Title, &todo.Content, &todo.ImagePath, &todo.IsFinished, &todo.CreatedAt).Return(nil).AnyTimes()
+				r.EXPECT().Next().Return(false).AnyTimes()
+				r.EXPECT().Err().Return(nil).AnyTimes()
+				r.EXPECT().Close().Return(nil).AnyTimes()
+				m.EXPECT().Query(statement, userId, offset).Return(r, nil).AnyTimes()
+			},
+			message: "",
+		},
+		{
+			name:    "userIdが0の場合、データ取得に失敗",
+			userId:  0,
+			nowPage: 1,
+			prepareGetNumTodosMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockRow, statement string, userId int) {
+				r.EXPECT().Next().Return(false).AnyTimes()
+				r.EXPECT().Scan(&allTodosCount).Return(nil).AnyTimes()
+				r.EXPECT().Err().Return(nil).AnyTimes()
+				r.EXPECT().Err().Return(nil).AnyTimes()
+				r.EXPECT().Close().Return(nil).AnyTimes()
+				m.EXPECT().Query(statement, userId).Return(r, nil).AnyTimes()
+			},
+			prepareGetTodosMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockRow, statement string, userId int, offset int, todo domain.Todo) {
+				r.EXPECT().Scan(&todo.ID, &todo.UserID, &todo.Title, &todo.Content, &todo.ImagePath, &todo.IsFinished, &todo.CreatedAt).Return(nil).AnyTimes()
+				r.EXPECT().Next().Return(false).AnyTimes()
+				r.EXPECT().Err().Return(nil).AnyTimes()
+				r.EXPECT().Close().Return(nil).AnyTimes()
+				m.EXPECT().Query(statement, userId, offset).Return(r, nil).AnyTimes()
+			},
+			message: "データ取得に失敗しました",
+		},
+		{
+			name:    "現在ページ情報(nowPage)が0の場合、データ取得に失敗",
+			userId:  1,
+			nowPage: 0,
+			prepareGetNumTodosMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockRow, statement string, userId int) {
+				r.EXPECT().Next().Return(false).AnyTimes()
+				r.EXPECT().Scan(&allTodosCount).Return(nil).AnyTimes()
+				r.EXPECT().Err().Return(nil).AnyTimes()
+				r.EXPECT().Close().Return(nil).AnyTimes()
+				m.EXPECT().Query(statement, userId).Return(r, nil).AnyTimes()
+			},
+			prepareGetTodosMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockRow, statement string, userId int, offset int, todo domain.Todo) {
+				r.EXPECT().Scan(&todo.ID, &todo.UserID, &todo.Title, &todo.Content, &todo.ImagePath, &todo.IsFinished, &todo.CreatedAt).Return(nil).AnyTimes()
+				r.EXPECT().Next().Return(false).AnyTimes()
+				r.EXPECT().Err().Return(nil).AnyTimes()
+				r.EXPECT().Close().Return(nil).AnyTimes()
+				m.EXPECT().Query(statement, userId, offset).Return(r, nil).AnyTimes()
+			},
+			message: "データ取得に失敗しました",
+		},
+	}
+
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			var buffer bytes.Buffer
+			writer := multipart.NewWriter(&buffer)
+			writer.Close()
+			apiURL := "/api/todos?page=" + strconv.Itoa(tt.nowPage)
+			req := httptest.NewRequest("GET", apiURL, &buffer)
+			req.Header.Add("Content-Type", writer.FormDataContentType())
+			w := httptest.NewRecorder()
+
+			session, err := store.Get(req, "session")
+			if err != nil {
+				t.Error(err)
+				return
+			}
+			session.Values["userId"] = tt.userId
+			err = session.Save(req, w)
+			if err != nil {
+				t.Error(err)
+			}
+
+			tt.prepareGetNumTodosMockFn(sqlhandler, row, statement1, tt.userId)
+			tt.prepareGetTodosMockFn(sqlhandler, row, statement2, tt.userId, 0, todo)
+
+			ctrl.Index(w, req)
+			var rsp Response
+			var mess TodoMessage
+			buf, _ := ioutil.ReadAll(w.Body)
+			if err = json.Unmarshal(buf, &rsp); err != nil {
+				t.Error(err)
+			}
+			if err = json.Unmarshal(buf, &mess); err != nil {
+				t.Error(err)
+			}
+
+			if rsp.Message != tt.message {
+				if mess.Error != tt.message {
+					t.Error("actual:", mess.Error, "want:", tt.message)
 				}
 			}
 		})

@@ -91,3 +91,7 @@ func (r SqlRow) Next() bool {
 func (r SqlRow) Close() error {
 	return r.Rows.Close()
 }
+
+func (r SqlRow) Err() error {
+	return r.Rows.Err()
+}
