@@ -201,9 +201,13 @@ func (controller *TodoController) Index(w http.ResponseWriter, r *http.Request) 
 		fmt.Fprintln(w, errStr)
 		return
 	}
+
 	todos, sumPage, err := controller.Interactor.Todos(userId, page)
 	if err != nil {
-		fmt.Fprintln(w, err)
+		fmt.Println(err)
+		log.Println(err)
+		errStr := new(TodosError).MakeErr(err.Error())
+		fmt.Fprintln(w, errStr)
 		return
 	}
 	res := ResponseFormat{

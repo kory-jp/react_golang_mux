@@ -38,9 +38,9 @@ func (repo *TodoRepository) FindByUserId(identifier int, page int) (todos domain
 	// 投稿されたTodoデータ総数を取得
 	var allTodosCount float64
 	row, err := repo.Query(`
-		select count(*) from 
-			todos 
-		where 
+		select count(*) from
+			todos
+		where
 			user_id = ?
 	`, identifier)
 	if err != nil {
@@ -58,7 +58,13 @@ func (repo *TodoRepository) FindByUserId(identifier int, page int) (todos domain
 			return nil, 0, err
 		}
 	}
+
+	err = row.Err()
+	if err != nil {
+		fmt.Println(err)
+	}
 	row.Close()
+
 	// データ総数を1ページに表示したい件数を割り、ページ総数を算出
 	sumPage = math.Ceil(allTodosCount / 5)
 	// ---
@@ -76,7 +82,7 @@ func (repo *TodoRepository) FindByUserId(identifier int, page int) (todos domain
 			todos
 		where
 			user_id = ?
-		order by 
+		order by
 			id desc
 		limit 5
 		offset ?
@@ -105,6 +111,10 @@ func (repo *TodoRepository) FindByUserId(identifier int, page int) (todos domain
 			return nil, 0, err
 		}
 		todos = append(todos, todo)
+	}
+	err = rows.Err()
+	if err != nil {
+		fmt.Println(err)
 	}
 	rows.Close()
 	return todos, sumPage, err
