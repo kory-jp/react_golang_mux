@@ -9,6 +9,7 @@ import (
 	"mime/multipart"
 	"net/http"
 	"os"
+	"path"
 	"path/filepath"
 	"strconv"
 	"time"
@@ -24,7 +25,7 @@ type TodoController struct {
 }
 
 type TodosError struct {
-	Error string
+	Error string `json:"error"`
 }
 
 func (serr *TodosError) MakeErr(mess string) (errStr string) {
@@ -144,10 +145,10 @@ func (controller *TodoController) Create(w http.ResponseWriter, r *http.Request)
 	}
 
 	userId, err := GetUserId(r)
-	if err != nil {
+	if err != nil || userId == 0 {
 		fmt.Println(err)
 		log.Println(err)
-		errStr := new(TodosError).MakeErr("保存処理に失敗しました")
+		errStr := new(TodosError).MakeErr("ログインしてください")
 		fmt.Fprintln(w, errStr)
 		return
 	}
@@ -186,7 +187,7 @@ func (controller *TodoController) Index(w http.ResponseWriter, r *http.Request) 
 
 	// URLから取得したいページ番目の情報
 	page, err := strconv.Atoi(r.FormValue("page"))
-	if err != nil {
+	if err != nil || page == 0 {
 		fmt.Println(err)
 		log.Println(err)
 		errStr := new(TodosError).MakeErr("データ取得に失敗しました")
@@ -194,10 +195,10 @@ func (controller *TodoController) Index(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 	userId, err := GetUserId(r)
-	if err != nil {
+	if err != nil || userId == 0 {
 		fmt.Println(err)
 		log.Println(err)
-		errStr := new(TodosError).MakeErr("データ取得に失敗しました")
+		errStr := new(TodosError).MakeErr("ログインしてください")
 		fmt.Fprintln(w, errStr)
 		return
 	}
@@ -226,26 +227,30 @@ func (controller *TodoController) Index(w http.ResponseWriter, r *http.Request) 
 }
 
 func (controller *TodoController) Show(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	id, err := strconv.Atoi(vars["id"])
-	if err != nil {
+	id, err := strconv.Atoi(path.Base(r.URL.Path))
+	if err != nil || id == 0 {
 		fmt.Println(err)
 		log.Println(err)
 		errStr := new(TodosError).MakeErr("データ取得に失敗しました")
 		fmt.Fprintln(w, errStr)
 		return
 	}
+
 	userId, err := GetUserId(r)
-	if err != nil {
+	if err != nil || userId == 0 {
 		fmt.Println(err)
 		log.Println(err)
-		errStr := new(TodosError).MakeErr("データ取得に失敗しました")
+		errStr := new(TodosError).MakeErr("ログインをしてください")
 		fmt.Fprintln(w, errStr)
 		return
 	}
+
 	todo, err := controller.Interactor.TodoByIdAndUserId(id, userId)
 	if err != nil {
-		fmt.Fprintln(w, err)
+		fmt.Println(err)
+		log.Println(err)
+		errStr := new(TodosError).MakeErr(err.Error())
+		fmt.Fprintln(w, errStr)
 		return
 	}
 
