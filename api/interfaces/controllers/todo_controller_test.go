@@ -12,11 +12,10 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/kory-jp/react_golang_mux/api/domain"
-
 	mock_database "github.com/kory-jp/react_golang_mux/api/interfaces/mock"
 
 	"github.com/golang/mock/gomock"
+	"github.com/kory-jp/react_golang_mux/api/domain"
 	"github.com/kory-jp/react_golang_mux/api/interfaces/controllers"
 
 	"github.com/gorilla/sessions"
@@ -112,7 +111,7 @@ func TestCreate(t *testing.T) {
 					Return(r, nil).
 					AnyTimes()
 			},
-			responseMessage: "ユーザーIDは必須です。",
+			responseMessage: "ログインしてください",
 		},
 		{
 			name: "タイトルが0文字の場合,データ保存失敗",
@@ -330,7 +329,7 @@ func TestIndex(t *testing.T) {
 				r.EXPECT().Close().Return(nil).AnyTimes()
 				m.EXPECT().Query(statement, userId, offset).Return(r, nil).AnyTimes()
 			},
-			message: "データ取得に失敗しました",
+			message: "ログインしてください",
 		},
 		{
 			name:    "現在ページ情報(nowPage)が0の場合、データ取得に失敗",
@@ -390,6 +389,117 @@ func TestIndex(t *testing.T) {
 			}
 
 			if rsp.Message != tt.message {
+				if mess.Error != tt.message {
+					t.Error("actual:", mess.Error, "want:", tt.message)
+				}
+			}
+		})
+	}
+}
+
+func TestShow(t *testing.T) {
+	c := gomock.NewController(t)
+	defer c.Finish()
+	sqlhandler := mock_database.NewMockSqlHandler(c)
+	ctrl := controllers.NewTodoController(sqlhandler)
+	row := mock_database.NewMockRow(c)
+
+	stateShow := `
+		select
+			id,
+			user_id,
+			title,
+			content,
+			image_path,
+			isFinished,
+			created_at
+		from
+			todos
+		where
+			id = ?
+		and
+			user_id = ?
+	`
+
+	var todo domain.Todo
+
+	cases := []struct {
+		name          string
+		todoId        int
+		userId        int
+		prepareMockFn func(m *mock_database.MockSqlHandler, r *mock_database.MockRow, statement string, id int, userId int, todo domain.Todo)
+		message       string
+	}{
+		{
+			name:   "必須項目が入力された場合、データ取得に成功",
+			todoId: 1,
+			userId: 1,
+			prepareMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockRow, statement string, id int, userId int, todo domain.Todo) {
+				r.EXPECT().Scan(&todo.ID, &todo.UserID, &todo.Title, &todo.Content, &todo.ImagePath, &todo.IsFinished, &todo.CreatedAt).Return(nil).AnyTimes()
+				r.EXPECT().Next().Return(false).AnyTimes()
+				r.EXPECT().Err().Return(nil).AnyTimes()
+				r.EXPECT().Close().Return(nil).AnyTimes()
+				m.EXPECT().Query(statement, id, userId).Return(r, nil).AnyTimes()
+			},
+			message: "",
+		},
+		{
+			name:   "todoIdがnilの場合、データ取得に失敗",
+			todoId: 0,
+			userId: 1,
+			prepareMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockRow, statement string, id int, userId int, todo domain.Todo) {
+				r.EXPECT().Scan(&todo.ID, &todo.UserID, &todo.Title, &todo.Content, &todo.ImagePath, &todo.IsFinished, &todo.CreatedAt).Return(nil).AnyTimes()
+				r.EXPECT().Next().Return(false).AnyTimes()
+				r.EXPECT().Err().Return(nil).AnyTimes()
+				r.EXPECT().Close().Return(nil).AnyTimes()
+				m.EXPECT().Query(statement, id, userId).Return(r, nil).AnyTimes()
+			},
+			message: "データ取得に失敗しました",
+		},
+		{
+			name:   "userIdがnilの場合、データ取得に失敗",
+			todoId: 1,
+			userId: 0,
+			prepareMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockRow, statement string, id int, userId int, todo domain.Todo) {
+				r.EXPECT().Scan(&todo.ID, &todo.UserID, &todo.Title, &todo.Content, &todo.ImagePath, &todo.IsFinished, &todo.CreatedAt).Return(nil).AnyTimes()
+				r.EXPECT().Next().Return(false).AnyTimes()
+				r.EXPECT().Err().Return(nil).AnyTimes()
+				r.EXPECT().Close().Return(nil).AnyTimes()
+				m.EXPECT().Query(statement, id, userId).Return(r, nil).AnyTimes()
+			},
+			message: "ログインをしてください",
+		},
+	}
+
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			var buffer bytes.Buffer
+			writer := multipart.NewWriter(&buffer)
+			writer.Close()
+			apiURL := "/api/todos/" + strconv.Itoa(tt.todoId)
+			req := httptest.NewRequest("GET", apiURL, &buffer)
+			req.Header.Add("Content-Type", writer.FormDataContentType())
+			w := httptest.NewRecorder()
+
+			session, err := store.Get(req, "session")
+			if err != nil {
+				t.Error(err)
+				return
+			}
+			session.Values["userId"] = tt.userId
+			err = session.Save(req, w)
+			if err != nil {
+				t.Error(err)
+			}
+
+			tt.prepareMockFn(sqlhandler, row, stateShow, tt.todoId, tt.userId, todo)
+
+			ctrl.Show(w, req)
+			var mess *TodoMessage
+			buf, _ := ioutil.ReadAll(w.Body)
+			json.Unmarshal(buf, &mess)
+
+			if mess.Error != "" {
 				if mess.Error != tt.message {
 					t.Error("actual:", mess.Error, "want:", tt.message)
 				}
