@@ -13,6 +13,7 @@ import (
 	"testing"
 
 	mock_database "github.com/kory-jp/react_golang_mux/api/interfaces/mock"
+	"github.com/stretchr/testify/assert"
 
 	"github.com/golang/mock/gomock"
 	"github.com/kory-jp/react_golang_mux/api/domain"
@@ -236,22 +237,14 @@ func TestCreate(t *testing.T) {
 			}
 
 			if tm.Message != "" {
-				if tm.Message != tt.responseMessage {
-					t.Error("actual:", tm.Message, "want:", tt.responseMessage)
-					return
-				}
+				assert.Equal(t, tm.Message, tt.responseMessage)
 			}
 			if tm.Error != "" {
-				if tm.Error != tt.responseMessage {
-					t.Error("actual:", tm.Error, "want:", tt.responseMessage)
-					return
-				}
+				assert.Equal(t, tm.Error, tt.responseMessage)
 			}
 		})
 	}
 }
-
-var allTodosCount float64
 
 func TestIndex(t *testing.T) {
 	c := gomock.NewController(t)
@@ -259,6 +252,7 @@ func TestIndex(t *testing.T) {
 	sqlhandler := mock_database.NewMockSqlHandler(c)
 	ctrl := controllers.NewTodoController(sqlhandler)
 	row := mock_database.NewMockRow(c)
+	var allTodosCount float64
 
 	// 現在の投稿済みTodo総数取得
 	statement1 := `
@@ -389,9 +383,7 @@ func TestIndex(t *testing.T) {
 			}
 
 			if rsp.Message != tt.message {
-				if mess.Error != tt.message {
-					t.Error("actual:", mess.Error, "want:", tt.message)
-				}
+				assert.Equal(t, mess.Error, tt.message)
 			}
 		})
 	}
@@ -500,9 +492,7 @@ func TestShow(t *testing.T) {
 			json.Unmarshal(buf, &mess)
 
 			if mess.Error != "" {
-				if mess.Error != tt.message {
-					t.Error("actual:", mess.Error, "want:", tt.message)
-				}
+				assert.Equal(t, mess.Error, tt.message)
 			}
 		})
 	}
