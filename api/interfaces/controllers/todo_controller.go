@@ -291,17 +291,38 @@ func (controller *TodoController) Update(w http.ResponseWriter, r *http.Request)
 		}
 	} else {
 		defer file.Close()
-		err = os.MkdirAll("./img", os.ModePerm)
-		if err != nil {
-			fmt.Println(err)
-			log.Println(err)
-			errStr := new(TodosError).MakeErr("サーバーで障害が発生しました")
-			fmt.Fprintln(w, errStr)
-			return
+
+		p, _ := os.Getwd()
+		if string(p) == "/app/api" {
+			fmt.Println("dev")
+			err = os.MkdirAll("./assets/dev/img", os.ModePerm)
+			if err != nil {
+				fmt.Println(err)
+				log.Println(err)
+				errStr := new(TodosError).MakeErr("サーバーで障害が発生しました")
+				fmt.Fprintln(w, errStr)
+				return
+			}
+		} else {
+			err = os.MkdirAll("../../assets/dev/img", os.ModePerm)
+			if err != nil {
+				fmt.Println(err)
+				log.Println(err)
+				errStr := new(TodosError).MakeErr("サーバーで障害が発生しました")
+				fmt.Fprintln(w, errStr)
+				return
+			}
 		}
+
 		var saveImage *os.File
 		uploadFileName = fmt.Sprintf("%d%s", time.Now().UnixNano(), fileHeader.Filename)
-		imageFilePath := "./img/" + uploadFileName
+		// imageFilePath := "./img/" + uploadFileName
+		var imageFilePath string
+		if string(p) == "/app/api" {
+			imageFilePath = "./assets/dev/img/" + uploadFileName
+		} else {
+			imageFilePath = "../../assets/dev/img/" + uploadFileName
+		}
 		formatPath := filepath.Clean(imageFilePath)
 		saveImage, err = os.Create(formatPath)
 		if err != nil {
@@ -326,15 +347,23 @@ func (controller *TodoController) Update(w http.ResponseWriter, r *http.Request)
 	}
 
 	userId, err := GetUserId(r)
-	if err != nil {
+	if err != nil || userId == 0 {
 		fmt.Println(err)
 		log.Println(err)
-		errStr := new(TodosError).MakeErr("保存処理に失敗しました")
+		errStr := new(TodosError).MakeErr("ログインしてください")
 		fmt.Fprintln(w, errStr)
 		return
 	}
 	todoType := new(domain.Todo)
-	todoType.ID, _ = strconv.Atoi(r.Form.Get("id"))
+	id, err := strconv.Atoi(path.Base(r.URL.Path))
+	if err != nil || id == 0 {
+		fmt.Println(err)
+		log.Println(err)
+		errStr := new(TodosError).MakeErr("データ取得に失敗しました")
+		fmt.Fprintln(w, errStr)
+		return
+	}
+	todoType.ID = id
 	todoType.UserID = userId
 	todoType.Title = r.Form.Get("title")
 	todoType.Content = r.Form.Get("content")
@@ -361,7 +390,10 @@ func (controller *TodoController) Update(w http.ResponseWriter, r *http.Request)
 	// -------
 	mess, err := controller.Interactor.UpdateTodo(*todoType)
 	if err != nil {
-		fmt.Fprintln(w, err)
+		fmt.Println(err)
+		log.Println(err)
+		errStr := new(TodosError).MakeErr(err.Error())
+		fmt.Fprintln(w, errStr)
 		return
 	}
 
