@@ -316,7 +316,6 @@ func (controller *TodoController) Update(w http.ResponseWriter, r *http.Request)
 
 		var saveImage *os.File
 		uploadFileName = fmt.Sprintf("%d%s", time.Now().UnixNano(), fileHeader.Filename)
-		// imageFilePath := "./img/" + uploadFileName
 		var imageFilePath string
 		if string(p) == "/app/api" {
 			imageFilePath = "./assets/dev/img/" + uploadFileName
@@ -409,11 +408,15 @@ func (controller *TodoController) Update(w http.ResponseWriter, r *http.Request)
 }
 
 func (controller *TodoController) IsFinished(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	id, err := strconv.Atoi(vars["id"])
-	if err != nil {
+	id, err := strconv.Atoi(path.Base(r.URL.Path))
+	if err != nil || id == 0 {
+		fmt.Println(err)
 		log.Println(err)
+		errStr := new(TodosError).MakeErr("データ取得に失敗しました")
+		fmt.Fprintln(w, errStr)
+		return
 	}
+
 	todoType := new(domain.Todo)
 	bytesTodo, err := io.ReadAll(r.Body)
 	if err != nil {
@@ -432,16 +435,19 @@ func (controller *TodoController) IsFinished(w http.ResponseWriter, r *http.Requ
 	}
 
 	userId, err := GetUserId(r)
-	if err != nil {
+	if err != nil || userId == 0 {
 		fmt.Println(err)
 		log.Println(err)
-		errStr := new(TodosError).MakeErr("保存処理に失敗しました")
+		errStr := new(TodosError).MakeErr("ログインしてください")
 		fmt.Fprintln(w, errStr)
 		return
 	}
 	mess, err := controller.Interactor.IsFinishedTodo(id, *todoType, userId)
 	if err != nil {
-		fmt.Fprintln(w, err)
+		fmt.Println(err)
+		log.Println(err)
+		errStr := new(TodosError).MakeErr(err.Error())
+		fmt.Fprintln(w, errStr)
 		return
 	}
 

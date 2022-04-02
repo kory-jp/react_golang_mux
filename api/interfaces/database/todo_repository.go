@@ -123,13 +123,7 @@ func (repo *TodoRepository) FindByUserId(identifier int, page int) (todos domain
 func (repo *TodoRepository) FindByIdAndUserId(identifier int, userIdentifier int) (todo *domain.Todo, err error) {
 	row, err := repo.Query(`
 		select
-			id,
-			user_id,
-			title,
-			content,
-			image_path,
-			isFinished,
-			created_at
+			*
 		from
 			todos
 		where
@@ -191,7 +185,7 @@ func (repo *TodoRepository) Overwrite(t domain.Todo) (err error) {
 	return err
 }
 
-func (repo *TodoRepository) ChangeBoolean(id int, t domain.Todo) (err error) {
+func (repo *TodoRepository) ChangeBoolean(id int, userId int, t domain.Todo) (err error) {
 	_, err = repo.Execute(`
 		update
 			todos
@@ -199,7 +193,9 @@ func (repo *TodoRepository) ChangeBoolean(id int, t domain.Todo) (err error) {
 			isFinished = ?
 		where
 			id = ?
-	`, t.IsFinished, id)
+		and
+			user_id = ?
+	`, t.IsFinished, id, userId)
 	if err != nil {
 		fmt.Println(err)
 		log.Println(err)

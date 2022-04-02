@@ -398,13 +398,7 @@ func TestShow(t *testing.T) {
 
 	stateShow := `
 		select
-			id,
-			user_id,
-			title,
-			content,
-			image_path,
-			isFinished,
-			created_at
+			*
 		from
 			todos
 		where
@@ -700,6 +694,161 @@ func TestUpdate(t *testing.T) {
 
 			// --- テスト実行 ---
 			ctrl.Update(w, req)
+			var tm TodoMessage
+			buf, _ := ioutil.ReadAll(w.Body)
+			if err = json.Unmarshal(buf, &tm); err != nil {
+				t.Error(err)
+			}
+
+			if w.Code != 200 {
+				t.Error(w.Code)
+			}
+
+			if tm.Message != "" {
+				assert.Equal(t, tm.Message, tt.responseMessage)
+			}
+			if tm.Error != "" {
+				assert.Equal(t, tm.Error, tt.responseMessage)
+			}
+		})
+	}
+}
+
+func TestIsFinished(t *testing.T) {
+	c := gomock.NewController(t)
+	defer c.Finish()
+	sqlhandler := mock_database.NewMockSqlHandler(c)
+	ctrl := controllers.NewTodoController(sqlhandler)
+	result := mock_database.NewMockResult(c)
+	row := mock_database.NewMockRow(c)
+	statementUpdate := `
+		update
+			todos
+		set
+			isFinished = ?
+		where
+			id = ?
+		and
+			user_id = ?
+	`
+
+	statementFind := `
+		select
+			*
+		from
+			todos
+		where
+			id = ?
+		and
+			user_id = ?
+	`
+	var todo domain.Todo
+
+	cases := []struct {
+		name                               string
+		todoId                             int
+		args                               domain.Todo
+		loginUserId                        int
+		prepareChangeBoolMockFn            func(m *mock_database.MockSqlHandler, r *mock_database.MockResult, statement string, todoId int, todo domain.Todo, userId int)
+		prepareFindTodoByIdAndUserIdMockFn func(m *mock_database.MockSqlHandler, r *mock_database.MockRow, statement string, todoId int, userId int, todo domain.Todo)
+		responseMessage                    string
+	}{
+		{
+			name:   "必須項目が入力された場合、更新メッセージを取得",
+			todoId: 1,
+			args: domain.Todo{
+				IsFinished: true,
+			},
+			loginUserId: 1,
+			prepareChangeBoolMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockResult, statement string, todoId int, todo domain.Todo, userId int) {
+				r.EXPECT().RowsAffected().Return(int64(0), nil).AnyTimes()
+				m.EXPECT().
+					Execute(statement, todo.IsFinished, todoId, userId).
+					Return(r, nil)
+			},
+			prepareFindTodoByIdAndUserIdMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockRow, statement string, todoId int, userId int, todo domain.Todo) {
+				r.EXPECT().Next().Return(false).AnyTimes()
+				r.EXPECT().Scan(&todo.ID, &todo.UserID, &todo.Title, &todo.Content, &todo.ImagePath, &todo.IsFinished, &todo.CreatedAt).Return(nil).AnyTimes()
+				r.EXPECT().Close().Return(nil).AnyTimes()
+				m.EXPECT().Query(statement, todoId, userId).Return(r, nil)
+			},
+			responseMessage: "未完了の項目が追加されました",
+		},
+		{
+			name:   "todoIdが0の場合、エラーメッセージを取得",
+			todoId: 0,
+			args: domain.Todo{
+				IsFinished: true,
+			},
+			loginUserId: 1,
+			prepareChangeBoolMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockResult, statement string, todoId int, todo domain.Todo, userId int) {
+				r.EXPECT().RowsAffected().Return(int64(0), nil).AnyTimes()
+				m.EXPECT().
+					Execute(statement, todo.IsFinished, todoId, userId).
+					Return(r, nil).
+					AnyTimes()
+			},
+			prepareFindTodoByIdAndUserIdMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockRow, statement string, todoId int, userId int, todo domain.Todo) {
+				r.EXPECT().Next().Return(false).AnyTimes()
+				r.EXPECT().Scan(&todo.ID, &todo.UserID, &todo.Title, &todo.Content, &todo.ImagePath, &todo.IsFinished, &todo.CreatedAt).Return(nil).AnyTimes()
+				r.EXPECT().Close().Return(nil).AnyTimes()
+				m.EXPECT().Query(statement, todoId, userId).
+					Return(r, nil).
+					AnyTimes()
+			},
+			responseMessage: "データ取得に失敗しました",
+		},
+		{
+			name:   "todoIdが0の場合、エラーメッセージを取得",
+			todoId: 1,
+			args: domain.Todo{
+				IsFinished: true,
+			},
+			loginUserId: 0,
+			prepareChangeBoolMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockResult, statement string, todoId int, todo domain.Todo, userId int) {
+				r.EXPECT().RowsAffected().Return(int64(0), nil).AnyTimes()
+				m.EXPECT().
+					Execute(statement, todo.IsFinished, todoId, userId).
+					Return(r, nil).
+					AnyTimes()
+			},
+			prepareFindTodoByIdAndUserIdMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockRow, statement string, todoId int, userId int, todo domain.Todo) {
+				r.EXPECT().Next().Return(false).AnyTimes()
+				r.EXPECT().Scan(&todo.ID, &todo.UserID, &todo.Title, &todo.Content, &todo.ImagePath, &todo.IsFinished, &todo.CreatedAt).Return(nil).AnyTimes()
+				r.EXPECT().Close().Return(nil).AnyTimes()
+				m.EXPECT().Query(statement, todoId, userId).
+					Return(r, nil).
+					AnyTimes()
+			},
+			responseMessage: "ログインしてください",
+		},
+	}
+
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			jsonArgs, _ := json.Marshal(tt.args)
+			apiURL := "/api/todos/isfinished/" + strconv.Itoa(tt.todoId)
+			req := httptest.NewRequest("POST", apiURL, bytes.NewBuffer(jsonArgs))
+			w := httptest.NewRecorder()
+
+			// --- sessionにユーザーIDを保存処理 ---
+			session, err := store.Get(req, "session")
+			if err != nil {
+				t.Error(err)
+				return
+			}
+			session.Values["userId"] = tt.loginUserId
+			err = session.Save(req, w)
+			if err != nil {
+				t.Error(err)
+			}
+
+			// --- mock ---
+			tt.prepareChangeBoolMockFn(sqlhandler, result, statementUpdate, tt.todoId, tt.args, tt.loginUserId)
+			tt.prepareFindTodoByIdAndUserIdMockFn(sqlhandler, row, statementFind, tt.todoId, tt.loginUserId, todo)
+
+			// --- テスト実行 ---
+			ctrl.IsFinished(w, req)
 			var tm TodoMessage
 			buf, _ := ioutil.ReadAll(w.Body)
 			if err = json.Unmarshal(buf, &tm); err != nil {
