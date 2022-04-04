@@ -23,6 +23,7 @@ import (
 )
 
 var store = sessions.NewCookieStore([]byte(os.Getenv("SESSION_KEY")))
+var allTodosCount float64
 
 type TodoMessage struct {
 	Message string
@@ -252,7 +253,6 @@ func TestIndex(t *testing.T) {
 	sqlhandler := mock_database.NewMockSqlHandler(c)
 	ctrl := controllers.NewTodoController(sqlhandler)
 	row := mock_database.NewMockRow(c)
-	var allTodosCount float64
 
 	// 現在の投稿済みTodo総数取得
 	statement1 := `
@@ -955,6 +955,181 @@ func TestDelete(t *testing.T) {
 
 			// --- テスト実行 ---
 			ctrl.Delete(w, req)
+			var tm TodoMessage
+			buf, _ := ioutil.ReadAll(w.Body)
+			if err = json.Unmarshal(buf, &tm); err != nil {
+				t.Error(err)
+			}
+
+			if w.Code != 200 {
+				t.Error(w.Code)
+			}
+
+			if tm.Message != "" {
+				assert.Equal(t, tm.Message, tt.responseMessage)
+			}
+			if tm.Error != "" {
+				assert.Equal(t, tm.Error, tt.responseMessage)
+			}
+		})
+	}
+}
+
+func TestDeleteIndex(t *testing.T) {
+	c := gomock.NewController(t)
+	defer c.Finish()
+	sqlhandler := mock_database.NewMockSqlHandler(c)
+	ctrl := controllers.NewTodoController(sqlhandler)
+	result := mock_database.NewMockResult(c)
+	row := mock_database.NewMockRow(c)
+	stateDelete := `
+		delete from
+			todos
+		where
+			id = ?
+		and
+			user_id = ?
+	`
+	stateSumPage := `
+		select count(*) from
+			todos
+		where
+			user_id = ?
+	`
+	stateFindByUserId := `
+		select
+			*
+		from
+			todos
+		where
+			user_id = ?
+		order by
+			id desc
+		limit 5
+		offset ?
+	`
+	var todo domain.Todo
+
+	cases := []struct {
+		name                     string
+		todoId                   int
+		loginUserId              int
+		page                     int
+		prepareDeleteMockFn      func(m *mock_database.MockSqlHandler, r *mock_database.MockResult, statement string, todoId int, loginUserId int)
+		prepareGetNumTodosMockFn func(m *mock_database.MockSqlHandler, r *mock_database.MockRow, statement string, userId int)
+		prepareGetTodosMockFn    func(m *mock_database.MockSqlHandler, r *mock_database.MockRow, statement string, userId int, offset int, todo domain.Todo)
+		responseMessage          string
+	}{
+		{
+			name:        "必須項目が入力された場合、データ削除成功",
+			todoId:      2,
+			loginUserId: 1,
+			page:        1,
+			prepareDeleteMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockResult, statement string, todoId int, loginUserId int) {
+				r.EXPECT().RowsAffected().Return(int64(0), nil).AnyTimes()
+				m.EXPECT().
+					Execute(statement, todoId, loginUserId).
+					Return(r, nil)
+			},
+			prepareGetNumTodosMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockRow, statement string, userId int) {
+				r.EXPECT().Next().Return(false).AnyTimes()
+				r.EXPECT().Scan(&allTodosCount).Return(nil).AnyTimes()
+				r.EXPECT().Err().Return(nil).AnyTimes()
+				r.EXPECT().Close().Return(nil).AnyTimes()
+				m.EXPECT().Query(statement, userId).Return(r, nil).AnyTimes()
+			},
+			prepareGetTodosMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockRow, statement string, userId int, offset int, todo domain.Todo) {
+				r.EXPECT().Scan(&todo.ID, &todo.UserID, &todo.Title, &todo.Content, &todo.ImagePath, &todo.IsFinished, &todo.CreatedAt).Return(nil).AnyTimes()
+				r.EXPECT().Next().Return(false).AnyTimes()
+				r.EXPECT().Err().Return(nil).AnyTimes()
+				r.EXPECT().Close().Return(nil).AnyTimes()
+				m.EXPECT().Query(statement, userId, offset).Return(r, nil).AnyTimes()
+			},
+			responseMessage: "削除しました",
+		},
+		{
+			name:        "todoIdがnilの場合、データ削除失敗",
+			todoId:      0,
+			loginUserId: 1,
+			page:        1,
+			prepareDeleteMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockResult, statement string, todoId int, loginUserId int) {
+				r.EXPECT().RowsAffected().Return(int64(0), nil).AnyTimes()
+				m.EXPECT().
+					Execute(statement, todoId, loginUserId).
+					Return(r, nil).
+					AnyTimes()
+			},
+			prepareGetNumTodosMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockRow, statement string, userId int) {
+				r.EXPECT().Next().Return(false).AnyTimes()
+				r.EXPECT().Scan(&allTodosCount).Return(nil).AnyTimes()
+				r.EXPECT().Err().Return(nil).AnyTimes()
+				r.EXPECT().Close().Return(nil).AnyTimes()
+				m.EXPECT().Query(statement, userId).Return(r, nil).AnyTimes()
+			},
+			prepareGetTodosMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockRow, statement string, userId int, offset int, todo domain.Todo) {
+				r.EXPECT().Scan(&todo.ID, &todo.UserID, &todo.Title, &todo.Content, &todo.ImagePath, &todo.IsFinished, &todo.CreatedAt).Return(nil).AnyTimes()
+				r.EXPECT().Next().Return(false).AnyTimes()
+				r.EXPECT().Err().Return(nil).AnyTimes()
+				r.EXPECT().Close().Return(nil).AnyTimes()
+				m.EXPECT().Query(statement, userId, offset).Return(r, nil).AnyTimes()
+			},
+			responseMessage: "データ取得に失敗しました",
+		},
+		{
+			name:        "loginUserIdがnilの場合、データ削除失敗",
+			todoId:      1,
+			loginUserId: 0,
+			page:        1,
+			prepareDeleteMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockResult, statement string, todoId int, loginUserId int) {
+				r.EXPECT().RowsAffected().Return(int64(0), nil).AnyTimes()
+				m.EXPECT().
+					Execute(statement, todoId, loginUserId).
+					Return(r, nil).
+					AnyTimes()
+			},
+			prepareGetNumTodosMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockRow, statement string, userId int) {
+				r.EXPECT().Next().Return(false).AnyTimes()
+				r.EXPECT().Scan(&allTodosCount).Return(nil).AnyTimes()
+				r.EXPECT().Err().Return(nil).AnyTimes()
+				r.EXPECT().Close().Return(nil).AnyTimes()
+				m.EXPECT().Query(statement, userId).Return(r, nil).AnyTimes()
+			},
+			prepareGetTodosMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockRow, statement string, userId int, offset int, todo domain.Todo) {
+				r.EXPECT().Scan(&todo.ID, &todo.UserID, &todo.Title, &todo.Content, &todo.ImagePath, &todo.IsFinished, &todo.CreatedAt).Return(nil).AnyTimes()
+				r.EXPECT().Next().Return(false).AnyTimes()
+				r.EXPECT().Err().Return(nil).AnyTimes()
+				r.EXPECT().Close().Return(nil).AnyTimes()
+				m.EXPECT().Query(statement, userId, offset).Return(r, nil).AnyTimes()
+			},
+			responseMessage: "ログインしてください",
+		},
+	}
+
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			apiURL := "/api/todos/deleteinindex/" + strconv.Itoa(tt.todoId) + "?page=" + strconv.Itoa(tt.page)
+			req := httptest.NewRequest("DELETE", apiURL, nil)
+			w := httptest.NewRecorder()
+
+			// --- sessionにユーザーIDを保存処理 ---
+			session, err := store.Get(req, "session")
+			if err != nil {
+				t.Error(err)
+				return
+			}
+			session.Values["userId"] = tt.loginUserId
+			err = session.Save(req, w)
+			if err != nil {
+				t.Error(err)
+			}
+
+			// --- mock ---
+			tt.prepareDeleteMockFn(sqlhandler, result, stateDelete, tt.todoId, tt.loginUserId)
+			tt.prepareGetNumTodosMockFn(sqlhandler, row, stateSumPage, tt.loginUserId)
+			tt.prepareGetTodosMockFn(sqlhandler, row, stateFindByUserId, tt.loginUserId, 0, todo)
+
+			// --- テスト実行 ---
+			ctrl.DeleteInIndex(w, req)
 			var tm TodoMessage
 			buf, _ := ioutil.ReadAll(w.Body)
 			if err = json.Unmarshal(buf, &tm); err != nil {

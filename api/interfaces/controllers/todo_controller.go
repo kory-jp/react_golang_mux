@@ -14,7 +14,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/gorilla/mux"
 	"github.com/kory-jp/react_golang_mux/api/domain"
 	"github.com/kory-jp/react_golang_mux/api/interfaces/database"
 	usecase "github.com/kory-jp/react_golang_mux/api/usecase/todo"
@@ -501,15 +500,15 @@ func (controller *TodoController) Delete(w http.ResponseWriter, r *http.Request)
 }
 
 func (controller *TodoController) DeleteInIndex(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	id, err := strconv.Atoi(vars["id"])
-	if err != nil {
+	id, err := strconv.Atoi(path.Base(r.URL.Path))
+	if err != nil || id == 0 {
 		fmt.Println(err)
 		log.Println(err)
 		errStr := new(TodosError).MakeErr("データ取得に失敗しました")
 		fmt.Fprintln(w, errStr)
 		return
 	}
+
 	page, err := strconv.Atoi(r.FormValue("page"))
 	if err != nil {
 		fmt.Println(err)
@@ -520,10 +519,10 @@ func (controller *TodoController) DeleteInIndex(w http.ResponseWriter, r *http.R
 	}
 
 	userId, err := GetUserId(r)
-	if err != nil {
+	if err != nil || userId == 0 {
 		fmt.Println(err)
 		log.Println(err)
-		errStr := new(TodosError).MakeErr("削除処理に失敗しました")
+		errStr := new(TodosError).MakeErr("ログインしてください")
 		fmt.Fprintln(w, errStr)
 		return
 	}
@@ -545,5 +544,6 @@ func (controller *TodoController) DeleteInIndex(w http.ResponseWriter, r *http.R
 		fmt.Fprintln(w, errStr)
 		return
 	}
+
 	fmt.Fprintln(w, string(jsonResponse))
 }
