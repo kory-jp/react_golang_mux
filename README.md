@@ -188,6 +188,10 @@ Toast による通知機能
 
 Todo が 5 以上投稿されるとページネーションにより、データの一部取得
 
+コマンドを実行することでテストデータを自動作成
+
+一部、ファイルに対してテストコードを作成
+
 ## モデルデザイン
 
 User
@@ -227,3 +231,22 @@ create table if not exists todos (
 一覧画面から各 Todo の詳細情報のページに遷移することや、完了未完了の操作、削除の操作が可能
 
 詳細画面(`todo/show/:id`)からはより詳細の Todo 情報を確認でき編集や削除の操作も可能
+
+## テストコード実行
+
+- 実装したテストコード
+
+```
+api/interfaces/controllers/todo_controller_test.go
+api/usecase/todo/todo_interactor_test.go
+```
+
+- テストコード実行
+
+```
+cd api/interfaces/controllers
+go test -v
+
+cd api/usecases/todo
+go test -v
+```

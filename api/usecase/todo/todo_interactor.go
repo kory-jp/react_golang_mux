@@ -93,7 +93,7 @@ func (interactor *TodoInteractor) IsFinishedTodo(id int, t domain.Todo, userId i
 		return nil, err
 	}
 
-	err = interactor.TodoRepository.ChangeBoolean(id, t)
+	err = interactor.TodoRepository.ChangeBoolean(id, userId, t)
 	if err != nil {
 		fmt.Println(err)
 		log.Println(err)

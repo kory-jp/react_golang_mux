@@ -14,4 +14,5 @@ type Row interface {
 	Scan(...interface{}) error
 	Next() bool
 	Close() error
+	Err() error
 }

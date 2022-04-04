@@ -9,11 +9,11 @@ import (
 	"mime/multipart"
 	"net/http"
 	"os"
+	"path"
 	"path/filepath"
 	"strconv"
 	"time"
 
-	"github.com/gorilla/mux"
 	"github.com/kory-jp/react_golang_mux/api/domain"
 	"github.com/kory-jp/react_golang_mux/api/interfaces/database"
 	usecase "github.com/kory-jp/react_golang_mux/api/usecase/todo"
@@ -24,7 +24,7 @@ type TodoController struct {
 }
 
 type TodosError struct {
-	Error string
+	Error string `json:"error"`
 }
 
 func (serr *TodosError) MakeErr(mess string) (errStr string) {
@@ -89,18 +89,39 @@ func (controller *TodoController) Create(w http.ResponseWriter, r *http.Request)
 	} else {
 		defer file.Close()
 		// 画像を保存するimgディレクトリが存在しない場合は作成する
-		err = os.MkdirAll("./img", os.ModePerm)
-		if err != nil {
-			fmt.Println(err)
-			log.Println(err)
-			errStr := new(TodosError).MakeErr("サーバーで障害が発生しました")
-			fmt.Fprintln(w, errStr)
-			return
+		// devModeの画像保存先とtestModeの画像の保存先を"api/assets/dev/img"を共通化
+		// devModeからtestModeでカレントディレクトリが異なるので、os.Getwdでそれぞれパスを指定する
+		p, _ := os.Getwd()
+		if string(p) == "/app/api" {
+			fmt.Println("dev")
+			err = os.MkdirAll("./assets/dev/img", os.ModePerm)
+			if err != nil {
+				fmt.Println(err)
+				log.Println(err)
+				errStr := new(TodosError).MakeErr("サーバーで障害が発生しました")
+				fmt.Fprintln(w, errStr)
+				return
+			}
+		} else {
+			err = os.MkdirAll("../../assets/dev/img", os.ModePerm)
+			if err != nil {
+				fmt.Println(err)
+				log.Println(err)
+				errStr := new(TodosError).MakeErr("サーバーで障害が発生しました")
+				fmt.Fprintln(w, errStr)
+				return
+			}
 		}
+
 		// サーバー側に保存するために空ファイルを作成
 		var saveImage *os.File
 		uploadFileName = fmt.Sprintf("%d%s", time.Now().UnixNano(), fileHeader.Filename)
-		imageFilePath := "./img/" + uploadFileName
+		var imageFilePath string
+		if string(p) == "/app/api" {
+			imageFilePath = "./assets/dev/img/" + uploadFileName
+		} else {
+			imageFilePath = "../../assets/dev/img/" + uploadFileName
+		}
 		formatPath := filepath.Clean(imageFilePath)
 		saveImage, err = os.Create(formatPath)
 		if err != nil {
@@ -123,10 +144,10 @@ func (controller *TodoController) Create(w http.ResponseWriter, r *http.Request)
 	}
 
 	userId, err := GetUserId(r)
-	if err != nil {
+	if err != nil || userId == 0 {
 		fmt.Println(err)
 		log.Println(err)
-		errStr := new(TodosError).MakeErr("保存処理に失敗しました")
+		errStr := new(TodosError).MakeErr("ログインしてください")
 		fmt.Fprintln(w, errStr)
 		return
 	}
@@ -136,6 +157,14 @@ func (controller *TodoController) Create(w http.ResponseWriter, r *http.Request)
 	todoType.Title = r.Form.Get("title")
 	todoType.Content = r.Form.Get("content")
 	todoType.ImagePath = uploadFileName
+
+	if err = todoType.TodoValidate(); err != nil {
+		fmt.Println(err)
+		log.Println(err)
+		errStr := new(TodosError).MakeErr(err.Error())
+		fmt.Fprintln(w, errStr)
+		return
+	}
 
 	mess, err := controller.Interactor.Add(*todoType)
 	if err != nil {
@@ -157,7 +186,7 @@ func (controller *TodoController) Index(w http.ResponseWriter, r *http.Request) 
 
 	// URLから取得したいページ番目の情報
 	page, err := strconv.Atoi(r.FormValue("page"))
-	if err != nil {
+	if err != nil || page == 0 {
 		fmt.Println(err)
 		log.Println(err)
 		errStr := new(TodosError).MakeErr("データ取得に失敗しました")
@@ -165,16 +194,20 @@ func (controller *TodoController) Index(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 	userId, err := GetUserId(r)
-	if err != nil {
+	if err != nil || userId == 0 {
 		fmt.Println(err)
 		log.Println(err)
-		errStr := new(TodosError).MakeErr("データ取得に失敗しました")
+		errStr := new(TodosError).MakeErr("ログインしてください")
 		fmt.Fprintln(w, errStr)
 		return
 	}
+
 	todos, sumPage, err := controller.Interactor.Todos(userId, page)
 	if err != nil {
-		fmt.Fprintln(w, err)
+		fmt.Println(err)
+		log.Println(err)
+		errStr := new(TodosError).MakeErr(err.Error())
+		fmt.Fprintln(w, errStr)
 		return
 	}
 	res := ResponseFormat{
@@ -193,26 +226,30 @@ func (controller *TodoController) Index(w http.ResponseWriter, r *http.Request) 
 }
 
 func (controller *TodoController) Show(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	id, err := strconv.Atoi(vars["id"])
-	if err != nil {
+	id, err := strconv.Atoi(path.Base(r.URL.Path))
+	if err != nil || id == 0 {
 		fmt.Println(err)
 		log.Println(err)
 		errStr := new(TodosError).MakeErr("データ取得に失敗しました")
 		fmt.Fprintln(w, errStr)
 		return
 	}
+
 	userId, err := GetUserId(r)
-	if err != nil {
+	if err != nil || userId == 0 {
 		fmt.Println(err)
 		log.Println(err)
-		errStr := new(TodosError).MakeErr("データ取得に失敗しました")
+		errStr := new(TodosError).MakeErr("ログインをしてください")
 		fmt.Fprintln(w, errStr)
 		return
 	}
+
 	todo, err := controller.Interactor.TodoByIdAndUserId(id, userId)
 	if err != nil {
-		fmt.Fprintln(w, err)
+		fmt.Println(err)
+		log.Println(err)
+		errStr := new(TodosError).MakeErr(err.Error())
+		fmt.Fprintln(w, errStr)
 		return
 	}
 
@@ -253,17 +290,37 @@ func (controller *TodoController) Update(w http.ResponseWriter, r *http.Request)
 		}
 	} else {
 		defer file.Close()
-		err = os.MkdirAll("./img", os.ModePerm)
-		if err != nil {
-			fmt.Println(err)
-			log.Println(err)
-			errStr := new(TodosError).MakeErr("サーバーで障害が発生しました")
-			fmt.Fprintln(w, errStr)
-			return
+
+		p, _ := os.Getwd()
+		if string(p) == "/app/api" {
+			fmt.Println("dev")
+			err = os.MkdirAll("./assets/dev/img", os.ModePerm)
+			if err != nil {
+				fmt.Println(err)
+				log.Println(err)
+				errStr := new(TodosError).MakeErr("サーバーで障害が発生しました")
+				fmt.Fprintln(w, errStr)
+				return
+			}
+		} else {
+			err = os.MkdirAll("../../assets/dev/img", os.ModePerm)
+			if err != nil {
+				fmt.Println(err)
+				log.Println(err)
+				errStr := new(TodosError).MakeErr("サーバーで障害が発生しました")
+				fmt.Fprintln(w, errStr)
+				return
+			}
 		}
+
 		var saveImage *os.File
 		uploadFileName = fmt.Sprintf("%d%s", time.Now().UnixNano(), fileHeader.Filename)
-		imageFilePath := "./img/" + uploadFileName
+		var imageFilePath string
+		if string(p) == "/app/api" {
+			imageFilePath = "./assets/dev/img/" + uploadFileName
+		} else {
+			imageFilePath = "../../assets/dev/img/" + uploadFileName
+		}
 		formatPath := filepath.Clean(imageFilePath)
 		saveImage, err = os.Create(formatPath)
 		if err != nil {
@@ -288,15 +345,23 @@ func (controller *TodoController) Update(w http.ResponseWriter, r *http.Request)
 	}
 
 	userId, err := GetUserId(r)
-	if err != nil {
+	if err != nil || userId == 0 {
 		fmt.Println(err)
 		log.Println(err)
-		errStr := new(TodosError).MakeErr("保存処理に失敗しました")
+		errStr := new(TodosError).MakeErr("ログインしてください")
 		fmt.Fprintln(w, errStr)
 		return
 	}
 	todoType := new(domain.Todo)
-	todoType.ID, _ = strconv.Atoi(r.Form.Get("id"))
+	id, err := strconv.Atoi(path.Base(r.URL.Path))
+	if err != nil || id == 0 {
+		fmt.Println(err)
+		log.Println(err)
+		errStr := new(TodosError).MakeErr("データ取得に失敗しました")
+		fmt.Fprintln(w, errStr)
+		return
+	}
+	todoType.ID = id
 	todoType.UserID = userId
 	todoType.Title = r.Form.Get("title")
 	todoType.Content = r.Form.Get("content")
@@ -323,7 +388,10 @@ func (controller *TodoController) Update(w http.ResponseWriter, r *http.Request)
 	// -------
 	mess, err := controller.Interactor.UpdateTodo(*todoType)
 	if err != nil {
-		fmt.Fprintln(w, err)
+		fmt.Println(err)
+		log.Println(err)
+		errStr := new(TodosError).MakeErr(err.Error())
+		fmt.Fprintln(w, errStr)
 		return
 	}
 
@@ -339,11 +407,15 @@ func (controller *TodoController) Update(w http.ResponseWriter, r *http.Request)
 }
 
 func (controller *TodoController) IsFinished(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	id, err := strconv.Atoi(vars["id"])
-	if err != nil {
+	id, err := strconv.Atoi(path.Base(r.URL.Path))
+	if err != nil || id == 0 {
+		fmt.Println(err)
 		log.Println(err)
+		errStr := new(TodosError).MakeErr("データ取得に失敗しました")
+		fmt.Fprintln(w, errStr)
+		return
 	}
+
 	todoType := new(domain.Todo)
 	bytesTodo, err := io.ReadAll(r.Body)
 	if err != nil {
@@ -362,16 +434,19 @@ func (controller *TodoController) IsFinished(w http.ResponseWriter, r *http.Requ
 	}
 
 	userId, err := GetUserId(r)
-	if err != nil {
+	if err != nil || userId == 0 {
 		fmt.Println(err)
 		log.Println(err)
-		errStr := new(TodosError).MakeErr("保存処理に失敗しました")
+		errStr := new(TodosError).MakeErr("ログインしてください")
 		fmt.Fprintln(w, errStr)
 		return
 	}
 	mess, err := controller.Interactor.IsFinishedTodo(id, *todoType, userId)
 	if err != nil {
-		fmt.Fprintln(w, err)
+		fmt.Println(err)
+		log.Println(err)
+		errStr := new(TodosError).MakeErr(err.Error())
+		fmt.Fprintln(w, errStr)
 		return
 	}
 
@@ -387,26 +462,29 @@ func (controller *TodoController) IsFinished(w http.ResponseWriter, r *http.Requ
 }
 
 func (controller *TodoController) Delete(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	id, err := strconv.Atoi(vars["id"])
-	if err != nil {
+	id, err := strconv.Atoi(path.Base(r.URL.Path))
+	if err != nil || id == 0 {
 		fmt.Println(err)
 		log.Println(err)
 		errStr := new(TodosError).MakeErr("データ取得に失敗しました")
 		fmt.Fprintln(w, errStr)
 		return
 	}
+
 	userId, err := GetUserId(r)
-	if err != nil {
+	if err != nil || userId == 0 {
 		fmt.Println(err)
 		log.Println(err)
-		errStr := new(TodosError).MakeErr("削除処理に失敗しました")
+		errStr := new(TodosError).MakeErr("ログインしてください")
 		fmt.Fprintln(w, errStr)
 		return
 	}
 	mess, err := controller.Interactor.DeleteTodo(id, userId)
 	if err != nil {
-		fmt.Fprintln(w, err)
+		fmt.Println(err)
+		log.Println(err)
+		errStr := new(TodosError).MakeErr(err.Error())
+		fmt.Fprintln(w, errStr)
 		return
 	}
 
@@ -422,15 +500,15 @@ func (controller *TodoController) Delete(w http.ResponseWriter, r *http.Request)
 }
 
 func (controller *TodoController) DeleteInIndex(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	id, err := strconv.Atoi(vars["id"])
-	if err != nil {
+	id, err := strconv.Atoi(path.Base(r.URL.Path))
+	if err != nil || id == 0 {
 		fmt.Println(err)
 		log.Println(err)
 		errStr := new(TodosError).MakeErr("データ取得に失敗しました")
 		fmt.Fprintln(w, errStr)
 		return
 	}
+
 	page, err := strconv.Atoi(r.FormValue("page"))
 	if err != nil {
 		fmt.Println(err)
@@ -441,10 +519,10 @@ func (controller *TodoController) DeleteInIndex(w http.ResponseWriter, r *http.R
 	}
 
 	userId, err := GetUserId(r)
-	if err != nil {
+	if err != nil || userId == 0 {
 		fmt.Println(err)
 		log.Println(err)
-		errStr := new(TodosError).MakeErr("削除処理に失敗しました")
+		errStr := new(TodosError).MakeErr("ログインしてください")
 		fmt.Fprintln(w, errStr)
 		return
 	}
@@ -466,5 +544,6 @@ func (controller *TodoController) DeleteInIndex(w http.ResponseWriter, r *http.R
 		fmt.Fprintln(w, errStr)
 		return
 	}
+
 	fmt.Fprintln(w, string(jsonResponse))
 }

@@ -11,6 +11,7 @@ require (
 	github.com/gorilla/sessions v1.2.1 // indirect
 	github.com/joho/godotenv v1.4.0 // indirect
 	github.com/rs/cors v1.8.2
+	github.com/stretchr/testify v1.7.1 // indirect
 	golang.org/x/crypto v0.0.0-20220214200702-86341886e292 // indirect
 	gopkg.in/ini.v1 v1.66.3
 )
