@@ -6,11 +6,14 @@ import (
 	"io"
 	"io/ioutil"
 	"mime/multipart"
+	"net/http"
 	"net/http/httptest"
 	"os"
 	"strconv"
 	"strings"
 	"testing"
+
+	"github.com/kory-jp/react_golang_mux/api/interfaces/database"
 
 	mock_database "github.com/kory-jp/react_golang_mux/api/interfaces/mock"
 	"github.com/stretchr/testify/assert"
@@ -23,6 +26,7 @@ import (
 )
 
 var store = sessions.NewCookieStore([]byte(os.Getenv("SESSION_KEY")))
+var todo domain.Todo
 var allTodosCount float64
 
 type TodoMessage struct {
@@ -37,24 +41,10 @@ type Response struct {
 }
 
 func TestCreate(t *testing.T) {
-	c := gomock.NewController(t)
-	defer c.Finish()
-	// --- api/interfaces/database/sqlhandlerのモック ---
-	sqlhandler := mock_database.NewMockSqlHandler(c)
-	ctrl := controllers.NewTodoController(sqlhandler)
-	result := mock_database.NewMockResult(c)
-	statement := `
-		insert into
-			todos(
-				user_id,
-				title,
-				content,
-				image_path,
-				isFinished,
-				created_at
-			)
-		value (?, ?, ?, ?, ?, ?)
-	`
+	// --- 各種mockをインスタンス ---
+	sqlhandler, ctrl, result, _ := setMock(t)
+	// --- api/interfaces/databases/todo_repository
+	createTodoQuery := database.CreateTodoState
 
 	cases := []struct {
 		name            string
@@ -172,37 +162,8 @@ func TestCreate(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			var buffer bytes.Buffer
 			writer := multipart.NewWriter(&buffer)
-
-			// --- 画像データ ---
-			if tt.isImage {
-				fileWriter, err := writer.CreateFormFile("image", tt.args.ImagePath)
-				if err != nil {
-					t.Fatalf("Failed to create file writer. %s", err)
-				}
-
-				imgPath := "../../assets/test/img/" + tt.args.ImagePath
-				readFile, err := os.Open(imgPath)
-				if err != nil {
-					t.Fatalf("Failde to create file writer. %s", err)
-				}
-				defer readFile.Close()
-				io.Copy(fileWriter, readFile)
-			}
-
-			// --- タイトルデータ ---
-			titleWriter, err := writer.CreateFormField("title")
-			if err != nil {
-				t.Fatalf("Failed to create file writer. %s", err)
-			}
-			titleWriter.Write([]byte(tt.args.Title))
-
-			// --- 本文データ ---
-			contentWriter, err := writer.CreateFormField("content")
-			if err != nil {
-				t.Fatalf("Failed to create file writer. %s", err)
-			}
-			contentWriter.Write([]byte(tt.args.Content))
-
+			// -- 各種フィールドに値を設定 ---
+			setField(t, writer, tt.isImage, tt.args.ImagePath, tt.args.Title, tt.args.Content)
 			// --- フィールドの書き込みが終了後にClose ---
 			writer.Close()
 
@@ -211,25 +172,16 @@ func TestCreate(t *testing.T) {
 			w := httptest.NewRecorder()
 
 			// --- sessionにユーザーIDを保存処理 ---
-			session, err := store.Get(req, "session")
-			if err != nil {
-				t.Error(err)
-				return
-			}
-			session.Values["userId"] = tt.args.UserID
-			err = session.Save(req, w)
-			if err != nil {
-				t.Error(err)
-			}
+			SetSessionUserId(t, w, req, tt.args.UserID)
 
 			// --- mock ---
-			tt.prepareMockFn(sqlhandler, result, statement, tt.args)
+			tt.prepareMockFn(sqlhandler, result, createTodoQuery, tt.args)
 
 			// --- テスト実行 ---
 			ctrl.Create(w, req)
 			var tm TodoMessage
 			buf, _ := ioutil.ReadAll(w.Body)
-			if err = json.Unmarshal(buf, &tm); err != nil {
+			if err := json.Unmarshal(buf, &tm); err != nil {
 				t.Error(err)
 			}
 
@@ -248,46 +200,22 @@ func TestCreate(t *testing.T) {
 }
 
 func TestIndex(t *testing.T) {
-	c := gomock.NewController(t)
-	defer c.Finish()
-	sqlhandler := mock_database.NewMockSqlHandler(c)
-	ctrl := controllers.NewTodoController(sqlhandler)
-	row := mock_database.NewMockRow(c)
-
-	// 現在の投稿済みTodo総数取得
-	statement1 := `
-		select count(*) from
-			todos
-		where
-			user_id = ?
-	`
-
-	statement2 := `
-		select
-			*
-		from
-			todos
-		where
-			user_id = ?
-		order by
-			id desc
-		limit 5
-		offset ?
-	`
-	var todo domain.Todo
+	sqlhandler, ctrl, _, row := setMock(t)
+	sumTodoItemsQuery := database.SumTodoItemsState
+	getTodosQuery := database.GetTodosState
 
 	cases := []struct {
 		name                     string
-		userId                   int
+		loginUserId              int
 		nowPage                  int
 		prepareGetNumTodosMockFn func(m *mock_database.MockSqlHandler, r *mock_database.MockRow, statement string, userId int)
 		prepareGetTodosMockFn    func(m *mock_database.MockSqlHandler, r *mock_database.MockRow, statement string, userId int, offset int, todo domain.Todo)
 		message                  string
 	}{
 		{
-			name:    "必須項目が入力された場合、データ取得に成功",
-			userId:  1,
-			nowPage: 1,
+			name:        "必須項目が入力された場合、データ取得に成功",
+			loginUserId: 1,
+			nowPage:     1,
 			prepareGetNumTodosMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockRow, statement string, userId int) {
 				r.EXPECT().Next().Return(false).AnyTimes()
 				r.EXPECT().Scan(&allTodosCount).Return(nil).AnyTimes()
@@ -305,9 +233,9 @@ func TestIndex(t *testing.T) {
 			message: "",
 		},
 		{
-			name:    "userIdが0の場合、データ取得に失敗",
-			userId:  0,
-			nowPage: 1,
+			name:        "userIdが0の場合、データ取得に失敗",
+			loginUserId: 0,
+			nowPage:     1,
 			prepareGetNumTodosMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockRow, statement string, userId int) {
 				r.EXPECT().Next().Return(false).AnyTimes()
 				r.EXPECT().Scan(&allTodosCount).Return(nil).AnyTimes()
@@ -326,9 +254,9 @@ func TestIndex(t *testing.T) {
 			message: "ログインしてください",
 		},
 		{
-			name:    "現在ページ情報(nowPage)が0の場合、データ取得に失敗",
-			userId:  1,
-			nowPage: 0,
+			name:        "現在ページ情報(nowPage)が0の場合、データ取得に失敗",
+			loginUserId: 1,
+			nowPage:     0,
 			prepareGetNumTodosMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockRow, statement string, userId int) {
 				r.EXPECT().Next().Return(false).AnyTimes()
 				r.EXPECT().Scan(&allTodosCount).Return(nil).AnyTimes()
@@ -356,29 +284,19 @@ func TestIndex(t *testing.T) {
 			req := httptest.NewRequest("GET", apiURL, &buffer)
 			req.Header.Add("Content-Type", writer.FormDataContentType())
 			w := httptest.NewRecorder()
+			SetSessionUserId(t, w, req, tt.loginUserId)
 
-			session, err := store.Get(req, "session")
-			if err != nil {
-				t.Error(err)
-				return
-			}
-			session.Values["userId"] = tt.userId
-			err = session.Save(req, w)
-			if err != nil {
-				t.Error(err)
-			}
-
-			tt.prepareGetNumTodosMockFn(sqlhandler, row, statement1, tt.userId)
-			tt.prepareGetTodosMockFn(sqlhandler, row, statement2, tt.userId, 0, todo)
+			tt.prepareGetNumTodosMockFn(sqlhandler, row, sumTodoItemsQuery, tt.loginUserId)
+			tt.prepareGetTodosMockFn(sqlhandler, row, getTodosQuery, tt.loginUserId, 0, todo)
 
 			ctrl.Index(w, req)
 			var rsp Response
 			var mess TodoMessage
 			buf, _ := ioutil.ReadAll(w.Body)
-			if err = json.Unmarshal(buf, &rsp); err != nil {
+			if err := json.Unmarshal(buf, &rsp); err != nil {
 				t.Error(err)
 			}
-			if err = json.Unmarshal(buf, &mess); err != nil {
+			if err := json.Unmarshal(buf, &mess); err != nil {
 				t.Error(err)
 			}
 
@@ -390,36 +308,20 @@ func TestIndex(t *testing.T) {
 }
 
 func TestShow(t *testing.T) {
-	c := gomock.NewController(t)
-	defer c.Finish()
-	sqlhandler := mock_database.NewMockSqlHandler(c)
-	ctrl := controllers.NewTodoController(sqlhandler)
-	row := mock_database.NewMockRow(c)
-
-	stateShow := `
-		select
-			*
-		from
-			todos
-		where
-			id = ?
-		and
-			user_id = ?
-	`
-
-	var todo domain.Todo
+	sqlhandler, ctrl, _, row := setMock(t)
+	showTodoQuery := database.ShowTodoState
 
 	cases := []struct {
 		name          string
 		todoId        int
-		userId        int
+		loginUserId   int
 		prepareMockFn func(m *mock_database.MockSqlHandler, r *mock_database.MockRow, statement string, id int, userId int, todo domain.Todo)
 		message       string
 	}{
 		{
-			name:   "必須項目が入力された場合、データ取得に成功",
-			todoId: 1,
-			userId: 1,
+			name:        "必須項目が入力された場合、データ取得に成功",
+			todoId:      1,
+			loginUserId: 1,
 			prepareMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockRow, statement string, id int, userId int, todo domain.Todo) {
 				r.EXPECT().Scan(&todo.ID, &todo.UserID, &todo.Title, &todo.Content, &todo.ImagePath, &todo.IsFinished, &todo.CreatedAt).Return(nil).AnyTimes()
 				r.EXPECT().Next().Return(false).AnyTimes()
@@ -430,9 +332,9 @@ func TestShow(t *testing.T) {
 			message: "",
 		},
 		{
-			name:   "todoIdがnilの場合、データ取得に失敗",
-			todoId: 0,
-			userId: 1,
+			name:        "todoIdがnilの場合、データ取得に失敗",
+			todoId:      0,
+			loginUserId: 1,
 			prepareMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockRow, statement string, id int, userId int, todo domain.Todo) {
 				r.EXPECT().Scan(&todo.ID, &todo.UserID, &todo.Title, &todo.Content, &todo.ImagePath, &todo.IsFinished, &todo.CreatedAt).Return(nil).AnyTimes()
 				r.EXPECT().Next().Return(false).AnyTimes()
@@ -443,9 +345,9 @@ func TestShow(t *testing.T) {
 			message: "データ取得に失敗しました",
 		},
 		{
-			name:   "userIdがnilの場合、データ取得に失敗",
-			todoId: 1,
-			userId: 0,
+			name:        "userIdがnilの場合、データ取得に失敗",
+			todoId:      1,
+			loginUserId: 0,
 			prepareMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockRow, statement string, id int, userId int, todo domain.Todo) {
 				r.EXPECT().Scan(&todo.ID, &todo.UserID, &todo.Title, &todo.Content, &todo.ImagePath, &todo.IsFinished, &todo.CreatedAt).Return(nil).AnyTimes()
 				r.EXPECT().Next().Return(false).AnyTimes()
@@ -466,19 +368,9 @@ func TestShow(t *testing.T) {
 			req := httptest.NewRequest("GET", apiURL, &buffer)
 			req.Header.Add("Content-Type", writer.FormDataContentType())
 			w := httptest.NewRecorder()
+			SetSessionUserId(t, w, req, tt.loginUserId)
 
-			session, err := store.Get(req, "session")
-			if err != nil {
-				t.Error(err)
-				return
-			}
-			session.Values["userId"] = tt.userId
-			err = session.Save(req, w)
-			if err != nil {
-				t.Error(err)
-			}
-
-			tt.prepareMockFn(sqlhandler, row, stateShow, tt.todoId, tt.userId, todo)
+			tt.prepareMockFn(sqlhandler, row, showTodoQuery, tt.todoId, tt.loginUserId, todo)
 
 			ctrl.Show(w, req)
 			var mess *TodoMessage
@@ -493,23 +385,8 @@ func TestShow(t *testing.T) {
 }
 
 func TestUpdate(t *testing.T) {
-	c := gomock.NewController(t)
-	defer c.Finish()
-	sqlhandler := mock_database.NewMockSqlHandler(c)
-	ctrl := controllers.NewTodoController(sqlhandler)
-	result := mock_database.NewMockResult(c)
-	statement := `
-		update
-			todos
-		set
-			title = ?,
-			content = ?,
-			image_path = ?
-		where
-			id = ?
-		and
-			user_id = ?
-	`
+	sqlhandler, ctrl, result, _ := setMock(t)
+	upateTodoQuery := database.UpdateTodoState
 
 	cases := []struct {
 		name            string
@@ -638,37 +515,8 @@ func TestUpdate(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			var buffer bytes.Buffer
 			writer := multipart.NewWriter(&buffer)
-
-			// --- 画像データ ---
-			if tt.isImage {
-				fileWriter, err := writer.CreateFormFile("image", tt.args.ImagePath)
-				if err != nil {
-					t.Fatalf("Failed to create file writer. %s", err)
-				}
-
-				imgPath := "../../assets/test/img/" + tt.args.ImagePath
-				readFile, err := os.Open(imgPath)
-				if err != nil {
-					t.Fatalf("Failde to create file writer. %s", err)
-				}
-				defer readFile.Close()
-				io.Copy(fileWriter, readFile)
-			}
-
-			// --- タイトルデータ ---
-			titleWriter, err := writer.CreateFormField("title")
-			if err != nil {
-				t.Fatalf("Failed to create file writer. %s", err)
-			}
-			titleWriter.Write([]byte(tt.args.Title))
-
-			// --- 本文データ ---
-			contentWriter, err := writer.CreateFormField("content")
-			if err != nil {
-				t.Fatalf("Failed to create file writer. %s", err)
-			}
-			contentWriter.Write([]byte(tt.args.Content))
-
+			// -- 各種フィールドに値を設定 ---
+			setField(t, writer, tt.isImage, tt.args.ImagePath, tt.args.Title, tt.args.Content)
 			// --- フィールドの書き込みが終了後にClose ---
 			writer.Close()
 			// ---
@@ -678,25 +526,16 @@ func TestUpdate(t *testing.T) {
 			w := httptest.NewRecorder()
 
 			// --- sessionにユーザーIDを保存処理 ---
-			session, err := store.Get(req, "session")
-			if err != nil {
-				t.Error(err)
-				return
-			}
-			session.Values["userId"] = tt.loginUserId
-			err = session.Save(req, w)
-			if err != nil {
-				t.Error(err)
-			}
+			SetSessionUserId(t, w, req, tt.loginUserId)
 
 			// --- mock ---
-			tt.prepareMockFn(sqlhandler, result, statement, tt.args)
+			tt.prepareMockFn(sqlhandler, result, upateTodoQuery, tt.args)
 
 			// --- テスト実行 ---
 			ctrl.Update(w, req)
 			var tm TodoMessage
 			buf, _ := ioutil.ReadAll(w.Body)
-			if err = json.Unmarshal(buf, &tm); err != nil {
+			if err := json.Unmarshal(buf, &tm); err != nil {
 				t.Error(err)
 			}
 
@@ -715,34 +554,9 @@ func TestUpdate(t *testing.T) {
 }
 
 func TestIsFinished(t *testing.T) {
-	c := gomock.NewController(t)
-	defer c.Finish()
-	sqlhandler := mock_database.NewMockSqlHandler(c)
-	ctrl := controllers.NewTodoController(sqlhandler)
-	result := mock_database.NewMockResult(c)
-	row := mock_database.NewMockRow(c)
-	statementUpdate := `
-		update
-			todos
-		set
-			isFinished = ?
-		where
-			id = ?
-		and
-			user_id = ?
-	`
-
-	statementFind := `
-		select
-			*
-		from
-			todos
-		where
-			id = ?
-		and
-			user_id = ?
-	`
-	var todo domain.Todo
+	sqlhandler, ctrl, result, row := setMock(t)
+	changeBoolQuery := database.ChangeBoolState
+	showTodoQuery := database.ShowTodoState
 
 	cases := []struct {
 		name                               string
@@ -832,26 +646,17 @@ func TestIsFinished(t *testing.T) {
 			w := httptest.NewRecorder()
 
 			// --- sessionにユーザーIDを保存処理 ---
-			session, err := store.Get(req, "session")
-			if err != nil {
-				t.Error(err)
-				return
-			}
-			session.Values["userId"] = tt.loginUserId
-			err = session.Save(req, w)
-			if err != nil {
-				t.Error(err)
-			}
+			SetSessionUserId(t, w, req, tt.loginUserId)
 
 			// --- mock ---
-			tt.prepareChangeBoolMockFn(sqlhandler, result, statementUpdate, tt.todoId, tt.args, tt.loginUserId)
-			tt.prepareFindTodoByIdAndUserIdMockFn(sqlhandler, row, statementFind, tt.todoId, tt.loginUserId, todo)
+			tt.prepareChangeBoolMockFn(sqlhandler, result, changeBoolQuery, tt.todoId, tt.args, tt.loginUserId)
+			tt.prepareFindTodoByIdAndUserIdMockFn(sqlhandler, row, showTodoQuery, tt.todoId, tt.loginUserId, todo)
 
 			// --- テスト実行 ---
 			ctrl.IsFinished(w, req)
 			var tm TodoMessage
 			buf, _ := ioutil.ReadAll(w.Body)
-			if err = json.Unmarshal(buf, &tm); err != nil {
+			if err := json.Unmarshal(buf, &tm); err != nil {
 				t.Error(err)
 			}
 
@@ -870,20 +675,8 @@ func TestIsFinished(t *testing.T) {
 }
 
 func TestDelete(t *testing.T) {
-	c := gomock.NewController(t)
-	defer c.Finish()
-	// --- api/interfaces/database/sqlhandlerのモック ---
-	sqlhandler := mock_database.NewMockSqlHandler(c)
-	ctrl := controllers.NewTodoController(sqlhandler)
-	result := mock_database.NewMockResult(c)
-	statement := `
-		delete from
-			todos
-		where
-			id = ?
-		and
-			user_id = ?
-	`
+	sqlhandler, ctrl, result, _ := setMock(t)
+	deleteTodoQuery := database.DeleteTodoState
 
 	cases := []struct {
 		name            string
@@ -939,25 +732,16 @@ func TestDelete(t *testing.T) {
 			w := httptest.NewRecorder()
 
 			// --- sessionにユーザーIDを保存処理 ---
-			session, err := store.Get(req, "session")
-			if err != nil {
-				t.Error(err)
-				return
-			}
-			session.Values["userId"] = tt.loginUserId
-			err = session.Save(req, w)
-			if err != nil {
-				t.Error(err)
-			}
+			SetSessionUserId(t, w, req, tt.loginUserId)
 
 			// --- mock ---
-			tt.prepareMockFn(sqlhandler, result, statement, tt.todoId, tt.loginUserId)
+			tt.prepareMockFn(sqlhandler, result, deleteTodoQuery, tt.todoId, tt.loginUserId)
 
 			// --- テスト実行 ---
 			ctrl.Delete(w, req)
 			var tm TodoMessage
 			buf, _ := ioutil.ReadAll(w.Body)
-			if err = json.Unmarshal(buf, &tm); err != nil {
+			if err := json.Unmarshal(buf, &tm); err != nil {
 				t.Error(err)
 			}
 
@@ -976,39 +760,10 @@ func TestDelete(t *testing.T) {
 }
 
 func TestDeleteIndex(t *testing.T) {
-	c := gomock.NewController(t)
-	defer c.Finish()
-	sqlhandler := mock_database.NewMockSqlHandler(c)
-	ctrl := controllers.NewTodoController(sqlhandler)
-	result := mock_database.NewMockResult(c)
-	row := mock_database.NewMockRow(c)
-	stateDelete := `
-		delete from
-			todos
-		where
-			id = ?
-		and
-			user_id = ?
-	`
-	stateSumPage := `
-		select count(*) from
-			todos
-		where
-			user_id = ?
-	`
-	stateFindByUserId := `
-		select
-			*
-		from
-			todos
-		where
-			user_id = ?
-		order by
-			id desc
-		limit 5
-		offset ?
-	`
-	var todo domain.Todo
+	sqlhandler, ctrl, result, row := setMock(t)
+	deleteTodoQuery := database.DeleteTodoState
+	getSumTodoItemsQuery := database.SumTodoItemsState
+	getTodosQuery := database.GetTodosState
 
 	cases := []struct {
 		name                     string
@@ -1112,27 +867,18 @@ func TestDeleteIndex(t *testing.T) {
 			w := httptest.NewRecorder()
 
 			// --- sessionにユーザーIDを保存処理 ---
-			session, err := store.Get(req, "session")
-			if err != nil {
-				t.Error(err)
-				return
-			}
-			session.Values["userId"] = tt.loginUserId
-			err = session.Save(req, w)
-			if err != nil {
-				t.Error(err)
-			}
+			SetSessionUserId(t, w, req, tt.loginUserId)
 
 			// --- mock ---
-			tt.prepareDeleteMockFn(sqlhandler, result, stateDelete, tt.todoId, tt.loginUserId)
-			tt.prepareGetNumTodosMockFn(sqlhandler, row, stateSumPage, tt.loginUserId)
-			tt.prepareGetTodosMockFn(sqlhandler, row, stateFindByUserId, tt.loginUserId, 0, todo)
+			tt.prepareDeleteMockFn(sqlhandler, result, deleteTodoQuery, tt.todoId, tt.loginUserId)
+			tt.prepareGetNumTodosMockFn(sqlhandler, row, getSumTodoItemsQuery, tt.loginUserId)
+			tt.prepareGetTodosMockFn(sqlhandler, row, getTodosQuery, tt.loginUserId, 0, todo)
 
 			// --- テスト実行 ---
 			ctrl.DeleteInIndex(w, req)
 			var tm TodoMessage
 			buf, _ := ioutil.ReadAll(w.Body)
-			if err = json.Unmarshal(buf, &tm); err != nil {
+			if err := json.Unmarshal(buf, &tm); err != nil {
 				t.Error(err)
 			}
 
@@ -1147,5 +893,61 @@ func TestDeleteIndex(t *testing.T) {
 				assert.Equal(t, tm.Error, tt.responseMessage)
 			}
 		})
+	}
+}
+
+func setMock(t *testing.T) (sqlhandler *mock_database.MockSqlHandler, ctrl *controllers.TodoController, result *mock_database.MockResult, row *mock_database.MockRow) {
+	c := gomock.NewController(t)
+	defer c.Finish()
+	// --- api/interfaces/database/sqlhandlerのモック ---
+	sqlhandler = mock_database.NewMockSqlHandler(c)
+	ctrl = controllers.NewTodoController(sqlhandler)
+	result = mock_database.NewMockResult(c)
+	row = mock_database.NewMockRow(c)
+	return
+}
+
+func setField(t *testing.T, writer *multipart.Writer, isImage bool, imagePath string, title string, content string) {
+	// --- 画像データ ---
+	if isImage {
+		// fileWriter, err := writer.CreateFormFile("image", tt.args.ImagePath)
+		fileWriter, err := writer.CreateFormFile("image", imagePath)
+		if err != nil {
+			t.Fatalf("Failed to create file writer. %s", err)
+		}
+		imgPath := "../../assets/test/img/" + imagePath
+		readFile, err := os.Open(imgPath)
+		if err != nil {
+			t.Fatalf("Failde to create file writer. %s", err)
+		}
+		defer readFile.Close()
+		io.Copy(fileWriter, readFile)
+	}
+
+	// --- タイトルデータ ---
+	titleWriter, err := writer.CreateFormField("title")
+	if err != nil {
+		t.Fatalf("Failed to create file writer. %s", err)
+	}
+	titleWriter.Write([]byte(title))
+	// --- 本文データ ---
+	contentWriter, err := writer.CreateFormField("content")
+	if err != nil {
+		t.Fatalf("Failed to create file writer. %s", err)
+	}
+	contentWriter.Write([]byte(content))
+}
+
+// --- ユーザーのログイン情報をsessionに設定 ---
+func SetSessionUserId(t *testing.T, w *httptest.ResponseRecorder, req *http.Request, userId int) {
+	session, err := store.Get(req, "session")
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	session.Values["userId"] = userId
+	err = session.Save(req, w)
+	if err != nil {
+		t.Error(err)
 	}
 }
