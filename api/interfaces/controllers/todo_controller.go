@@ -463,26 +463,29 @@ func (controller *TodoController) IsFinished(w http.ResponseWriter, r *http.Requ
 }
 
 func (controller *TodoController) Delete(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	id, err := strconv.Atoi(vars["id"])
-	if err != nil {
+	id, err := strconv.Atoi(path.Base(r.URL.Path))
+	if err != nil || id == 0 {
 		fmt.Println(err)
 		log.Println(err)
 		errStr := new(TodosError).MakeErr("データ取得に失敗しました")
 		fmt.Fprintln(w, errStr)
 		return
 	}
+
 	userId, err := GetUserId(r)
-	if err != nil {
+	if err != nil || userId == 0 {
 		fmt.Println(err)
 		log.Println(err)
-		errStr := new(TodosError).MakeErr("削除処理に失敗しました")
+		errStr := new(TodosError).MakeErr("ログインしてください")
 		fmt.Fprintln(w, errStr)
 		return
 	}
 	mess, err := controller.Interactor.DeleteTodo(id, userId)
 	if err != nil {
-		fmt.Fprintln(w, err)
+		fmt.Println(err)
+		log.Println(err)
+		errStr := new(TodosError).MakeErr(err.Error())
+		fmt.Fprintln(w, errStr)
 		return
 	}
 

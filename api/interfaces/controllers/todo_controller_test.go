@@ -868,3 +868,109 @@ func TestIsFinished(t *testing.T) {
 		})
 	}
 }
+
+func TestDelete(t *testing.T) {
+	c := gomock.NewController(t)
+	defer c.Finish()
+	// --- api/interfaces/database/sqlhandlerのモック ---
+	sqlhandler := mock_database.NewMockSqlHandler(c)
+	ctrl := controllers.NewTodoController(sqlhandler)
+	result := mock_database.NewMockResult(c)
+	statement := `
+		delete from
+			todos
+		where
+			id = ?
+		and
+			user_id = ?
+	`
+
+	cases := []struct {
+		name            string
+		todoId          int
+		loginUserId     int
+		prepareMockFn   func(m *mock_database.MockSqlHandler, r *mock_database.MockResult, statement string, todoId int, loginUserId int)
+		responseMessage string
+	}{
+		{
+			name:        "必須項目が入力された場合、データ削除成功",
+			todoId:      1,
+			loginUserId: 1,
+			prepareMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockResult, statement string, todoId int, loginUserId int) {
+				r.EXPECT().RowsAffected().Return(int64(0), nil).AnyTimes()
+				m.EXPECT().
+					Execute(statement, todoId, loginUserId).
+					Return(r, nil)
+			},
+			responseMessage: "削除しました",
+		},
+		{
+			name:        "todoIdがnilの場合、データ削除失敗",
+			todoId:      0,
+			loginUserId: 1,
+			prepareMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockResult, statement string, todoId int, loginUserId int) {
+				r.EXPECT().RowsAffected().Return(int64(0), nil).AnyTimes()
+				m.EXPECT().
+					Execute(statement, todoId, loginUserId).
+					Return(r, nil).
+					AnyTimes()
+			},
+			responseMessage: "データ取得に失敗しました",
+		},
+		{
+			name:        "loginUserIdがnilの場合、データ削除失敗",
+			todoId:      1,
+			loginUserId: 0,
+			prepareMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockResult, statement string, todoId int, loginUserId int) {
+				r.EXPECT().RowsAffected().Return(int64(0), nil).AnyTimes()
+				m.EXPECT().
+					Execute(statement, todoId, loginUserId).
+					Return(r, nil).
+					AnyTimes()
+			},
+			responseMessage: "ログインしてください",
+		},
+	}
+
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			apiURL := "/api/todos/delete/" + strconv.Itoa(tt.todoId)
+			req := httptest.NewRequest("DELETE", apiURL, nil)
+			w := httptest.NewRecorder()
+
+			// --- sessionにユーザーIDを保存処理 ---
+			session, err := store.Get(req, "session")
+			if err != nil {
+				t.Error(err)
+				return
+			}
+			session.Values["userId"] = tt.loginUserId
+			err = session.Save(req, w)
+			if err != nil {
+				t.Error(err)
+			}
+
+			// --- mock ---
+			tt.prepareMockFn(sqlhandler, result, statement, tt.todoId, tt.loginUserId)
+
+			// --- テスト実行 ---
+			ctrl.Delete(w, req)
+			var tm TodoMessage
+			buf, _ := ioutil.ReadAll(w.Body)
+			if err = json.Unmarshal(buf, &tm); err != nil {
+				t.Error(err)
+			}
+
+			if w.Code != 200 {
+				t.Error(w.Code)
+			}
+
+			if tm.Message != "" {
+				assert.Equal(t, tm.Message, tt.responseMessage)
+			}
+			if tm.Error != "" {
+				assert.Equal(t, tm.Error, tt.responseMessage)
+			}
+		})
+	}
+}
