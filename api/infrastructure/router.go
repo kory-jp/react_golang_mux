@@ -4,9 +4,12 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/kory-jp/react_golang_mux/api/interfaces/controllers/sessions"
+	"github.com/kory-jp/react_golang_mux/api/interfaces/controllers/todos"
+	"github.com/kory-jp/react_golang_mux/api/interfaces/controllers/users"
+
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
-	"github.com/kory-jp/react_golang_mux/api/interfaces/controllers"
 	"github.com/rs/cors"
 )
 
@@ -19,9 +22,9 @@ func Init() {
 	}
 
 	r := mux.NewRouter()
-	todoController := controllers.NewTodoController(NewSqlHandler())
-	userController := controllers.NewUserController(NewSqlHandler())
-	sessionController := controllers.NewSessionController(NewSqlHandler())
+	todoController := todos.NewTodoController(NewSqlHandler())
+	userController := users.NewUserController(NewSqlHandler())
+	sessionController := sessions.NewSessionController(NewSqlHandler())
 	r.Methods("POST").Path("/api/registration").HandlerFunc(userController.Create)
 	r.Methods("POST").Path("/api/login").HandlerFunc(sessionController.Login)
 	r.Methods("GET").Path("/api/authenticate").HandlerFunc(sessionController.Authenticate)

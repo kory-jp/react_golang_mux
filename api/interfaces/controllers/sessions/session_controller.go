@@ -1,4 +1,4 @@
-package controllers
+package sessions
 
 import (
 	"crypto/rand"
@@ -10,11 +10,10 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/gorilla/sessions"
 	"github.com/kory-jp/react_golang_mux/api/domain"
 	"github.com/kory-jp/react_golang_mux/api/interfaces/database"
 	usecase "github.com/kory-jp/react_golang_mux/api/usecase/session"
-
-	"github.com/gorilla/sessions"
 )
 
 type SessionController struct {
@@ -43,7 +42,7 @@ func NewSessionController(sqlHandler database.SqlHandler) *SessionController {
 	}
 }
 
-var store = sessions.NewCookieStore([]byte(os.Getenv("SESSION_KEY")))
+var Store = sessions.NewCookieStore([]byte(os.Getenv("SESSION_KEY")))
 
 func (controller *SessionController) Login(w http.ResponseWriter, r *http.Request) {
 	bytesUser, err := io.ReadAll(r.Body)
@@ -75,7 +74,7 @@ func (controller *SessionController) Login(w http.ResponseWriter, r *http.Reques
 			fmt.Fprintln(w, errStr)
 			return
 		}
-		session, _ := store.New(r, "session")
+		session, _ := Store.New(r, "session")
 		session.Values["token"] = token
 		session.Values["userId"] = user.ID
 		cookie := &http.Cookie{
@@ -98,7 +97,7 @@ func (controller *SessionController) Login(w http.ResponseWriter, r *http.Reques
 }
 
 func (controller *SessionController) Authenticate(w http.ResponseWriter, r *http.Request) {
-	session, err := store.Get(r, "session")
+	session, err := Store.Get(r, "session")
 	if err != nil {
 		fmt.Println(err)
 		log.Println(err)
@@ -156,7 +155,7 @@ func (controller *SessionController) Authenticate(w http.ResponseWriter, r *http
 }
 
 func (controller *SessionController) Logout(w http.ResponseWriter, r *http.Request) {
-	session, err := store.Get(r, "session")
+	session, err := Store.Get(r, "session")
 	if err != nil {
 		fmt.Println(err)
 		log.Println(err)

@@ -1,4 +1,4 @@
-package controllers
+package todos
 
 import (
 	"encoding/json"
@@ -13,6 +13,8 @@ import (
 	"path/filepath"
 	"strconv"
 	"time"
+
+	"github.com/kory-jp/react_golang_mux/api/interfaces/controllers/sessions"
 
 	"github.com/kory-jp/react_golang_mux/api/domain"
 	"github.com/kory-jp/react_golang_mux/api/interfaces/database"
@@ -52,7 +54,7 @@ func NewTodoController(sqlHandler database.SqlHandler) *TodoController {
 }
 
 func GetUserId(r *http.Request) (userId int, err error) {
-	session, err := store.Get(r, "session")
+	session, err := sessions.Store.Get(r, "session")
 	if err != nil {
 		log.Println(err)
 		fmt.Println(err)
@@ -103,7 +105,7 @@ func (controller *TodoController) Create(w http.ResponseWriter, r *http.Request)
 				return
 			}
 		} else {
-			err = os.MkdirAll("../../assets/dev/img", os.ModePerm)
+			err = os.MkdirAll("../../../assets/dev/img", os.ModePerm)
 			if err != nil {
 				fmt.Println(err)
 				log.Println(err)
@@ -120,7 +122,7 @@ func (controller *TodoController) Create(w http.ResponseWriter, r *http.Request)
 		if string(p) == "/app/api" {
 			imageFilePath = "./assets/dev/img/" + uploadFileName
 		} else {
-			imageFilePath = "../../assets/dev/img/" + uploadFileName
+			imageFilePath = "../../../assets/dev/img/" + uploadFileName
 		}
 		formatPath := filepath.Clean(imageFilePath)
 		saveImage, err = os.Create(formatPath)
@@ -303,7 +305,7 @@ func (controller *TodoController) Update(w http.ResponseWriter, r *http.Request)
 				return
 			}
 		} else {
-			err = os.MkdirAll("../../assets/dev/img", os.ModePerm)
+			err = os.MkdirAll("../../../assets/dev/img", os.ModePerm)
 			if err != nil {
 				fmt.Println(err)
 				log.Println(err)
@@ -319,7 +321,7 @@ func (controller *TodoController) Update(w http.ResponseWriter, r *http.Request)
 		if string(p) == "/app/api" {
 			imageFilePath = "./assets/dev/img/" + uploadFileName
 		} else {
-			imageFilePath = "../../assets/dev/img/" + uploadFileName
+			imageFilePath = "../../../assets/dev/img/" + uploadFileName
 		}
 		formatPath := filepath.Clean(imageFilePath)
 		saveImage, err = os.Create(formatPath)
