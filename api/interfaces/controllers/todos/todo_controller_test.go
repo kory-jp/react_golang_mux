@@ -1,4 +1,4 @@
-package todos_test
+package controllers_test
 
 import (
 	"bytes"
@@ -16,7 +16,7 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/gorilla/sessions"
 	"github.com/kory-jp/react_golang_mux/api/domain"
-	"github.com/kory-jp/react_golang_mux/api/interfaces/controllers/todos"
+	controllers "github.com/kory-jp/react_golang_mux/api/interfaces/controllers/todos"
 	"github.com/kory-jp/react_golang_mux/api/interfaces/database"
 	mock_database "github.com/kory-jp/react_golang_mux/api/interfaces/mock"
 	"github.com/stretchr/testify/assert"
@@ -893,12 +893,12 @@ func TestDeleteIndex(t *testing.T) {
 	}
 }
 
-func setMock(t *testing.T) (sqlhandler *mock_database.MockSqlHandler, ctrl *todos.TodoController, result *mock_database.MockResult, row *mock_database.MockRow) {
+func setMock(t *testing.T) (sqlhandler *mock_database.MockSqlHandler, ctrl *controllers.TodoController, result *mock_database.MockResult, row *mock_database.MockRow) {
 	c := gomock.NewController(t)
 	defer c.Finish()
 	// --- api/interfaces/database/sqlhandlerのモック ---
 	sqlhandler = mock_database.NewMockSqlHandler(c)
-	ctrl = todos.NewTodoController(sqlhandler)
+	ctrl = controllers.NewTodoController(sqlhandler)
 	result = mock_database.NewMockResult(c)
 	row = mock_database.NewMockRow(c)
 	return

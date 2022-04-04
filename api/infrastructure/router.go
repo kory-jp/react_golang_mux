@@ -4,9 +4,9 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/kory-jp/react_golang_mux/api/interfaces/controllers/sessions"
-	"github.com/kory-jp/react_golang_mux/api/interfaces/controllers/todos"
-	"github.com/kory-jp/react_golang_mux/api/interfaces/controllers/users"
+	sessions "github.com/kory-jp/react_golang_mux/api/interfaces/controllers/sessions"
+	todos "github.com/kory-jp/react_golang_mux/api/interfaces/controllers/todos"
+	users "github.com/kory-jp/react_golang_mux/api/interfaces/controllers/users"
 
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
