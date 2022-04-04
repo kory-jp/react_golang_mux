@@ -1,4 +1,4 @@
-package todos
+package controllers
 
 import (
 	"encoding/json"
@@ -14,7 +14,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/kory-jp/react_golang_mux/api/interfaces/controllers/sessions"
+	controllers "github.com/kory-jp/react_golang_mux/api/interfaces/controllers/sessions"
 
 	"github.com/kory-jp/react_golang_mux/api/domain"
 	"github.com/kory-jp/react_golang_mux/api/interfaces/database"
@@ -54,7 +54,7 @@ func NewTodoController(sqlHandler database.SqlHandler) *TodoController {
 }
 
 func GetUserId(r *http.Request) (userId int, err error) {
-	session, err := sessions.Store.Get(r, "session")
+	session, err := controllers.Store.Get(r, "session")
 	if err != nil {
 		log.Println(err)
 		fmt.Println(err)
