@@ -237,14 +237,14 @@ create table if not exists todos (
 - 実装したテストコード
 
 ```
-api/interfaces/controllers/todo_controller_test.go
+api/interfaces/controllers/todos/todo_controller_test.go
 api/usecase/todo/todo_interactor_test.go
 ```
 
 - テストコード実行
 
 ```
-cd api/interfaces/controllers
+cd api/interfaces/controllers/todos
 go test -v
 
 cd api/usecases/todo
