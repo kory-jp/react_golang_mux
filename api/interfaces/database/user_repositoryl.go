@@ -12,17 +12,34 @@ type UserRepository struct {
 	SqlHandler
 }
 
+// --- userの新規作成 ---
+var CreateUserState = `
+	insert into
+		users(
+			name,
+			email,
+			password,
+			created_at
+		)
+	values (?, ?, ?, ?)
+`
+
+// --- userの取得 ---
+var FindUserState = `
+	select
+		id,
+		name,
+		email,
+		password,
+		created_at
+	from
+		users
+	where
+		id = ?
+`
+
 func (repo *UserRepository) Store(u domain.User) (id int, err error) {
-	result, err := repo.Execute(`
-		insert into
-			users(
-				name,
-				email,
-				password,
-				created_at
-			)
-		values (?, ?, ?, ?)
-	`, u.Name, u.Email, u.Password, time.Now())
+	result, err := repo.Execute(CreateUserState, u.Name, u.Email, u.Password, time.Now())
 	if err != nil {
 		fmt.Println(err)
 		log.Println(err)
@@ -39,18 +56,7 @@ func (repo *UserRepository) Store(u domain.User) (id int, err error) {
 }
 
 func (repo *UserRepository) FindById(identifier int) (user *domain.User, err error) {
-	row, err := repo.Query(`
-		select
-			id,
-			name,
-			email,
-			password,
-			created_at
-		from
-			users
-		where
-			id = ?
-	`, identifier)
+	row, err := repo.Query(FindUserState, identifier)
 	if err != nil {
 		fmt.Println(err)
 		log.Println(err)
