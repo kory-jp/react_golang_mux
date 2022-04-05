@@ -15,11 +15,7 @@ import (
 
 func TestAdd(t *testing.T) {
 	// mockを作成
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-	TodoRepository := mock_usecase.NewMockTodoRepository(ctrl)
-	inter := &usecase.TodoInteractor{}
-	inter.TodoRepository = TodoRepository
+	inter, TodoRepository := setMock(t)
 
 	// テストケースを作成
 	cases := []struct {
@@ -117,11 +113,7 @@ func TestAdd(t *testing.T) {
 }
 
 func TestTodos(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-	TodoRepository := mock_usecase.NewMockTodoRepository(ctrl)
-	inter := &usecase.TodoInteractor{}
-	inter.TodoRepository = TodoRepository
+	inter, TodoRepository := setMock(t)
 
 	cases := []struct {
 		name          string
@@ -178,11 +170,8 @@ func TestTodos(t *testing.T) {
 }
 
 func TestTodoByIdAndUserId(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-	TodoRepository := mock_usecase.NewMockTodoRepository(ctrl)
-	inter := &usecase.TodoInteractor{}
-	inter.TodoRepository = TodoRepository
+	inter, TodoRepository := setMock(t)
+
 	cases := []struct {
 		name          string
 		id            int
@@ -237,11 +226,7 @@ func TestTodoByIdAndUserId(t *testing.T) {
 }
 
 func TestUpdateTodo(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-	TodoRepository := mock_usecase.NewMockTodoRepository(ctrl)
-	inter := &usecase.TodoInteractor{}
-	inter.TodoRepository = TodoRepository
+	inter, TodoRepository := setMock(t)
 
 	cases := []struct {
 		name          string
@@ -297,25 +282,22 @@ func TestUpdateTodo(t *testing.T) {
 }
 
 func TestIsFinishedTodo(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-	TodoRepository := mock_usecase.NewMockTodoRepository(ctrl)
-	inter := &usecase.TodoInteractor{}
-	inter.TodoRepository = TodoRepository
+	inter, TodoRepository := setMock(t)
 
 	cases := []struct {
 		name                  string
 		id                    int
-		todo                  domain.Todo
 		userId                int
-		prepareMockChangeBlFn func(m *mock_usecase.MockTodoRepository, id int, todo domain.Todo)
+		todo                  domain.Todo
+		prepareMockChangeBlFn func(m *mock_usecase.MockTodoRepository, id int, userId int, todo domain.Todo)
 		prepareMockFindByFn   func(m *mock_usecase.MockTodoRepository, id int, userId int)
 		wantMess              usecase.TodoMessage
 		wantErr               error
 	}{
 		{
-			name: "isFinishedがtrueの場合、メッセージ=[完了しました]",
-			id:   1,
+			name:   "isFinishedがtrueの場合、メッセージ=[完了しました]",
+			id:     1,
+			userId: 1,
 			todo: domain.Todo{
 				ID:         1,
 				UserID:     1,
@@ -324,9 +306,8 @@ func TestIsFinishedTodo(t *testing.T) {
 				ImagePath:  "testIsFinishedImg",
 				IsFinished: true,
 			},
-			userId: 1,
-			prepareMockChangeBlFn: func(m *mock_usecase.MockTodoRepository, id int, todo domain.Todo) {
-				m.EXPECT().ChangeBoolean(id, todo).Return(nil)
+			prepareMockChangeBlFn: func(m *mock_usecase.MockTodoRepository, id int, userId int, todo domain.Todo) {
+				m.EXPECT().ChangeBoolean(id, userId, todo).Return(nil)
 			},
 			prepareMockFindByFn: func(m *mock_usecase.MockTodoRepository, id int, userId int) {
 				m.EXPECT().FindByIdAndUserId(id, userId).Return(&domain.Todo{ID: id, UserID: userId, IsFinished: true}, nil)
@@ -336,8 +317,9 @@ func TestIsFinishedTodo(t *testing.T) {
 			},
 		},
 		{
-			name: "isFinishedがfalseの場合、メッセージ=[未完了の項目が追加されました]",
-			id:   1,
+			name:   "isFinishedがfalseの場合、メッセージ=[未完了の項目が追加されました]",
+			id:     1,
+			userId: 1,
 			todo: domain.Todo{
 				ID:         1,
 				UserID:     1,
@@ -346,9 +328,8 @@ func TestIsFinishedTodo(t *testing.T) {
 				ImagePath:  "testIsFinishedImg",
 				IsFinished: false,
 			},
-			userId: 1,
-			prepareMockChangeBlFn: func(m *mock_usecase.MockTodoRepository, id int, todo domain.Todo) {
-				m.EXPECT().ChangeBoolean(id, todo).Return(nil)
+			prepareMockChangeBlFn: func(m *mock_usecase.MockTodoRepository, id int, userId int, todo domain.Todo) {
+				m.EXPECT().ChangeBoolean(id, userId, todo).Return(nil)
 			},
 			prepareMockFindByFn: func(m *mock_usecase.MockTodoRepository, id int, userId int) {
 				m.EXPECT().FindByIdAndUserId(id, userId).Return(&domain.Todo{ID: id, UserID: userId, IsFinished: false}, nil)
@@ -358,7 +339,8 @@ func TestIsFinishedTodo(t *testing.T) {
 			},
 		},
 		{
-			name: "idがnilの場合、isFinishedの更新の失敗",
+			name:   "idがnilの場合、isFinishedの更新の失敗",
+			userId: 1,
 			todo: domain.Todo{
 				ID:         1,
 				UserID:     1,
@@ -367,9 +349,8 @@ func TestIsFinishedTodo(t *testing.T) {
 				ImagePath:  "testIsFinishedImg",
 				IsFinished: false,
 			},
-			userId: 1,
-			prepareMockChangeBlFn: func(m *mock_usecase.MockTodoRepository, id int, todo domain.Todo) {
-				m.EXPECT().ChangeBoolean(0, todo).Return(nil).AnyTimes()
+			prepareMockChangeBlFn: func(m *mock_usecase.MockTodoRepository, id int, userId int, todo domain.Todo) {
+				m.EXPECT().ChangeBoolean(0, userId, todo).Return(nil).AnyTimes()
 			},
 			prepareMockFindByFn: func(m *mock_usecase.MockTodoRepository, id int, userId int) {
 				m.EXPECT().FindByIdAndUserId(0, userId).Return(&domain.Todo{ID: 0, UserID: userId, IsFinished: false}, nil).AnyTimes()
@@ -387,8 +368,8 @@ func TestIsFinishedTodo(t *testing.T) {
 				ImagePath:  "testIsFinishedImg",
 				IsFinished: false,
 			},
-			prepareMockChangeBlFn: func(m *mock_usecase.MockTodoRepository, id int, todo domain.Todo) {
-				m.EXPECT().ChangeBoolean(id, todo).Return(nil).AnyTimes()
+			prepareMockChangeBlFn: func(m *mock_usecase.MockTodoRepository, id int, userId int, todo domain.Todo) {
+				m.EXPECT().ChangeBoolean(id, userId, todo).Return(nil).AnyTimes()
 			},
 			prepareMockFindByFn: func(m *mock_usecase.MockTodoRepository, id int, userId int) {
 				m.EXPECT().FindByIdAndUserId(id, 0).Return(&domain.Todo{ID: 1, UserID: 0, IsFinished: false}, nil).AnyTimes()
@@ -399,7 +380,7 @@ func TestIsFinishedTodo(t *testing.T) {
 
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
-			tt.prepareMockChangeBlFn(TodoRepository, tt.id, tt.todo)
+			tt.prepareMockChangeBlFn(TodoRepository, tt.id, tt.userId, tt.todo)
 			tt.prepareMockFindByFn(TodoRepository, tt.id, tt.userId)
 			mess, err := inter.IsFinishedTodo(tt.id, tt.todo, tt.userId)
 			if err == nil {
@@ -416,11 +397,7 @@ func TestIsFinishedTodo(t *testing.T) {
 }
 
 func TestDeleteTodo(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-	TodoRepository := mock_usecase.NewMockTodoRepository(ctrl)
-	inter := &usecase.TodoInteractor{}
-	inter.TodoRepository = TodoRepository
+	inter, TodoRepository := setMock(t)
 
 	cases := []struct {
 		name          string
@@ -475,11 +452,7 @@ func TestDeleteTodo(t *testing.T) {
 }
 
 func TestDeleteTodoIndex(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-	TodoRepository := mock_usecase.NewMockTodoRepository(ctrl)
-	inter := &usecase.TodoInteractor{}
-	inter.TodoRepository = TodoRepository
+	inter, TodoRepository := setMock(t)
 
 	cases := []struct {
 		name                 string
@@ -559,4 +532,15 @@ func TestDeleteTodoIndex(t *testing.T) {
 			}
 		})
 	}
+}
+
+// --- 各種Mockをインスタンス ---
+func setMock(t *testing.T) (inter *usecase.TodoInteractor, TodoRepository *mock_usecase.MockTodoRepository) {
+	// mockを作成
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	TodoRepository = mock_usecase.NewMockTodoRepository(ctrl)
+	inter = &usecase.TodoInteractor{}
+	inter.TodoRepository = TodoRepository
+	return
 }

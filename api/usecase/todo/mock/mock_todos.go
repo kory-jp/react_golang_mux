@@ -35,17 +35,17 @@ func (m *MockTodoRepository) EXPECT() *MockTodoRepositoryMockRecorder {
 }
 
 // ChangeBoolean mocks base method.
-func (m *MockTodoRepository) ChangeBoolean(arg0 int, arg1 domain.Todo) error {
+func (m *MockTodoRepository) ChangeBoolean(arg0, arg1 int, arg2 domain.Todo) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ChangeBoolean", arg0, arg1)
+	ret := m.ctrl.Call(m, "ChangeBoolean", arg0, arg1, arg2)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // ChangeBoolean indicates an expected call of ChangeBoolean.
-func (mr *MockTodoRepositoryMockRecorder) ChangeBoolean(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockTodoRepositoryMockRecorder) ChangeBoolean(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ChangeBoolean", reflect.TypeOf((*MockTodoRepository)(nil).ChangeBoolean), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ChangeBoolean", reflect.TypeOf((*MockTodoRepository)(nil).ChangeBoolean), arg0, arg1, arg2)
 }
 
 // Erasure mocks base method.

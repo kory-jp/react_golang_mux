@@ -40,7 +40,7 @@ type Response struct {
 func TestCreate(t *testing.T) {
 	// --- 各種mockをインスタンス ---
 	sqlhandler, ctrl, result, _ := setMock(t)
-	// --- api/interfaces/databases/todo_repository
+	// --- api/interfaces/databases/todo_repository Mockの引数で渡すSQLクエリを取得
 	createTodoQuery := database.CreateTodoState
 
 	cases := []struct {
@@ -893,6 +893,7 @@ func TestDeleteIndex(t *testing.T) {
 	}
 }
 
+// --- 各種Mockのインスタンス処理 ---
 func setMock(t *testing.T) (sqlhandler *mock_database.MockSqlHandler, ctrl *controllers.TodoController, result *mock_database.MockResult, row *mock_database.MockRow) {
 	c := gomock.NewController(t)
 	defer c.Finish()
@@ -904,6 +905,7 @@ func setMock(t *testing.T) (sqlhandler *mock_database.MockSqlHandler, ctrl *cont
 	return
 }
 
+// --- todo投稿における各種にフィールドに値をセット ---
 func setField(t *testing.T, writer *multipart.Writer, isImage bool, imagePath string, title string, content string) {
 	// --- 画像データ ---
 	if isImage {
