@@ -19,6 +19,10 @@ type SessionValidError struct {
 }
 
 func (interactor *SessionInteractor) Login(u domain.User) (user *domain.User, err error) {
+	if u.Email == "" || u.Password == "" {
+		err = errors.New("認証に失敗しました")
+		return nil, err
+	}
 	userFindByEmail, err := interactor.SessionRepository.FindByEmail(u)
 	if err != nil {
 		fmt.Println(err)
@@ -40,6 +44,10 @@ func (interactor *SessionInteractor) Login(u domain.User) (user *domain.User, er
 }
 
 func (interactor *SessionInteractor) IsLoggedin(uid int) (user *domain.User, err error) {
+	if uid == 0 {
+		err = errors.New("認証に失敗しました")
+		return nil, err
+	}
 	user, err = interactor.SessionRepository.FindById(uid)
 	if err != nil {
 		fmt.Println(err)

@@ -6,6 +6,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
+
 	mock_usecase "github.com/kory-jp/react_golang_mux/api/usecase/todo/mock"
 
 	"github.com/golang/mock/gomock"
@@ -102,11 +104,9 @@ func TestAdd(t *testing.T) {
 			tt.prepareMockFn(TodoRepository, tt.args)
 			mess, err := inter.Add(tt.args)
 			if err == nil {
-				if mess.Message != tt.wantMess.Message {
-					t.Error("actual:", mess, "want:", tt.wantMess)
-				}
+				assert.Equal(t, tt.wantMess, *mess)
 			} else if err.Error() != tt.wantErr.Error() {
-				t.Error("actual:", err, "want:", tt.wantErr)
+				assert.Equal(t, tt.wantErr, err)
 			}
 		})
 	}
@@ -163,7 +163,7 @@ func TestTodos(t *testing.T) {
 				return
 			}
 			if !reflect.DeepEqual(todos, tt.wantTodos) {
-				t.Error("actual:", todos, "want:", tt.wantTodos)
+				assert.Equal(t, tt.wantTodos, todos)
 			}
 		})
 	}
@@ -219,7 +219,7 @@ func TestTodoByIdAndUserId(t *testing.T) {
 				return
 			}
 			if !reflect.DeepEqual(todo, tt.wantTodo) {
-				t.Error("actual:", todo, "want:", tt.wantTodo)
+				assert.Equal(t, tt.wantTodo, todo)
 			}
 		})
 	}
@@ -272,10 +272,10 @@ func TestUpdateTodo(t *testing.T) {
 			mess, err := inter.UpdateTodo(tt.args)
 			if err == nil {
 				if mess.Message != tt.wantMess.Message {
-					t.Error("actual:", mess, "want:", tt.wantMess)
+					assert.Equal(t, tt.wantMess, mess)
 				}
 			} else if err.Error() != tt.wantErr.Error() {
-				t.Error("actual:", err, "want:", tt.wantErr)
+				assert.Equal(t, tt.wantErr, err)
 			}
 		})
 	}
@@ -385,12 +385,12 @@ func TestIsFinishedTodo(t *testing.T) {
 			mess, err := inter.IsFinishedTodo(tt.id, tt.todo, tt.userId)
 			if err == nil {
 				if mess.Message != tt.wantMess.Message {
-					t.Error("actual:", mess, "want:", tt.wantMess)
+					assert.Equal(t, tt.wantMess, mess)
 					return
 				}
 				return
 			} else if err.Error() != tt.wantErr.Error() {
-				t.Error("actual:", err, "want:", tt.wantErr)
+				assert.Equal(t, tt.wantErr, err)
 			}
 		})
 	}
@@ -442,10 +442,10 @@ func TestDeleteTodo(t *testing.T) {
 			mess, err := inter.DeleteTodo(tt.id, tt.userId)
 			if err == nil {
 				if mess.Message != tt.wantMess.Message {
-					t.Error("actual:", mess, "want:", tt.wantMess)
+					assert.Equal(t, tt.wantMess, mess)
 				}
 			} else if err.Error() != tt.wantErr.Error() {
-				t.Error("actual:", err, "want:", tt.wantErr)
+				assert.Equal(t, tt.wantErr, err)
 			}
 		})
 	}
@@ -516,19 +516,19 @@ func TestDeleteTodoIndex(t *testing.T) {
 			todos, sumPage, mess, err := inter.DeleteTodoInIndex(tt.id, tt.userId, tt.page)
 			if err == nil {
 				if !reflect.DeepEqual(todos, tt.wantTodos) {
-					t.Error("actual:", todos, "want:", tt.wantTodos)
+					assert.Equal(t, tt.wantTodos, todos)
 					return
 				}
 				if sumPage != tt.wantSumPage {
-					t.Error("actual:", sumPage, "want:", tt.wantSumPage)
+					assert.Equal(t, tt.wantSumPage, sumPage)
 					return
 				}
 				if mess.Message != tt.wantMess.Message {
-					t.Error("actual:", mess, "want:", tt.wantMess)
+					assert.Equal(t, tt.wantMess, mess)
 					return
 				}
 			} else if err.Error() != tt.wantErr.Error() {
-				t.Error("actual:", err, "want:", tt.wantErr)
+				assert.Equal(t, tt.wantErr, err)
 			}
 		})
 	}
