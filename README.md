@@ -238,6 +238,7 @@ create table if not exists todos (
 
 ```
 api/interfaces/controllers/todos/todo_controller_test.go
+api/interfaces/controllers/users/user_controller_test.go
 api/usecase/todo/todo_interactor_test.go
 api/usecase/user/user_interactor_test.go
 ```
