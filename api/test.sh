@@ -18,11 +18,19 @@ then
   exit 1
 fi
 
+resultCU=`go test ./interfaces/controllers/users/`
+if [ ${resultCU:0:2} != "ok" ]
+then
+  echo "user_controller_test.go ERROR"
+  go test -v ./interfaces/controllers/user/
+  exit 1
+fi
+
 resultCT=`go test ./interfaces/controllers/todos/`
 if [ ${resultCT:0:2} != "ok" ]
 then
   echo "todo_controller_test.go ERROR"
-  go test -v ./usecase/todo/
+  go test -v ./interfaces/controllers/todo/
   exit 1
 fi
 
