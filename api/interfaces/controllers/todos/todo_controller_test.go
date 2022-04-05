@@ -187,10 +187,10 @@ func TestCreate(t *testing.T) {
 			}
 
 			if tm.Message != "" {
-				assert.Equal(t, tm.Message, tt.responseMessage)
+				assert.Equal(t, tt.responseMessage, tm.Message)
 			}
 			if tm.Error != "" {
-				assert.Equal(t, tm.Error, tt.responseMessage)
+				assert.Equal(t, tt.responseMessage, tm.Error)
 			}
 		})
 	}
@@ -298,7 +298,7 @@ func TestIndex(t *testing.T) {
 			}
 
 			if rsp.Message != tt.message {
-				assert.Equal(t, mess.Error, tt.message)
+				assert.Equal(t, tt.message, mess.Error)
 			}
 		})
 	}
@@ -375,7 +375,7 @@ func TestShow(t *testing.T) {
 			json.Unmarshal(buf, &mess)
 
 			if mess.Error != "" {
-				assert.Equal(t, mess.Error, tt.message)
+				assert.Equal(t, tt.message, mess.Error)
 			}
 		})
 	}
@@ -541,10 +541,10 @@ func TestUpdate(t *testing.T) {
 			}
 
 			if tm.Message != "" {
-				assert.Equal(t, tm.Message, tt.responseMessage)
+				assert.Equal(t, tt.responseMessage, tm.Message)
 			}
 			if tm.Error != "" {
-				assert.Equal(t, tm.Error, tt.responseMessage)
+				assert.Equal(t, tt.responseMessage, tm.Error)
 			}
 		})
 	}
@@ -662,10 +662,10 @@ func TestIsFinished(t *testing.T) {
 			}
 
 			if tm.Message != "" {
-				assert.Equal(t, tm.Message, tt.responseMessage)
+				assert.Equal(t, tt.responseMessage, tm.Message)
 			}
 			if tm.Error != "" {
-				assert.Equal(t, tm.Error, tt.responseMessage)
+				assert.Equal(t, tt.responseMessage, tm.Error)
 			}
 		})
 	}
@@ -747,10 +747,10 @@ func TestDelete(t *testing.T) {
 			}
 
 			if tm.Message != "" {
-				assert.Equal(t, tm.Message, tt.responseMessage)
+				assert.Equal(t, tt.responseMessage, tm.Message)
 			}
 			if tm.Error != "" {
-				assert.Equal(t, tm.Error, tt.responseMessage)
+				assert.Equal(t, tt.responseMessage, tm.Error)
 			}
 		})
 	}
@@ -884,10 +884,10 @@ func TestDeleteIndex(t *testing.T) {
 			}
 
 			if tm.Message != "" {
-				assert.Equal(t, tm.Message, tt.responseMessage)
+				assert.Equal(t, tt.responseMessage, tm.Message)
 			}
 			if tm.Error != "" {
-				assert.Equal(t, tm.Error, tt.responseMessage)
+				assert.Equal(t, tt.responseMessage, tm.Error)
 			}
 		})
 	}

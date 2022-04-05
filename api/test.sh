@@ -18,6 +18,14 @@ then
   exit 1
 fi
 
+resultUS=`go test ./usecase/session/`
+if [ ${resultUS:0:2} != "ok" ]
+then
+  echo "session_interactor_test.go ERROR"
+  go test -v ./usecase/session/
+  exit 1
+fi
+
 resultCU=`go test ./interfaces/controllers/users/`
 if [ ${resultCU:0:2} != "ok" ]
 then

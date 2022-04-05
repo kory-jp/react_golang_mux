@@ -181,7 +181,7 @@ func TestAdd(t *testing.T) {
 			tt.prepareStoreMockFn(UserRepository, tt.args)
 			tt.prepareFindMockFn(UserRepository, tt.id)
 			_, err := inter.Add(tt.args)
-			assert.Equal(t, err, tt.wantErr)
+			assert.Equal(t, tt.wantErr, err)
 		})
 	}
 }
