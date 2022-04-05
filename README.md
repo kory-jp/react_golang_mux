@@ -239,14 +239,23 @@ create table if not exists todos (
 ```
 api/interfaces/controllers/todos/todo_controller_test.go
 api/usecase/todo/todo_interactor_test.go
+api/usecase/user/user_interactor_test.go
 ```
 
 - テストコード実行
 
 ```
-cd api/interfaces/controllers/todos
-go test -v
-
-cd api/usecases/todo
-go test -v
+cd api
+sh test.sh
 ```
+
+- 成功した場合
+
+```
+$sh test.sh
+TEST ALL COMPLETED
+```
+
+- 失敗した場合
+
+エラーログの詳細が表示
