@@ -77,14 +77,13 @@ export const login = (email: string, password: string) => {
           }
         }
       ).then((response) => {
-        if (response.data.Error) {
-          dispatch(pushToast({title: response.data.Error, severity: "error"}))
-          return
-        } else {
-          const userData: User = response.data
-          dispatch(getUserState(userData))
+        if (response.data.status == 200){
+          const user: User =response.data.user
+          dispatch(getUserState(user))
           dispatch(push("/todo"))
-          dispatch(pushToast({title: 'ログインしました', severity: "success"}))
+          dispatch(pushToast({title: response.data.message, severity: "success"}))
+        } else {
+          dispatch(pushToast({title: response.data.message, severity: "error"}))
         }
       }).catch((error) => {
         console.log(error)
@@ -106,16 +105,17 @@ export const isLoggedIn = () => {
           }
         }
       ).then((response) => {
-        if (response.data.Error) {
-          dispatch(push("/"))
-          dispatch(pushToast({title: response.data.Error, severity: "error"}))
-          return
+        if (response.data.status == 200) {
+          const user: User = response.data.user
+          dispatch(getUserState(user))
         } else {
-          const userData: User = response.data
-          dispatch(getUserState(userData))
+          dispatch(push("/"))
+          dispatch(pushToast({title: response.data.message, severity: "error"}))
+          return
         }
       }).catch((error) => {
         console.log(error)
+        dispatch(pushToast({title: '処理に失敗しました', severity: "error"}))
       })
   }
 }
@@ -156,15 +156,19 @@ export const logout = () => {
           }
         }
       ).then((response) => {
-        dispatch(deleteUserState({
-          id: 0,
-          name: "",
-          email: "",
-          password: "",
-          created_at: null
-        }))
-        dispatch(push("/"))
-        dispatch(pushToast({title: "ログアウトしました", severity: "success"}))
+        if (response.data.status == 200) {
+          dispatch(deleteUserState({
+            id: 0,
+            name: "",
+            email: "",
+            password: "",
+            created_at: null
+          }))
+          dispatch(push("/"))
+          dispatch(pushToast({title: response.data.message, severity: "success"}))
+        } else {
+          dispatch(pushToast({title: response.data.message, severity: "error"}))
+        }
       }).catch((error) => {
         console.log(error)
         dispatch(pushToast({title: '処理に失敗しました', severity: "error"}))
