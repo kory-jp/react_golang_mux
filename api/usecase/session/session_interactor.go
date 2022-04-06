@@ -14,10 +14,6 @@ type SessionInteractor struct {
 	SessionRepository SessionRepository
 }
 
-type SessionValidError struct {
-	Detail string
-}
-
 func (interactor *SessionInteractor) Login(u domain.User) (user *domain.User, err error) {
 	if u.Email == "" || u.Password == "" {
 		err = errors.New("認証に失敗しました")
