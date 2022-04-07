@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -18,15 +17,16 @@ type UserController struct {
 	Interactor usecase.UserInteractor
 }
 
-type UserValidError struct {
-	Error string
+type Response struct {
+	Status  int          `json:"status"`
+	Message string       `json:"message"`
+	User    *domain.User `json:"user"`
 }
 
-func (serr *UserValidError) MakeErr(mess string) (errStr string) {
-	err := errors.New(mess)
-	usersErr := &UserValidError{Error: err.Error()}
-	e, _ := json.Marshal(usersErr)
-	errStr = string(e)
+func (res *Response) SetResp(status int, mess string, user *domain.User) (resStr string) {
+	response := &Response{status, mess, user}
+	r, _ := json.Marshal(response)
+	resStr = string(r)
 	return
 }
 
@@ -45,16 +45,16 @@ func (controller *UserController) Create(w http.ResponseWriter, r *http.Request)
 	if err != nil {
 		fmt.Println(err)
 		log.Println(err)
-		errStr := new(UserValidError).MakeErr("データ取得に失敗しました")
-		fmt.Fprintln(w, errStr)
+		resStr := new(Response).SetResp(400, "データ取得に失敗しました", nil)
+		fmt.Fprintln(w, resStr)
 		return
 	}
 	userType := new(domain.User)
 	if err := json.Unmarshal(bytesUser, userType); err != nil {
 		fmt.Println(err)
 		log.Println(err)
-		errStr := new(UserValidError).MakeErr("データ取得に失敗しました")
-		fmt.Fprintln(w, errStr)
+		resStr := new(Response).SetResp(400, "データ取得に失敗しました", nil)
+		fmt.Fprintln(w, resStr)
 		return
 	}
 	user, err := controller.Interactor.Add(*userType)
@@ -62,19 +62,11 @@ func (controller *UserController) Create(w http.ResponseWriter, r *http.Request)
 		errStr := err.Error()
 		errStr1 := strings.Replace(errStr, "Error 1062: Duplicate entry", "入力された", 1)
 		errStr2 := strings.Replace(errStr1, "for key 'email'", "既に登録されています。", 1)
-		validErr := &UserValidError{Error: errStr2}
-		e, _ := json.Marshal(validErr)
-		fmt.Fprintln(w, string(e))
+		resStr := new(Response).SetResp(400, errStr2, nil)
+		fmt.Fprintln(w, resStr)
 		return
 	}
 
-	jsonUser, err := json.Marshal(user)
-	if err != nil {
-		fmt.Println(err)
-		log.Println(err)
-		errStr := new(UserValidError).MakeErr("データ取得に失敗しました")
-		fmt.Fprintln(w, errStr)
-		return
-	}
-	fmt.Fprintln(w, string(jsonUser))
+	resStr := new(Response).SetResp(200, "新規登録完了しました", user)
+	fmt.Fprintln(w, resStr)
 }

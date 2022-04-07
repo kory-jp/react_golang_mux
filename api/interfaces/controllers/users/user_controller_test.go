@@ -19,9 +19,7 @@ import (
 	mock_database "github.com/kory-jp/react_golang_mux/api/interfaces/mock"
 )
 
-type UserError struct {
-	Error string
-}
+var response *controllers.Response
 
 func TestCreate(t *testing.T) {
 	// --- mockを新規インスタンス ---
@@ -44,7 +42,7 @@ func TestCreate(t *testing.T) {
 		userId             int
 		prepareStoreMockFn func(m *mock_database.MockSqlHandler, r *mock_database.MockResult, statement string, user *domain.User)
 		prepareFindMockFn  func(m *mock_database.MockSqlHandler, r *mock_database.MockRow, statement string, userId int, user domain.User)
-		wantErr            string
+		response           controllers.Response
 	}{
 		{
 			name: "必須項目が入力された場合、データ保存成功",
@@ -64,7 +62,10 @@ func TestCreate(t *testing.T) {
 				r.EXPECT().Close().Return(nil)
 				m.EXPECT().Query(statement, user.ID).Return(r, nil)
 			},
-			wantErr: "",
+			response: controllers.Response{
+				Status:  200,
+				Message: "新規登録完了しました",
+			},
 		},
 		{
 			name: "Nameがnilの場合、データ保存失敗",
@@ -84,7 +85,10 @@ func TestCreate(t *testing.T) {
 				r.EXPECT().Close().Return(nil).AnyTimes()
 				m.EXPECT().Query(statement, user.ID).Return(r, nil).AnyTimes()
 			},
-			wantErr: "名前は必須です。",
+			response: controllers.Response{
+				Status:  400,
+				Message: "名前は必須です。",
+			},
 		},
 		{
 			name: "Nameが2文字未満の場合、データ保存失敗",
@@ -104,7 +108,10 @@ func TestCreate(t *testing.T) {
 				r.EXPECT().Close().Return(nil).AnyTimes()
 				m.EXPECT().Query(statement, user.ID).Return(r, nil).AnyTimes()
 			},
-			wantErr: "名前は2文字以上が必須です。",
+			response: controllers.Response{
+				Status:  400,
+				Message: "名前は2文字以上が必須です。",
+			},
 		},
 		{
 			name: "Nameが21文字以上の場合、データ保存失敗",
@@ -124,7 +131,10 @@ func TestCreate(t *testing.T) {
 				r.EXPECT().Close().Return(nil).AnyTimes()
 				m.EXPECT().Query(statement, user.ID).Return(r, nil).AnyTimes()
 			},
-			wantErr: "名前は20文字以内の入力になります。",
+			response: controllers.Response{
+				Status:  400,
+				Message: "名前は20文字以内の入力になります。",
+			},
 		},
 		{
 			name: "Emailがnilの場合、データ保存失敗",
@@ -144,7 +154,10 @@ func TestCreate(t *testing.T) {
 				r.EXPECT().Close().Return(nil).AnyTimes()
 				m.EXPECT().Query(statement, user.ID).Return(r, nil).AnyTimes()
 			},
-			wantErr: "メールアドレスは必須です。",
+			response: controllers.Response{
+				Status:  400,
+				Message: "メールアドレスは必須です。",
+			},
 		},
 		{
 			name: "Emailのフォーマットに誤りがある場合、データ保存失敗",
@@ -164,7 +177,10 @@ func TestCreate(t *testing.T) {
 				r.EXPECT().Close().Return(nil).AnyTimes()
 				m.EXPECT().Query(statement, user.ID).Return(r, nil).AnyTimes()
 			},
-			wantErr: "メールアドレスのフォーマットに誤りがあります",
+			response: controllers.Response{
+				Status:  400,
+				Message: "メールアドレスのフォーマットに誤りがあります",
+			},
 		},
 		{
 			name: "Passwordがnilの場合、データ保存失敗",
@@ -184,7 +200,10 @@ func TestCreate(t *testing.T) {
 				r.EXPECT().Close().Return(nil).AnyTimes()
 				m.EXPECT().Query(statement, user.ID).Return(r, nil).AnyTimes()
 			},
-			wantErr: "パスワードは必須です。",
+			response: controllers.Response{
+				Status:  400,
+				Message: "パスワードは必須です。",
+			},
 		},
 		{
 			name: "Passwordが5文字未満の場合、データ保存失敗",
@@ -204,7 +223,10 @@ func TestCreate(t *testing.T) {
 				r.EXPECT().Close().Return(nil).AnyTimes()
 				m.EXPECT().Query(statement, user.ID).Return(r, nil).AnyTimes()
 			},
-			wantErr: "パスワードは5文字以上が必須です。",
+			response: controllers.Response{
+				Status:  400,
+				Message: "パスワードは5文字以上が必須です。",
+			},
 		},
 		{
 			name: "Passwordが21文字以上の場合、データ保存失敗",
@@ -224,7 +246,10 @@ func TestCreate(t *testing.T) {
 				r.EXPECT().Close().Return(nil).AnyTimes()
 				m.EXPECT().Query(statement, user.ID).Return(r, nil).AnyTimes()
 			},
-			wantErr: "パスワードは20文字以内の入力になります。",
+			response: controllers.Response{
+				Status:  400,
+				Message: "パスワードは20文字以内の入力になります。",
+			},
 		},
 	}
 
@@ -243,10 +268,10 @@ func TestCreate(t *testing.T) {
 
 			// --- 通信実行 ---
 			ctrl.Create(w, req)
-			var uErr *UserError
 			buf, _ := ioutil.ReadAll(w.Body)
-			json.Unmarshal(buf, &uErr)
-			assert.Equal(t, tt.wantErr, uErr.Error)
+			json.Unmarshal(buf, &response)
+			assert.Equal(t, tt.response.Status, response.Status)
+			assert.Equal(t, tt.response.Message, response.Message)
 		})
 	}
 }
