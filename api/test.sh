@@ -30,7 +30,7 @@ resultCU=`go test ./interfaces/controllers/users/`
 if [ ${resultCU:0:2} != "ok" ]
 then
   echo "user_controller_test.go ERROR"
-  go test -v ./interfaces/controllers/user/
+  go test -v ./interfaces/controllers/users/
   exit 1
 fi
 
@@ -38,7 +38,15 @@ resultCT=`go test ./interfaces/controllers/todos/`
 if [ ${resultCT:0:2} != "ok" ]
 then
   echo "todo_controller_test.go ERROR"
-  go test -v ./interfaces/controllers/todo/
+  go test -v ./interfaces/controllers/todos/
+  exit 1
+fi
+
+resultCS=`go test ./interfaces/controllers/sessions/`
+if [ ${resultCS:0:2} != "ok" ]
+then
+  echo "session_controller_test.go ERROR"
+  go test -v ./interfaces/controllers/sessions/
   exit 1
 fi
 

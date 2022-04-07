@@ -143,7 +143,7 @@ func (controller *SessionController) Authenticate(w http.ResponseWriter, r *http
 
 func (controller *SessionController) Logout(w http.ResponseWriter, r *http.Request) {
 	session, err := Store.Get(r, "session")
-	if err != nil {
+	if err != nil || session.Values["userId"] == 0 {
 		fmt.Println(err)
 		log.Println(err)
 		resStr := new(Response).SetResp(400, "データ取得に失敗しました", nil)
@@ -151,6 +151,7 @@ func (controller *SessionController) Logout(w http.ResponseWriter, r *http.Reque
 		return
 	}
 	session.Values["token"] = nil
+	session.Values["userId"] = nil
 	cookie := http.Cookie{
 		Name:     "cookie-name",
 		Value:    "",
