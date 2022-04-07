@@ -3,7 +3,6 @@ package controllers
 import (
 	"crypto/rand"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -20,15 +19,16 @@ type SessionController struct {
 	Interactor usecase.SessionInteractor
 }
 
-type SessionValidError struct {
-	Error string
+type Response struct {
+	Status  int          `json:"status"`
+	Message string       `json:"message"`
+	User    *domain.User `json:"user"`
 }
 
-func (serr *SessionValidError) MakeErr(mess string) (errStr string) {
-	err := errors.New(mess)
-	todosErr := &SessionValidError{Error: err.Error()}
-	e, _ := json.Marshal(todosErr)
-	errStr = string(e)
+func (res *Response) SetResp(status int, mess string, user *domain.User) (resStr string) {
+	response := &Response{status, mess, user}
+	r, _ := json.Marshal(response)
+	resStr = string(r)
 	return
 }
 
@@ -49,29 +49,30 @@ func (controller *SessionController) Login(w http.ResponseWriter, r *http.Reques
 	if err != nil {
 		fmt.Println(err)
 		log.Println(err)
-		errStr := new(SessionValidError).MakeErr("データ取得に失敗しました")
-		fmt.Fprintln(w, errStr)
+		resStr := new(Response).SetResp(400, "データ取得に失敗しました", nil)
+		fmt.Fprintln(w, resStr)
 		return
 	}
 	userType := new(domain.User)
 	if err := json.Unmarshal(bytesUser, userType); err != nil {
 		fmt.Println(err)
 		log.Println(err)
-		errStr := new(SessionValidError).MakeErr("データ取得に失敗しました")
-		fmt.Fprintln(w, errStr)
+		resStr := new(Response).SetResp(400, "データ取得に失敗しました", nil)
+		fmt.Fprintln(w, resStr)
 		return
 	}
 	user, err := controller.Interactor.Login(*userType)
 	if err != nil {
-		errStr := new(SessionValidError).MakeErr(err.Error())
-		fmt.Fprintln(w, errStr)
+		resStr := new(Response).SetResp(400, err.Error(), nil)
+		fmt.Fprintln(w, resStr)
+		return
 	} else {
 		token, err := MakeRandomStr(10)
 		if err != nil {
 			fmt.Println(err)
 			log.Println(err)
-			errStr := new(SessionValidError).MakeErr("認証に失敗しました")
-			fmt.Fprintln(w, errStr)
+			resStr := new(Response).SetResp(401, "認証に失敗しました", nil)
+			fmt.Fprintln(w, resStr)
 			return
 		}
 		session, _ := Store.New(r, "session")
@@ -82,17 +83,10 @@ func (controller *SessionController) Login(w http.ResponseWriter, r *http.Reques
 			Value:    token,
 			HttpOnly: true,
 		}
-		jsonUser, err := json.Marshal(user)
-		if err != nil {
-			fmt.Println(err)
-			log.Println(err)
-			errStr := new(SessionValidError).MakeErr("データ取得に失敗しました")
-			fmt.Fprintln(w, errStr)
-			return
-		}
+		resStr := new(Response).SetResp(200, "ログインに成功しました", user)
 		session.Save(r, w)
 		http.SetCookie(w, cookie)
-		fmt.Fprintln(w, string(jsonUser))
+		fmt.Fprintln(w, resStr)
 	}
 }
 
@@ -101,32 +95,32 @@ func (controller *SessionController) Authenticate(w http.ResponseWriter, r *http
 	if err != nil {
 		fmt.Println(err)
 		log.Println(err)
-		errStr := new(SessionValidError).MakeErr("データ取得に失敗しました")
-		fmt.Fprintln(w, errStr)
+		resStr := new(Response).SetResp(400, "データ取得に失敗しました", nil)
+		fmt.Fprintln(w, resStr)
 		return
 	}
 	cookie, err := r.Cookie("cookie-name")
 	if err != nil {
 		fmt.Println(err)
 		log.Println(err)
-		errStr := new(SessionValidError).MakeErr("データ取得に失敗しました")
-		fmt.Fprintln(w, errStr)
+		resStr := new(Response).SetResp(400, "データ取得に失敗しました", nil)
+		fmt.Fprintln(w, resStr)
 		return
 	}
 	if session.Values["token"] == cookie.Value {
 		if userId, ok := session.Values["userId"].(int); ok {
 			user, err := controller.Interactor.IsLoggedin(userId)
 			if err != nil {
-				errStr := new(SessionValidError).MakeErr(err.Error())
-				fmt.Fprintln(w, errStr)
+				resStr := new(Response).SetResp(401, err.Error(), nil)
+				fmt.Fprintln(w, resStr)
 				return
 			}
 			token, err := MakeRandomStr(10)
 			if err != nil {
 				fmt.Println(err)
 				log.Println(err)
-				errStr := new(SessionValidError).MakeErr("認証に失敗しました")
-				fmt.Fprintln(w, errStr)
+				resStr := new(Response).SetResp(401, "認証に失敗しました", nil)
+				fmt.Fprintln(w, resStr)
 				return
 			}
 			session.Values["token"] = token
@@ -136,40 +130,36 @@ func (controller *SessionController) Authenticate(w http.ResponseWriter, r *http
 				Value:    token,
 				HttpOnly: true,
 			}
-			jsonUser, err := json.Marshal(user)
-			if err != nil {
-				fmt.Println(err)
-				log.Println(err)
-				errStr := new(SessionValidError).MakeErr("データ取得に失敗しました")
-				fmt.Fprintln(w, errStr)
-				return
-			}
 			session.Save(r, w)
 			http.SetCookie(w, cookie)
-			fmt.Fprintln(w, string(jsonUser))
+			resStr := new(Response).SetResp(200, "ログイン状態確認完了", user)
+			fmt.Fprintln(w, resStr)
 		}
 	} else {
-		errStr := new(SessionValidError).MakeErr("ログインしてください")
-		fmt.Fprintln(w, errStr)
+		resStr := new(Response).SetResp(401, "ログインしてください", nil)
+		fmt.Fprintln(w, resStr)
 	}
 }
 
 func (controller *SessionController) Logout(w http.ResponseWriter, r *http.Request) {
 	session, err := Store.Get(r, "session")
-	if err != nil {
+	if err != nil || session.Values["userId"] == 0 {
 		fmt.Println(err)
 		log.Println(err)
-		errStr := new(SessionValidError).MakeErr("データ取得に失敗しました")
-		fmt.Fprintln(w, errStr)
+		resStr := new(Response).SetResp(400, "データ取得に失敗しました", nil)
+		fmt.Fprintln(w, resStr)
 		return
 	}
 	session.Values["token"] = nil
+	session.Values["userId"] = nil
 	cookie := http.Cookie{
 		Name:     "cookie-name",
 		Value:    "",
 		HttpOnly: true,
 	}
 	http.SetCookie(w, &cookie)
+	resStr := new(Response).SetResp(200, "ログアウトしました", nil)
+	fmt.Fprintln(w, resStr)
 }
 
 func MakeRandomStr(digit uint32) (token string, err error) {

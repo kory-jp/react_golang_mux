@@ -12,19 +12,26 @@ type SessionRepository struct {
 	SqlHandler
 }
 
+var FindByEmailState = `
+	select
+		*
+	from
+		users
+	where
+	 email = ?
+`
+
+var FindByIdState = `
+	select
+		*
+	from
+		users
+	where
+	 id = ?
+`
+
 func (repo *SessionRepository) FindByEmail(u domain.User) (user *domain.User, err error) {
-	row, err := repo.Query(`
-		select
-			id,
-			name,
-			email,
-			password,
-			created_at
-		from
-			users
-		where
-			email = ?
-	`, u.Email)
+	row, err := repo.Query(FindByEmailState, u.Email)
 	if err != nil {
 		fmt.Println(err)
 		log.Println(err)
@@ -54,18 +61,7 @@ func (repo *SessionRepository) FindByEmail(u domain.User) (user *domain.User, er
 }
 
 func (repo *SessionRepository) FindById(uid int) (user *domain.User, err error) {
-	row, err := repo.Query(`
-		select
-			id,
-			name,
-			email,
-			password,
-			created_at
-		from
-			users
-		where
-			id = ?
-	`, uid)
+	row, err := repo.Query(FindByIdState, uid)
 	if err != nil {
 		fmt.Println(err)
 		log.Println(err)
