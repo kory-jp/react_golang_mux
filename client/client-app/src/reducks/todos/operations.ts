@@ -20,12 +20,11 @@ export const createTodo = (formdata: FormData) => {
       }
       )
       .then((response) => {
-        const mess = response.data.Message
-        if (mess != null) {
+        if (response.data.status == 200) {
           dispatch(push("/todo"))
-          dispatch(pushToast({title: mess, severity: "success"}))
+          dispatch(pushToast({title: response.data.message, severity: "success"}))
         } else {
-          dispatch(pushToast({title: '保存に失敗しました', severity: "error"}))
+          dispatch(pushToast({title: response.data.message, severity: "error"}))
         }
       })
       .catch((error)=> {
@@ -49,8 +48,12 @@ export const indexTodos = (setSumPage: React.Dispatch<React.SetStateAction<numbe
         }
       }
       ).then((response) => {
-        dispatch(indexTodosAction(response.data.todos))
-        setSumPage(Number(response.data.sumPage))
+        if (response.data.status == 200) {
+          dispatch(indexTodosAction(response.data.todos))
+          setSumPage(Number(response.data.sumPage))
+        } else {
+          dispatch(pushToast({title: response.data.message, severity: "error"}))
+        }
       })
       .catch((error) => {
         dispatch(pushToast({title: 'データ取得に失敗しました', severity: "error"}))
@@ -77,8 +80,11 @@ export const showTodo = (id: number) => {
         }
       }
       ).then((response) => {
-        const todo = response.data
-        dispatch(indexTodosAction(todo))
+        if (response.data.status == 200) {
+          dispatch(indexTodosAction(response.data.todo))
+        } else {
+          dispatch(pushToast({title: response.data.message, severity: "error"}))
+        }
       })
       .catch((error) => {
         dispatch(pushToast({title: 'データ取得に失敗しました', severity: "error"}))
@@ -106,12 +112,11 @@ export const updateTodo = (id: number, formdata: FormData) => {
       }
       )
       .then((response) => {
-        const mess = response.data.Message
-        if (mess != null) {
+        if (response.data.status == 200) {
           dispatch(push("/todo"))
-          dispatch(pushToast({title: mess, severity: "success"}))
+          dispatch(pushToast({title: response.data.message, severity: "success"}))          
         } else {
-          dispatch(pushToast({title: '更新に失敗しました', severity: "error"}))
+          dispatch(pushToast({title: response.data.message, severity: "error"}))          
         }
       })
       .catch((error)=> {
@@ -134,8 +139,11 @@ export const updateIsFinished = (id: number, isFinished: boolean) => {
             'Content-Type': 'multipart/form-data'
           } 
         }).then((response) => {
-          const mess = response.data.Message
-          dispatch(pushToast({title: mess, severity: "success"}))
+          if (response.data.status == 200) {
+            dispatch(pushToast({title: response.data.message, severity: "success"}))            
+          } else {
+            dispatch(pushToast({title: response.data.message, severity: "error"}))
+          }
         }).catch((error) => {
         console.log(error)
         dispatch(pushToast({title: 'データ更新に失敗しました', severity: "error"}))
@@ -156,12 +164,11 @@ export const deleteTodo = (id: number) => {
           }
         }
       ).then((response) => {
-        const mess = response.data.Message
-        if (mess != null) {
+        if (response.data.status == 200) {
           dispatch(push("/todo"))
-          dispatch(pushToast({title: mess, severity: "success"}))
+          dispatch(pushToast({title: response.data.message, severity: "success"}))          
         } else {
-          dispatch(pushToast({title: '削除に失敗しました', severity: "error"}))
+          dispatch(pushToast({title: response.data.message, severity: "error"}))          
         }
       })
       .catch((error)=> {
@@ -189,16 +196,15 @@ export const deleteTodoInIndex = (
                                          }
                                       }
                                      ).then((response) => {
-                                      const mess = response.data.message
-                                      if (mess != null) {
-                                        dispatch(pushToast({title: mess, severity: "success"}))
+                                      if (response.data.status == 200) {
+                                        dispatch(pushToast({title: response.data.message, severity: "success"}))
                                         dispatch(indexTodosAction(response.data.todos))
                                         setSumPage(Number(response.data.sumPage))
                                         if (queryPage > Number(response.data.sumPage)) {
                                           dispatch(push(`todo?page=${queryPage - 1 }`))
-                                        }
+                                        }                                       
                                       } else {
-                                        dispatch(pushToast({title: '削除に失敗しました', severity: "error"}))
+                                        dispatch(pushToast({title: response.data.message, severity: "error"}))                                          
                                       }
                                      })
                                      .catch((error)=> {

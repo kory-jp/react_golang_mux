@@ -25,17 +25,7 @@ import (
 var store = sessions.NewCookieStore([]byte(os.Getenv("SESSION_KEY")))
 var todo domain.Todo
 var allTodosCount float64
-
-type TodoMessage struct {
-	Message string
-	Error   string
-}
-
-type Response struct {
-	Todos   domain.Todos
-	SumPage int
-	Message string
-}
+var response *controllers.Response
 
 func TestCreate(t *testing.T) {
 	// --- 各種mockをインスタンス ---
@@ -44,11 +34,11 @@ func TestCreate(t *testing.T) {
 	createTodoQuery := database.CreateTodoState
 
 	cases := []struct {
-		name            string
-		args            domain.Todo
-		isImage         bool
-		prepareMockFn   func(m *mock_database.MockSqlHandler, r *mock_database.MockResult, statement string, todo domain.Todo)
-		responseMessage string
+		name          string
+		args          domain.Todo
+		isImage       bool
+		prepareMockFn func(m *mock_database.MockSqlHandler, r *mock_database.MockResult, statement string, todo domain.Todo)
+		response      controllers.Response
 	}{
 		{
 			name: "必須項目が入力された場合(画像有り)、データ保存成功",
@@ -67,7 +57,10 @@ func TestCreate(t *testing.T) {
 					Execute(statement, args.UserID, args.Title, args.Content, gomock.Any(), false, gomock.Any()).
 					Return(r, nil)
 			},
-			responseMessage: "保存しました",
+			response: controllers.Response{
+				Status:  200,
+				Message: "保存しました",
+			},
 		},
 		{
 			name: "必須項目が入力された場合(画像無し),データ保存成功",
@@ -83,7 +76,10 @@ func TestCreate(t *testing.T) {
 					Execute(statement, args.UserID, args.Title, args.Content, gomock.Any(), false, gomock.Any()).
 					Return(r, nil)
 			},
-			responseMessage: "保存しました",
+			response: controllers.Response{
+				Status:  200,
+				Message: "保存しました",
+			},
 		},
 		{
 			name: "UserIDが0の場合,データ保存失敗",
@@ -100,7 +96,10 @@ func TestCreate(t *testing.T) {
 					Return(r, nil).
 					AnyTimes()
 			},
-			responseMessage: "ログインしてください",
+			response: controllers.Response{
+				Status:  401,
+				Message: "ログインをしてください",
+			},
 		},
 		{
 			name: "タイトルが0文字の場合,データ保存失敗",
@@ -117,7 +116,10 @@ func TestCreate(t *testing.T) {
 					Return(r, nil).
 					AnyTimes()
 			},
-			responseMessage: "タイトルは必須です。",
+			response: controllers.Response{
+				Status:  400,
+				Message: "タイトルは必須です。",
+			},
 		},
 		{
 			name: "タイトルが50文字以上の場合,データ保存失敗",
@@ -134,7 +136,10 @@ func TestCreate(t *testing.T) {
 					Return(r, nil).
 					AnyTimes()
 			},
-			responseMessage: "タイトルは50文字未満の入力になります。",
+			response: controllers.Response{
+				Status:  400,
+				Message: "タイトルは50文字未満の入力になります。",
+			},
 		},
 		{
 			name: "メモが2001文字以上の場合,データ保存失敗",
@@ -151,7 +156,10 @@ func TestCreate(t *testing.T) {
 					Return(r, nil).
 					AnyTimes()
 			},
-			responseMessage: "メモは2000文字を超えて入力はできません。",
+			response: controllers.Response{
+				Status:  400,
+				Message: "メモは2000文字を超えて入力はできません。",
+			},
 		},
 	}
 
@@ -176,22 +184,10 @@ func TestCreate(t *testing.T) {
 
 			// --- テスト実行 ---
 			ctrl.Create(w, req)
-			var tm TodoMessage
 			buf, _ := ioutil.ReadAll(w.Body)
-			if err := json.Unmarshal(buf, &tm); err != nil {
-				t.Error(err)
-			}
-
-			if w.Code != 200 {
-				t.Error(w.Code)
-			}
-
-			if tm.Message != "" {
-				assert.Equal(t, tt.responseMessage, tm.Message)
-			}
-			if tm.Error != "" {
-				assert.Equal(t, tt.responseMessage, tm.Error)
-			}
+			json.Unmarshal(buf, &response)
+			assert.Equal(t, tt.response.Status, response.Status)
+			assert.Equal(t, tt.response.Message, response.Message)
 		})
 	}
 }
@@ -207,7 +203,7 @@ func TestIndex(t *testing.T) {
 		nowPage                  int
 		prepareGetNumTodosMockFn func(m *mock_database.MockSqlHandler, r *mock_database.MockRow, statement string, userId int)
 		prepareGetTodosMockFn    func(m *mock_database.MockSqlHandler, r *mock_database.MockRow, statement string, userId int, offset int, todo domain.Todo)
-		message                  string
+		response                 controllers.Response
 	}{
 		{
 			name:        "必須項目が入力された場合、データ取得に成功",
@@ -227,7 +223,10 @@ func TestIndex(t *testing.T) {
 				r.EXPECT().Close().Return(nil).AnyTimes()
 				m.EXPECT().Query(statement, userId, offset).Return(r, nil).AnyTimes()
 			},
-			message: "",
+			response: controllers.Response{
+				Status:  200,
+				Message: "Todo一覧取得",
+			},
 		},
 		{
 			name:        "userIdが0の場合、データ取得に失敗",
@@ -248,7 +247,10 @@ func TestIndex(t *testing.T) {
 				r.EXPECT().Close().Return(nil).AnyTimes()
 				m.EXPECT().Query(statement, userId, offset).Return(r, nil).AnyTimes()
 			},
-			message: "ログインしてください",
+			response: controllers.Response{
+				Status:  401,
+				Message: "ログインをしてください",
+			},
 		},
 		{
 			name:        "現在ページ情報(nowPage)が0の場合、データ取得に失敗",
@@ -268,7 +270,10 @@ func TestIndex(t *testing.T) {
 				r.EXPECT().Close().Return(nil).AnyTimes()
 				m.EXPECT().Query(statement, userId, offset).Return(r, nil).AnyTimes()
 			},
-			message: "データ取得に失敗しました",
+			response: controllers.Response{
+				Status:  400,
+				Message: "データ取得に失敗しました",
+			},
 		},
 	}
 
@@ -287,19 +292,10 @@ func TestIndex(t *testing.T) {
 			tt.prepareGetTodosMockFn(sqlhandler, row, getTodosQuery, tt.loginUserId, 0, todo)
 
 			ctrl.Index(w, req)
-			var rsp Response
-			var mess TodoMessage
 			buf, _ := ioutil.ReadAll(w.Body)
-			if err := json.Unmarshal(buf, &rsp); err != nil {
-				t.Error(err)
-			}
-			if err := json.Unmarshal(buf, &mess); err != nil {
-				t.Error(err)
-			}
-
-			if rsp.Message != tt.message {
-				assert.Equal(t, tt.message, mess.Error)
-			}
+			json.Unmarshal(buf, &response)
+			assert.Equal(t, tt.response.Status, response.Status)
+			assert.Equal(t, tt.response.Message, response.Message)
 		})
 	}
 }
@@ -313,7 +309,7 @@ func TestShow(t *testing.T) {
 		todoId        int
 		loginUserId   int
 		prepareMockFn func(m *mock_database.MockSqlHandler, r *mock_database.MockRow, statement string, id int, userId int, todo domain.Todo)
-		message       string
+		response      controllers.Response
 	}{
 		{
 			name:        "必須項目が入力された場合、データ取得に成功",
@@ -326,7 +322,10 @@ func TestShow(t *testing.T) {
 				r.EXPECT().Close().Return(nil).AnyTimes()
 				m.EXPECT().Query(statement, id, userId).Return(r, nil).AnyTimes()
 			},
-			message: "",
+			response: controllers.Response{
+				Status:  200,
+				Message: "投稿詳細取得",
+			},
 		},
 		{
 			name:        "todoIdがnilの場合、データ取得に失敗",
@@ -339,7 +338,10 @@ func TestShow(t *testing.T) {
 				r.EXPECT().Close().Return(nil).AnyTimes()
 				m.EXPECT().Query(statement, id, userId).Return(r, nil).AnyTimes()
 			},
-			message: "データ取得に失敗しました",
+			response: controllers.Response{
+				Status:  400,
+				Message: "データ取得に失敗しました",
+			},
 		},
 		{
 			name:        "userIdがnilの場合、データ取得に失敗",
@@ -352,7 +354,10 @@ func TestShow(t *testing.T) {
 				r.EXPECT().Close().Return(nil).AnyTimes()
 				m.EXPECT().Query(statement, id, userId).Return(r, nil).AnyTimes()
 			},
-			message: "ログインをしてください",
+			response: controllers.Response{
+				Status:  401,
+				Message: "ログインをしてください",
+			},
 		},
 	}
 
@@ -370,13 +375,10 @@ func TestShow(t *testing.T) {
 			tt.prepareMockFn(sqlhandler, row, showTodoQuery, tt.todoId, tt.loginUserId, todo)
 
 			ctrl.Show(w, req)
-			var mess *TodoMessage
 			buf, _ := ioutil.ReadAll(w.Body)
-			json.Unmarshal(buf, &mess)
-
-			if mess.Error != "" {
-				assert.Equal(t, tt.message, mess.Error)
-			}
+			json.Unmarshal(buf, &response)
+			assert.Equal(t, tt.response.Status, response.Status)
+			assert.Equal(t, tt.response.Message, response.Message)
 		})
 	}
 }
@@ -386,12 +388,12 @@ func TestUpdate(t *testing.T) {
 	upateTodoQuery := database.UpdateTodoState
 
 	cases := []struct {
-		name            string
-		args            domain.Todo
-		loginUserId     int
-		isImage         bool
-		prepareMockFn   func(m *mock_database.MockSqlHandler, r *mock_database.MockResult, statement string, todo domain.Todo)
-		responseMessage string
+		name          string
+		args          domain.Todo
+		loginUserId   int
+		isImage       bool
+		prepareMockFn func(m *mock_database.MockSqlHandler, r *mock_database.MockResult, statement string, todo domain.Todo)
+		response      controllers.Response
 	}{
 		{
 			name: "必須項目が入力された場合(画像有り)、データ保存成功",
@@ -410,7 +412,10 @@ func TestUpdate(t *testing.T) {
 					Execute(statement, args.Title, args.Content, gomock.Any(), args.ID, args.UserID).
 					Return(r, nil)
 			},
-			responseMessage: "更新しました",
+			response: controllers.Response{
+				Status:  200,
+				Message: "更新しました",
+			},
 		},
 		{
 			name: "必須項目が入力された場合(画像無し),データ保存成功",
@@ -428,7 +433,10 @@ func TestUpdate(t *testing.T) {
 					Execute(statement, args.Title, args.Content, gomock.Any(), args.ID, args.UserID).
 					Return(r, nil)
 			},
-			responseMessage: "更新しました",
+			response: controllers.Response{
+				Status:  200,
+				Message: "更新しました",
+			},
 		},
 		{
 			name: "ログイン状態が確認できない場合,データ保存失敗",
@@ -447,7 +455,10 @@ func TestUpdate(t *testing.T) {
 					Return(r, nil).
 					AnyTimes()
 			},
-			responseMessage: "ログインしてください",
+			response: controllers.Response{
+				Status:  401,
+				Message: "ログインをしてください",
+			},
 		},
 		{
 			name: "タイトルが0文字の場合,データ保存失敗",
@@ -466,7 +477,10 @@ func TestUpdate(t *testing.T) {
 					Return(r, nil).
 					AnyTimes()
 			},
-			responseMessage: "タイトルは必須です。",
+			response: controllers.Response{
+				Status:  400,
+				Message: "タイトルは必須です。",
+			},
 		},
 		{
 			name: "タイトルが50文字以上の場合,データ保存失敗",
@@ -485,7 +499,10 @@ func TestUpdate(t *testing.T) {
 					Return(r, nil).
 					AnyTimes()
 			},
-			responseMessage: "タイトルは50文字未満の入力になります。",
+			response: controllers.Response{
+				Status:  400,
+				Message: "タイトルは50文字未満の入力になります。",
+			},
 		},
 		{
 			name: "メモが2001文字以上の場合,データ保存失敗",
@@ -504,7 +521,10 @@ func TestUpdate(t *testing.T) {
 					Return(r, nil).
 					AnyTimes()
 			},
-			responseMessage: "メモは2000文字を超えて入力はできません。",
+			response: controllers.Response{
+				Status:  400,
+				Message: "メモは2000文字を超えて入力はできません。",
+			},
 		},
 	}
 
@@ -530,22 +550,10 @@ func TestUpdate(t *testing.T) {
 
 			// --- テスト実行 ---
 			ctrl.Update(w, req)
-			var tm TodoMessage
 			buf, _ := ioutil.ReadAll(w.Body)
-			if err := json.Unmarshal(buf, &tm); err != nil {
-				t.Error(err)
-			}
-
-			if w.Code != 200 {
-				t.Error(w.Code)
-			}
-
-			if tm.Message != "" {
-				assert.Equal(t, tt.responseMessage, tm.Message)
-			}
-			if tm.Error != "" {
-				assert.Equal(t, tt.responseMessage, tm.Error)
-			}
+			json.Unmarshal(buf, &response)
+			assert.Equal(t, tt.response.Status, response.Status)
+			assert.Equal(t, tt.response.Message, response.Message)
 		})
 	}
 }
@@ -562,7 +570,7 @@ func TestIsFinished(t *testing.T) {
 		loginUserId                        int
 		prepareChangeBoolMockFn            func(m *mock_database.MockSqlHandler, r *mock_database.MockResult, statement string, todoId int, todo domain.Todo, userId int)
 		prepareFindTodoByIdAndUserIdMockFn func(m *mock_database.MockSqlHandler, r *mock_database.MockRow, statement string, todoId int, userId int, todo domain.Todo)
-		responseMessage                    string
+		response                           controllers.Response
 	}{
 		{
 			name:   "必須項目が入力された場合、更新メッセージを取得",
@@ -583,7 +591,10 @@ func TestIsFinished(t *testing.T) {
 				r.EXPECT().Close().Return(nil).AnyTimes()
 				m.EXPECT().Query(statement, todoId, userId).Return(r, nil)
 			},
-			responseMessage: "未完了の項目が追加されました",
+			response: controllers.Response{
+				Status:  200,
+				Message: "未完了の項目が追加されました",
+			},
 		},
 		{
 			name:   "todoIdが0の場合、エラーメッセージを取得",
@@ -607,7 +618,10 @@ func TestIsFinished(t *testing.T) {
 					Return(r, nil).
 					AnyTimes()
 			},
-			responseMessage: "データ取得に失敗しました",
+			response: controllers.Response{
+				Status:  400,
+				Message: "データ取得に失敗しました",
+			},
 		},
 		{
 			name:   "todoIdが0の場合、エラーメッセージを取得",
@@ -631,7 +645,10 @@ func TestIsFinished(t *testing.T) {
 					Return(r, nil).
 					AnyTimes()
 			},
-			responseMessage: "ログインしてください",
+			response: controllers.Response{
+				Status:  401,
+				Message: "ログインをしてください",
+			},
 		},
 	}
 
@@ -651,22 +668,10 @@ func TestIsFinished(t *testing.T) {
 
 			// --- テスト実行 ---
 			ctrl.IsFinished(w, req)
-			var tm TodoMessage
 			buf, _ := ioutil.ReadAll(w.Body)
-			if err := json.Unmarshal(buf, &tm); err != nil {
-				t.Error(err)
-			}
-
-			if w.Code != 200 {
-				t.Error(w.Code)
-			}
-
-			if tm.Message != "" {
-				assert.Equal(t, tt.responseMessage, tm.Message)
-			}
-			if tm.Error != "" {
-				assert.Equal(t, tt.responseMessage, tm.Error)
-			}
+			json.Unmarshal(buf, &response)
+			assert.Equal(t, tt.response.Status, response.Status)
+			assert.Equal(t, tt.response.Message, response.Message)
 		})
 	}
 }
@@ -676,11 +681,11 @@ func TestDelete(t *testing.T) {
 	deleteTodoQuery := database.DeleteTodoState
 
 	cases := []struct {
-		name            string
-		todoId          int
-		loginUserId     int
-		prepareMockFn   func(m *mock_database.MockSqlHandler, r *mock_database.MockResult, statement string, todoId int, loginUserId int)
-		responseMessage string
+		name          string
+		todoId        int
+		loginUserId   int
+		prepareMockFn func(m *mock_database.MockSqlHandler, r *mock_database.MockResult, statement string, todoId int, loginUserId int)
+		response      controllers.Response
 	}{
 		{
 			name:        "必須項目が入力された場合、データ削除成功",
@@ -692,7 +697,10 @@ func TestDelete(t *testing.T) {
 					Execute(statement, todoId, loginUserId).
 					Return(r, nil)
 			},
-			responseMessage: "削除しました",
+			response: controllers.Response{
+				Status:  200,
+				Message: "削除しました",
+			},
 		},
 		{
 			name:        "todoIdがnilの場合、データ削除失敗",
@@ -705,7 +713,10 @@ func TestDelete(t *testing.T) {
 					Return(r, nil).
 					AnyTimes()
 			},
-			responseMessage: "データ取得に失敗しました",
+			response: controllers.Response{
+				Status:  400,
+				Message: "データ取得に失敗しました",
+			},
 		},
 		{
 			name:        "loginUserIdがnilの場合、データ削除失敗",
@@ -718,7 +729,10 @@ func TestDelete(t *testing.T) {
 					Return(r, nil).
 					AnyTimes()
 			},
-			responseMessage: "ログインしてください",
+			response: controllers.Response{
+				Status:  401,
+				Message: "ログインをしてください",
+			},
 		},
 	}
 
@@ -736,22 +750,10 @@ func TestDelete(t *testing.T) {
 
 			// --- テスト実行 ---
 			ctrl.Delete(w, req)
-			var tm TodoMessage
 			buf, _ := ioutil.ReadAll(w.Body)
-			if err := json.Unmarshal(buf, &tm); err != nil {
-				t.Error(err)
-			}
-
-			if w.Code != 200 {
-				t.Error(w.Code)
-			}
-
-			if tm.Message != "" {
-				assert.Equal(t, tt.responseMessage, tm.Message)
-			}
-			if tm.Error != "" {
-				assert.Equal(t, tt.responseMessage, tm.Error)
-			}
+			json.Unmarshal(buf, &response)
+			assert.Equal(t, tt.response.Status, response.Status)
+			assert.Equal(t, tt.response.Message, response.Message)
 		})
 	}
 }
@@ -770,7 +772,7 @@ func TestDeleteIndex(t *testing.T) {
 		prepareDeleteMockFn      func(m *mock_database.MockSqlHandler, r *mock_database.MockResult, statement string, todoId int, loginUserId int)
 		prepareGetNumTodosMockFn func(m *mock_database.MockSqlHandler, r *mock_database.MockRow, statement string, userId int)
 		prepareGetTodosMockFn    func(m *mock_database.MockSqlHandler, r *mock_database.MockRow, statement string, userId int, offset int, todo domain.Todo)
-		responseMessage          string
+		response                 controllers.Response
 	}{
 		{
 			name:        "必須項目が入力された場合、データ削除成功",
@@ -797,7 +799,10 @@ func TestDeleteIndex(t *testing.T) {
 				r.EXPECT().Close().Return(nil).AnyTimes()
 				m.EXPECT().Query(statement, userId, offset).Return(r, nil).AnyTimes()
 			},
-			responseMessage: "削除しました",
+			response: controllers.Response{
+				Status:  200,
+				Message: "削除しました",
+			},
 		},
 		{
 			name:        "todoIdがnilの場合、データ削除失敗",
@@ -825,7 +830,10 @@ func TestDeleteIndex(t *testing.T) {
 				r.EXPECT().Close().Return(nil).AnyTimes()
 				m.EXPECT().Query(statement, userId, offset).Return(r, nil).AnyTimes()
 			},
-			responseMessage: "データ取得に失敗しました",
+			response: controllers.Response{
+				Status:  400,
+				Message: "データ取得に失敗しました",
+			},
 		},
 		{
 			name:        "loginUserIdがnilの場合、データ削除失敗",
@@ -853,7 +861,10 @@ func TestDeleteIndex(t *testing.T) {
 				r.EXPECT().Close().Return(nil).AnyTimes()
 				m.EXPECT().Query(statement, userId, offset).Return(r, nil).AnyTimes()
 			},
-			responseMessage: "ログインしてください",
+			response: controllers.Response{
+				Status:  401,
+				Message: "ログインをしてください",
+			},
 		},
 	}
 
@@ -873,22 +884,10 @@ func TestDeleteIndex(t *testing.T) {
 
 			// --- テスト実行 ---
 			ctrl.DeleteInIndex(w, req)
-			var tm TodoMessage
 			buf, _ := ioutil.ReadAll(w.Body)
-			if err := json.Unmarshal(buf, &tm); err != nil {
-				t.Error(err)
-			}
-
-			if w.Code != 200 {
-				t.Error(w.Code)
-			}
-
-			if tm.Message != "" {
-				assert.Equal(t, tt.responseMessage, tm.Message)
-			}
-			if tm.Error != "" {
-				assert.Equal(t, tt.responseMessage, tm.Error)
-			}
+			json.Unmarshal(buf, &response)
+			assert.Equal(t, tt.response.Status, response.Status)
+			assert.Equal(t, tt.response.Message, response.Message)
 		})
 	}
 }
