@@ -1,16 +1,28 @@
 package controllers_test
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"net/http"
+	"net/http/httptest"
+	"strings"
 	"testing"
 
-	controllers "github.com/kory-jp/react_golang_mux/api/interfaces/controllers/sessions"
 	"github.com/stretchr/testify/assert"
+
+	mock_database "github.com/kory-jp/react_golang_mux/api/interfaces/mock"
+
+	usecase "github.com/kory-jp/react_golang_mux/api/usecase/session"
+	mock_usecase "github.com/kory-jp/react_golang_mux/api/usecase/session/mock"
+
+	"github.com/golang/mock/gomock"
+	"github.com/kory-jp/react_golang_mux/api/domain"
+	controllers "github.com/kory-jp/react_golang_mux/api/interfaces/controllers/sessions"
 )
 
-type SessError struct {
-	Error string
-}
+var response *controllers.Response
 
 func TestMakeRandomStr(t *testing.T) {
 	cases := []struct {
@@ -40,51 +52,308 @@ func TestMakeRandomStr(t *testing.T) {
 	}
 }
 
-// func TestLogin(t *testing.T) {
-// 	c := gomock.NewController(t)
-// 	defer c.Finish()
-// 	sqlhandler := mock_database.NewMockSqlHandler(c)
-// 	ctrl := controllers.NewSessionController(sqlhandler)
-// 	row := mock_database.NewMockRow(c)
-// 	loginQuery := database.FindByEmailState
-// 	var user domain.User
+func TestLogin(t *testing.T) {
+	c := gomock.NewController(t)
+	defer c.Finish()
+	sqlhandler := mock_database.NewMockSqlHandler(c)
+	ctrl := controllers.NewSessionController(sqlhandler)
+	SessionRepository := mock_usecase.NewMockSessionRepository(c)
+	inter := &usecase.SessionInteractor{}
+	inter.SessionRepository = SessionRepository
+	ctrl.Interactor = *inter
 
-// 	cases := []struct {
-// 		name          string
-// 		args          domain.User
-// 		prepareMockFn func(m *mock_database.MockSqlHandler, r *mock_database.MockRow, statement string, args domain.User)
-// 		wantErr       string
-// 	}{
-// 		{
-// 			name: "必須項目が入力された場合、ログイン成功",
-// 			args: domain.User{
-// 				Email:    "test@exm.com",
-// 				Password: "testPassword",
-// 			},
-// 			prepareMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockRow, statement string, args domain.User) {
-// 				r.EXPECT().Next().Return(false)
-// 				r.EXPECT().Scan(&user.ID, &user.Name, &user.Email, &user.Password, &user.CreatedAt).Return(nil)
-// 				r.EXPECT().Close().Return(nil)
-// 				m.EXPECT().Query(statement, args.Email).Return(r, nil)
-// 			},
-// 			wantErr: "",
-// 		},
-// 	}
+	cases := []struct {
+		name          string
+		args          domain.User
+		prepareMockFn func(m *mock_usecase.MockSessionRepository, args domain.User)
+		response      controllers.Response
+		haveCookie    bool
+	}{
+		{
+			name: "必須項目が入力された場合、ログイン成功",
+			args: domain.User{
+				Email:    "test@exm.com",
+				Password: "testPassword",
+			},
+			prepareMockFn: func(m *mock_usecase.MockSessionRepository, args domain.User) {
+				pUser := &domain.User{
+					Email: args.Email,
+					// --- 戻り値のuser.PasswordをEncryptメソッドで暗号化した文字列に変換 ---
+					// --- 引数で渡たすargs.Password(暗号化前のuser.Passwordと同一文字列)と
+					// 暗号化したuser.PasswordをCompareHashAndPasswordメソッドを用いて比較 ---
+					Password: args.Encrypt(args.Password),
+				}
+				m.EXPECT().FindByEmail(args).Return(pUser, nil)
+			},
+			response: controllers.Response{
+				Status:  200,
+				Message: "ログインに成功しました",
+			},
+			haveCookie: true,
+		},
+		{
+			name: "Emailがnilの場合、ログイン失敗",
+			args: domain.User{
+				Email:    "",
+				Password: "testPassword",
+			},
+			prepareMockFn: func(m *mock_usecase.MockSessionRepository, args domain.User) {
+				pUser := &domain.User{
+					Email:    args.Email,
+					Password: args.Encrypt(args.Password),
+				}
+				m.EXPECT().FindByEmail(args).Return(pUser, nil).AnyTimes()
+			},
+			response: controllers.Response{
+				Status:  400,
+				Message: "認証に失敗しました",
+			},
+			haveCookie: false,
+		},
+		{
+			name: "Passwordがnilの場合、ログイン失敗",
+			args: domain.User{
+				Email:    "test@exm.com",
+				Password: "",
+			},
+			prepareMockFn: func(m *mock_usecase.MockSessionRepository, args domain.User) {
+				pUser := &domain.User{
+					Email:    args.Email,
+					Password: args.Encrypt(args.Password),
+				}
+				m.EXPECT().FindByEmail(args).Return(pUser, nil).AnyTimes()
+			},
+			response: controllers.Response{
+				Status:  400,
+				Message: "認証に失敗しました",
+			},
+			haveCookie: false,
+		},
+	}
 
-// 	for _, tt := range cases {
-// 		t.Run(tt.name, func(t *testing.T) {
-// 			jsonArgs, _ := json.Marshal(tt.args)
-// 			apiURL := "/api/login"
-// 			req := httptest.NewRequest("POST", apiURL, bytes.NewBuffer(jsonArgs))
-// 			w := httptest.NewRecorder()
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			tt.prepareMockFn(SessionRepository, tt.args)
+			jsonArgs, _ := json.Marshal(tt.args)
+			apiURL := "/api/login"
+			req := httptest.NewRequest("POST", apiURL, bytes.NewBuffer(jsonArgs))
+			w := httptest.NewRecorder()
+			ctrl.Login(w, req)
+			buf, _ := ioutil.ReadAll(w.Body)
+			json.Unmarshal(buf, &response)
+			assert.Equal(t, tt.response.Status, response.Status)
+			assert.Equal(t, tt.response.Message, response.Message)
+			// --- ログインされている場合,tokenを保持ているcookie-nameが設定されている ---
+			for _, v := range w.Header()["Set-Cookie"] {
+				if strings.Contains(v, "cookie-name") {
+					assert.Equal(t, tt.haveCookie, strings.Contains(v, "cookie-name"))
+				}
+			}
+		})
+	}
+}
 
-// 			tt.prepareMockFn(sqlhandler, row, loginQuery, tt.args)
+func TestAuthenticate(t *testing.T) {
+	c := gomock.NewController(t)
+	defer c.Finish()
+	sqlhandler := mock_database.NewMockSqlHandler(c)
+	ctrl := controllers.NewSessionController(sqlhandler)
+	SessionRepository := mock_usecase.NewMockSessionRepository(c)
+	inter := &usecase.SessionInteractor{}
+	inter.SessionRepository = SessionRepository
+	ctrl.Interactor = *inter
 
-// 			ctrl.Login(w, req)
-// 			var sErr *SessError
-// 			buf, _ := ioutil.ReadAll(w.Body)
-// 			json.Unmarshal(buf, &sErr)
-// 			assert.Equal(t, tt.wantErr, sErr.Error)
-// 		})
-// 	}
-// }
+	cases := []struct {
+		name          string
+		userId        int
+		isSession     bool
+		isCookie      bool
+		prepareMockFn func(m *mock_usecase.MockSessionRepository, userId int)
+		response      controllers.Response
+		haveCookie    bool
+	}{
+		{
+			name:      "sessionとcookieにuserIdが保存されている場合、userIdに一致するUser情報を取得",
+			userId:    1,
+			isSession: true,
+			isCookie:  true,
+			prepareMockFn: func(m *mock_usecase.MockSessionRepository, userId int) {
+				pUser := &domain.User{
+					ID: userId,
+				}
+				m.EXPECT().FindById(userId).Return(pUser, nil)
+			},
+			response: controllers.Response{
+				Status:  200,
+				Message: "ログイン状態確認完了",
+			},
+			haveCookie: true,
+		},
+		{
+			name:      "sessionのuserIdがnilの場合、User情報の取得失敗",
+			userId:    0,
+			isSession: true,
+			isCookie:  true,
+			prepareMockFn: func(m *mock_usecase.MockSessionRepository, userId int) {
+				pUser := &domain.User{
+					ID: userId,
+				}
+				m.EXPECT().FindById(userId).Return(pUser, nil).AnyTimes()
+			},
+			response: controllers.Response{
+				Status:  401,
+				Message: "認証に失敗しました",
+			},
+			haveCookie: false,
+		},
+		{
+			name:      "sessionにtokenが設定されていない場合、User情報の取得失敗",
+			userId:    1,
+			isSession: false,
+			isCookie:  true,
+			prepareMockFn: func(m *mock_usecase.MockSessionRepository, userId int) {
+				pUser := &domain.User{
+					ID: userId,
+				}
+				m.EXPECT().FindById(userId).Return(pUser, nil).AnyTimes()
+			},
+			response: controllers.Response{
+				Status:  401,
+				Message: "ログインしてください",
+			},
+			haveCookie: false,
+		},
+		{
+			name:      "cookieにtokenが設定されていない場合、User情報の取得失敗",
+			userId:    1,
+			isSession: true,
+			isCookie:  false,
+			prepareMockFn: func(m *mock_usecase.MockSessionRepository, userId int) {
+				pUser := &domain.User{
+					ID: userId,
+				}
+				m.EXPECT().FindById(userId).Return(pUser, nil).AnyTimes()
+			},
+			response: controllers.Response{
+				Status:  400,
+				Message: "データ取得に失敗しました",
+			},
+			haveCookie: false,
+		},
+	}
+
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			tt.prepareMockFn(SessionRepository, tt.userId)
+			apiURL := "/api/authenticate"
+			req := httptest.NewRequest("GET", apiURL, nil)
+			w := httptest.NewRecorder()
+			token, _ := controllers.MakeRandomStr(10)
+			session, err := controllers.Store.Get(req, "session")
+			if err != nil {
+				t.Error(err)
+				return
+			}
+			session.Values["userId"] = tt.userId
+			if tt.isSession {
+				session.Values["token"] = token
+			}
+			err = session.Save(req, w)
+			if err != nil {
+				t.Error(err)
+				return
+			}
+			if tt.isCookie {
+				req.AddCookie(&http.Cookie{
+					Name:  "cookie-name",
+					Value: token,
+				})
+			}
+			ctrl.Authenticate(w, req)
+			buf, _ := ioutil.ReadAll(w.Body)
+			json.Unmarshal(buf, &response)
+			assert.Equal(t, tt.response.Status, response.Status)
+			assert.Equal(t, tt.response.Message, response.Message)
+			// --- ログインされている場合,tokenを保持ているcookie-nameが設定されている ---
+			for _, v := range w.Header()["Set-Cookie"] {
+				if strings.Contains(v, "cookie-name") {
+					assert.Equal(t, tt.haveCookie, strings.Contains(v, "cookie-name"))
+				}
+			}
+		})
+	}
+}
+
+func TestLogout(t *testing.T) {
+	c := gomock.NewController(t)
+	defer c.Finish()
+	sqlhandler := mock_database.NewMockSqlHandler(c)
+	ctrl := controllers.NewSessionController(sqlhandler)
+	SessionRepository := mock_usecase.NewMockSessionRepository(c)
+	inter := &usecase.SessionInteractor{}
+	inter.SessionRepository = SessionRepository
+	ctrl.Interactor = *inter
+
+	cases := []struct {
+		name          string
+		userId        int
+		prepareMockFn func(m *mock_usecase.MockSessionRepository, userId int)
+		response      controllers.Response
+	}{
+		{
+			name:   "sessionにuserIdが設定されている場合、ログアウト成功",
+			userId: 1,
+			prepareMockFn: func(m *mock_usecase.MockSessionRepository, userId int) {
+				pUser := &domain.User{
+					ID: userId,
+				}
+				m.EXPECT().FindById(userId).Return(pUser, nil).AnyTimes()
+			},
+			response: controllers.Response{
+				Status:  200,
+				Message: "ログアウトしました",
+			},
+		},
+		{
+			name:   "sessionにuserIdが設定されていない場合、ログアウト失敗",
+			userId: 0,
+			prepareMockFn: func(m *mock_usecase.MockSessionRepository, userId int) {
+				pUser := &domain.User{
+					ID: userId,
+				}
+				m.EXPECT().FindById(userId).Return(pUser, nil).AnyTimes()
+			},
+			response: controllers.Response{
+				Status:  400,
+				Message: "データ取得に失敗しました",
+			},
+		},
+	}
+
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			tt.prepareMockFn(SessionRepository, tt.userId)
+			apiURL := "/api/logout"
+			req := httptest.NewRequest("DELETE", apiURL, nil)
+			w := httptest.NewRecorder()
+			token, _ := controllers.MakeRandomStr(10)
+			session, err := controllers.Store.Get(req, "session")
+			if err != nil {
+				t.Error(err)
+				return
+			}
+			session.Values["userId"] = tt.userId
+			session.Values["token"] = token
+			err = session.Save(req, w)
+			if err != nil {
+				t.Error(err)
+				return
+			}
+			ctrl.Logout(w, req)
+			buf, _ := ioutil.ReadAll(w.Body)
+			json.Unmarshal(buf, &response)
+			assert.Equal(t, tt.response.Status, response.Status)
+			assert.Equal(t, tt.response.Message, response.Message)
+		})
+	}
+}
