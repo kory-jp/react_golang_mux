@@ -71,12 +71,14 @@ _api(golang)/Clean Architecture を採用_
 
 _client(react)/Atomic Design を採用_
 
+![](https://cdn.codegrid.net/2017-atomic-design/img/hierarchy.png)
+
 以下の理由で採用
 
 - コードの再利用性が高いの効率的に開発が可能
 - メンテナンスが容易になる
 
-[参考サイト 3](https://www.happylifecreators.com/blog/20220113/)
+[参考サイト 3](https://www.codegrid.net/articles/2017-atomic-design-1/)
 
 ## ローカルでの起動方法
 
