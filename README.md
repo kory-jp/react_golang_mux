@@ -57,6 +57,8 @@ Golang 主要パッケージ
 
 _api(golang)/Clean Architecture を採用_
 
+![](https://blog.tai2.net/images/CleanArchitecture.jpg)
+
 以下の理由で採用
 
 - 再利用性の高い設計になり生産性が向上する
