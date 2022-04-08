@@ -21,6 +21,14 @@
 | アクセス URL | /api/registration |
 | :----------- | :---------------- |
 
+### リクエストヘッダーその他
+
+|  フィルード名   |       内容       |
+| :-------------: | :--------------: |
+|     Accept      | application/json |
+|  Content-Type   | application/json |
+| withCredentials |       true       |
+
 #### POST データ
 
 | JSON Key |     型 | 最大サイズ | 必須 | 暗号化 | 検索条件 |
@@ -35,16 +43,16 @@
 
 #### 返却データ(JSON)
 
-| JSON Key              |   型   | 最大サイズ | 必須 |      値の説明      |
-| :-------------------- | :----: | ---------: | :--: | :----------------: |
-| status                |  数値  |            |  ○   | 処理結果ステータス |
-| message               | 文字列 |            |  ○   |     メッセージ     |
-| user                  |  配列  |            |  ○   |                    |
-| &emsp; user_id        |  数値  |            |      |         id         |
-| &emsp; user_name      | 文字列 |         20 |      |        氏名        |
-| &emsp; user_email     | 文字列 |            |      |   メールアドレス   |
-| &emsp; user_password  | 文字列 |         20 |      |     パスワード     |
-| &emsp; user_createdAt |  日付  |            |      |      作成日時      |
+| JSON Key              |      型      | 最大サイズ | 必須 |      値の説明      |
+| :-------------------- | :----------: | ---------: | :--: | :----------------: |
+| status                |     数値     |            |  ○   | 処理結果ステータス |
+| message               |    文字列    |            |  ○   |     メッセージ     |
+| user                  | オブジェクト |            |  ○   |                    |
+| &emsp; user_id        |     数値     |            |      |         id         |
+| &emsp; user_name      |    文字列    |         20 |      |        氏名        |
+| &emsp; user_email     |    文字列    |            |      |   メールアドレス   |
+| &emsp; user_password  |    文字列    |         20 |      |     パスワード     |
+| &emsp; user_createdAt |     日付     |            |      |      作成日時      |
 
 <br>
 <br>

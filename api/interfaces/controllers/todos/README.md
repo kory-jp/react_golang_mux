@@ -27,11 +27,13 @@
 | アクセス URL | /api/new |
 | :----------- | :------- |
 
-### リクエストヘッダー
+### リクエストヘッダー　その他
 
-| フィルード名 |        内容         |
-| :----------: | :-----------------: |
-| Content-Type | multipart/form-data |
+|  フィルード名   |        内容         |
+| :-------------: | :-----------------: |
+|     Accept      |  application/json   |
+|  Content-Type   | multipart/form-data |
+| withCredentials |        true         |
 
 #### POST データ
 
@@ -67,6 +69,14 @@
 
 | アクセス URL | /api/todos |
 | :----------- | :--------- |
+
+### リクエストヘッダー　その他
+
+|  フィルード名   |        内容         |
+| :-------------: | :-----------------: |
+|     Accept      |  application/json   |
+|  Content-Type   | multipart/form-data |
+| withCredentials |        true         |
 
 #### POST データ
 
@@ -106,6 +116,14 @@
 
 | アクセス URL | /api/todos/:id |
 | :----------- | :------------- |
+
+### リクエストヘッダー　その他
+
+|  フィルード名   |        内容         |
+| :-------------: | :-----------------: |
+|     Accept      |  application/json   |
+|  Content-Type   | multipart/form-data |
+| withCredentials |        true         |
 
 #### POST データ
 
@@ -147,11 +165,13 @@
 | アクセス URL | /api/todos/update/:id |
 | :----------- | :-------------------- |
 
-### リクエストヘッダー
+### リクエストヘッダー　その他
 
-| フィルード名 |        内容         |
-| :----------: | :-----------------: |
-| Content-Type | multipart/form-data |
+|  フィルード名   |        内容         |
+| :-------------: | :-----------------: |
+|     Accept      |  application/json   |
+|  Content-Type   | multipart/form-data |
+| withCredentials |        true         |
 
 #### POST データ
 
@@ -190,11 +210,13 @@
 | アクセス URL | /api/todos/isfinished/:id |
 | :----------- | :------------------------ |
 
-### リクエストヘッダー
+### リクエストヘッダー　その他
 
-| フィルード名 |        内容         |
-| :----------: | :-----------------: |
-| Content-Type | multipart/form-data |
+|  フィルード名   |        内容         |
+| :-------------: | :-----------------: |
+|     Accept      |  application/json   |
+|  Content-Type   | multipart/form-data |
+| withCredentials |        true         |
 
 #### POST データ
 
@@ -231,6 +253,14 @@
 | アクセス URL | /api/todos/delete/:id |
 | :----------- | :-------------------- |
 
+### リクエストヘッダー　その他
+
+|  フィルード名   |        内容         |
+| :-------------: | :-----------------: |
+|     Accept      |  application/json   |
+|  Content-Type   | multipart/form-data |
+| withCredentials |        true         |
+
 #### POST データ
 
 無し
@@ -263,6 +293,14 @@
 
 | アクセス URL | /api/todos/deleteinindex/:id |
 | :----------- | :--------------------------- |
+
+### リクエストヘッダー　その他
+
+|  フィルード名   |        内容         |
+| :-------------: | :-----------------: |
+|     Accept      |  application/json   |
+|  Content-Type   | multipart/form-data |
+| withCredentials |        true         |
 
 #### POST データ
 

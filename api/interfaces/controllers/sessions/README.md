@@ -23,6 +23,14 @@
 | アクセス URL | /api/login |
 | :----------- | :--------- |
 
+### リクエストヘッダーその他
+
+|  フィルード名   |       内容       |
+| :-------------: | :--------------: |
+|     Accept      | application/json |
+|  Content-Type   | application/json |
+| withCredentials |       true       |
+
 #### POST データ
 
 | JSON Key |     型 | 最大サイズ | 必須 | 暗号化 | 検索条件 |
@@ -63,6 +71,14 @@
 | アクセス URL | /api/authenticate |
 | :----------- | :---------------- |
 
+### リクエストヘッダーその他
+
+|  フィルード名   |       内容       |
+| :-------------: | :--------------: |
+|     Accept      | application/json |
+|  Content-Type   | application/json |
+| withCredentials |       true       |
+
 #### POST データ
 
 無し
@@ -99,6 +115,14 @@
 
 | アクセス URL | /api/logout |
 | :----------- | :---------- |
+
+### リクエストヘッダーその他
+
+|  フィルード名   |       内容       |
+| :-------------: | :--------------: |
+|     Accept      | application/json |
+|  Content-Type   | application/json |
+| withCredentials |       true       |
 
 #### POST データ
 

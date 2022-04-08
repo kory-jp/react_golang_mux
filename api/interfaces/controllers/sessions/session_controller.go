@@ -45,6 +45,12 @@ func NewSessionController(sqlHandler database.SqlHandler) *SessionController {
 var Store = sessions.NewCookieStore([]byte(os.Getenv("SESSION_KEY")))
 
 func (controller *SessionController) Login(w http.ResponseWriter, r *http.Request) {
+	_, err := r.Cookie("cookie-name")
+	if err != nil {
+		resStr := new(Response).SetResp(401, "認証に失敗しました", nil)
+		fmt.Fprintln(w, resStr)
+		return
+	}
 	bytesUser, err := io.ReadAll(r.Body)
 	if err != nil {
 		fmt.Println(err)
@@ -103,7 +109,7 @@ func (controller *SessionController) Authenticate(w http.ResponseWriter, r *http
 	if err != nil {
 		fmt.Println(err)
 		log.Println(err)
-		resStr := new(Response).SetResp(400, "データ取得に失敗しました", nil)
+		resStr := new(Response).SetResp(401, "認証に失敗しました", nil)
 		fmt.Fprintln(w, resStr)
 		return
 	}
@@ -142,6 +148,12 @@ func (controller *SessionController) Authenticate(w http.ResponseWriter, r *http
 }
 
 func (controller *SessionController) Logout(w http.ResponseWriter, r *http.Request) {
+	_, err := r.Cookie("cookie-name")
+	if err != nil {
+		resStr := new(Response).SetResp(401, "認証に失敗しました", nil)
+		fmt.Fprintln(w, resStr)
+		return
+	}
 	session, err := Store.Get(r, "session")
 	if err != nil || session.Values["userId"] == 0 {
 		fmt.Println(err)
