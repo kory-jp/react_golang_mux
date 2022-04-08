@@ -36,15 +36,13 @@ export const saveUserInfo = (name: string, email: string, password: string, pass
           }
         }
       ).then((response) => {
-        console.log(response)
-        if (response.data.Error) {
-          dispatch(pushToast({title: response.data.Error, severity: "error"}))
-          return
-        } else {
-          const userData: User = response.data.user
-          dispatch(getUserState(userData))
-          dispatch(pushToast({title: '保存しました', severity: "success"}))
+        if (response.data.status == 200){
+          const user: User =response.data.user
+          dispatch(getUserState(user))
+          dispatch(pushToast({title: response.data.message, severity: "success"}))
           dispatch(login(email, password))
+        } else {
+          dispatch(pushToast({title: response.data.message, severity: "error"}))
         }
       }).catch((error) => {
         console.log(error)

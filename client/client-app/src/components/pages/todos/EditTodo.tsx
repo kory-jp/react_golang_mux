@@ -39,12 +39,16 @@ export const EditTodo: FC = () => {
           }
         }
         ).then((response) => {
-          const todo = response.data
-          setTitle(todo.title)
-          setContent(todo.content)
-          setImagePath(todo.imagePath)
-          const imagePath = todo.imagePath? process.env.REACT_APP_API_URL + `img/${todo.imagePath}` : ''
-          setPreview(imagePath)
+          if (response.data.status == 200) {
+            const todo = response.data.todo
+            setTitle(todo.title)
+            setContent(todo.content)
+            setImagePath(todo.imagePath)
+            const imagePath = todo.imagePath? process.env.REACT_APP_API_URL + `img/${todo.imagePath}` : ''            
+            setPreview(imagePath)
+          } else {
+            dispatch(pushToast({title: response.data.message, severity: "error"}))               
+          }
         })
         .catch((error) => {
           dispatch(pushToast({title: 'データ取得に失敗しました', severity: "error"}))

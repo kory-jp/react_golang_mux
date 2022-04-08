@@ -77,6 +77,7 @@ func (repo *UserRepository) FindById(identifier int) (user *domain.User, err err
 	user = &domain.User{
 		ID:        id,
 		Name:      name,
+		Email:     email,
 		Password:  password,
 		CreatedAt: created_at,
 	}
