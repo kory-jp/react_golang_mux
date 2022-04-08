@@ -257,31 +257,8 @@ MySQL のクエリを確認
 
 ## モデルデザイン
 
-User
+![ER](https://user-images.githubusercontent.com/66899822/162355336-c32b4fab-8d98-493a-84ee-38ba890869f1.png)
 
-```
-create table if not exists users (
-	id integer primary key auto_increment,
-	name varchar(50) NOT NULL,
-	email varchar(50) NOT NULL UNIQUE,
-	password varchar(50) NOT NULL,
-	created_at datetime default current_timestamp
-);
-```
-
-Todo
-
-```
-create table if not exists todos (
-	id integer primary key auto_increment,
-	user_id integer NOT NULL,
-	title varchar(50) NOT NULL,
-	content text NOT NULL,
-	image_path varchar(100),
-	isFinished boolean NOT NULL,
-	created_at datetime default current_timestamp
-);
-```
 <br>
 <br>
 
