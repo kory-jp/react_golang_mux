@@ -51,12 +51,32 @@ Golang 主要パッケージ
 - joho/godotenv
 - rs/cors
 - ini.v1
+- stretchr/testify
 
 その他
 
 - docker(開発環境構築)
 - .air(Golang のホットリロード)
 - deleve(Golang におけるデバッグ)
+
+<br>
+<br>
+
+## 技術選定理由
+
+### バックエンド: Golang
+
+- 前回、Ruby on Railsでアプリを開発しており、次は静的型付け言語でフレームワーク無しの開発を考えていた
+[Railsのポートフォリオ](https://github.com/kory-jp/proto2)
+- コードがシンプルで静的型付け言語においては学習難易度が低い
+- アプリを作成するためのライブラリが豊富
+- 近年の言語としての勢い
+
+### フロントエンド: React/TypeScript
+
+- コンポーネント分割に重きをおくライブラリで、ある程度の分割が出来ていれば可読性が上がるのと同時にメンテナンス性が上がるため
+- TypeScriptを併用することで型によるさらなる安全性の向上
+- Vue との比較で、より深く JavaScript の理解が必要な React にキャリア初期から触れることで自己成長につながるのではないかと考えたため
 
 <br>
 <br>
