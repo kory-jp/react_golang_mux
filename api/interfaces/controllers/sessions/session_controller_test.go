@@ -63,11 +63,12 @@ func TestLogin(t *testing.T) {
 	ctrl.Interactor = *inter
 
 	cases := []struct {
-		name          string
-		args          domain.User
-		prepareMockFn func(m *mock_usecase.MockSessionRepository, args domain.User)
-		response      controllers.Response
-		haveCookie    bool
+		name            string
+		args            domain.User
+		withCredentials bool
+		prepareMockFn   func(m *mock_usecase.MockSessionRepository, args domain.User)
+		response        controllers.Response
+		haveCookie      bool
 	}{
 		{
 			name: "必須項目が入力された場合、ログイン成功",
@@ -75,6 +76,7 @@ func TestLogin(t *testing.T) {
 				Email:    "test@exm.com",
 				Password: "testPassword",
 			},
+			withCredentials: true,
 			prepareMockFn: func(m *mock_usecase.MockSessionRepository, args domain.User) {
 				pUser := &domain.User{
 					Email: args.Email,
@@ -92,11 +94,32 @@ func TestLogin(t *testing.T) {
 			haveCookie: true,
 		},
 		{
+			name: "リクエストにcookieの認証情報が含まれない場合(withCredentials: false)、ログイン失敗",
+			args: domain.User{
+				Email:    "test@exm.com",
+				Password: "testPassword",
+			},
+			withCredentials: false,
+			prepareMockFn: func(m *mock_usecase.MockSessionRepository, args domain.User) {
+				pUser := &domain.User{
+					Email:    args.Email,
+					Password: args.Encrypt(args.Password),
+				}
+				m.EXPECT().FindByEmail(args).Return(pUser, nil).AnyTimes()
+			},
+			response: controllers.Response{
+				Status:  401,
+				Message: "認証に失敗しました",
+			},
+			haveCookie: true,
+		},
+		{
 			name: "Emailがnilの場合、ログイン失敗",
 			args: domain.User{
 				Email:    "",
 				Password: "testPassword",
 			},
+			withCredentials: true,
 			prepareMockFn: func(m *mock_usecase.MockSessionRepository, args domain.User) {
 				pUser := &domain.User{
 					Email:    args.Email,
@@ -116,6 +139,7 @@ func TestLogin(t *testing.T) {
 				Email:    "test@exm.com",
 				Password: "",
 			},
+			withCredentials: true,
 			prepareMockFn: func(m *mock_usecase.MockSessionRepository, args domain.User) {
 				pUser := &domain.User{
 					Email:    args.Email,
@@ -138,6 +162,11 @@ func TestLogin(t *testing.T) {
 			apiURL := "/api/login"
 			req := httptest.NewRequest("POST", apiURL, bytes.NewBuffer(jsonArgs))
 			w := httptest.NewRecorder()
+			if tt.withCredentials {
+				req.AddCookie(&http.Cookie{
+					Name: "cookie-name",
+				})
+			}
 			ctrl.Login(w, req)
 			buf, _ := ioutil.ReadAll(w.Body)
 			json.Unmarshal(buf, &response)
@@ -164,19 +193,19 @@ func TestAuthenticate(t *testing.T) {
 	ctrl.Interactor = *inter
 
 	cases := []struct {
-		name          string
-		userId        int
-		isSession     bool
-		isCookie      bool
-		prepareMockFn func(m *mock_usecase.MockSessionRepository, userId int)
-		response      controllers.Response
-		haveCookie    bool
+		name            string
+		userId          int
+		isSession       bool
+		withCredentials bool
+		prepareMockFn   func(m *mock_usecase.MockSessionRepository, userId int)
+		response        controllers.Response
+		haveCookie      bool
 	}{
 		{
-			name:      "sessionとcookieにuserIdが保存されている場合、userIdに一致するUser情報を取得",
-			userId:    1,
-			isSession: true,
-			isCookie:  true,
+			name:            "sessionとcookieにuserIdが保存されている場合、userIdに一致するUser情報を取得",
+			userId:          1,
+			isSession:       true,
+			withCredentials: true,
 			prepareMockFn: func(m *mock_usecase.MockSessionRepository, userId int) {
 				pUser := &domain.User{
 					ID: userId,
@@ -190,10 +219,10 @@ func TestAuthenticate(t *testing.T) {
 			haveCookie: true,
 		},
 		{
-			name:      "sessionのuserIdがnilの場合、User情報の取得失敗",
-			userId:    0,
-			isSession: true,
-			isCookie:  true,
+			name:            "sessionのuserIdがnilの場合、User情報の取得失敗",
+			userId:          0,
+			isSession:       true,
+			withCredentials: true,
 			prepareMockFn: func(m *mock_usecase.MockSessionRepository, userId int) {
 				pUser := &domain.User{
 					ID: userId,
@@ -207,10 +236,10 @@ func TestAuthenticate(t *testing.T) {
 			haveCookie: false,
 		},
 		{
-			name:      "sessionにtokenが設定されていない場合、User情報の取得失敗",
-			userId:    1,
-			isSession: false,
-			isCookie:  true,
+			name:            "sessionにtokenが設定されていない場合、User情報の取得失敗",
+			userId:          1,
+			isSession:       false,
+			withCredentials: true,
 			prepareMockFn: func(m *mock_usecase.MockSessionRepository, userId int) {
 				pUser := &domain.User{
 					ID: userId,
@@ -224,10 +253,10 @@ func TestAuthenticate(t *testing.T) {
 			haveCookie: false,
 		},
 		{
-			name:      "cookieにtokenが設定されていない場合、User情報の取得失敗",
-			userId:    1,
-			isSession: true,
-			isCookie:  false,
+			name:            "cookieにtokenが設定されていない場合、User情報の取得失敗",
+			userId:          1,
+			isSession:       true,
+			withCredentials: false,
 			prepareMockFn: func(m *mock_usecase.MockSessionRepository, userId int) {
 				pUser := &domain.User{
 					ID: userId,
@@ -235,8 +264,8 @@ func TestAuthenticate(t *testing.T) {
 				m.EXPECT().FindById(userId).Return(pUser, nil).AnyTimes()
 			},
 			response: controllers.Response{
-				Status:  400,
-				Message: "データ取得に失敗しました",
+				Status:  401,
+				Message: "認証に失敗しました",
 			},
 			haveCookie: false,
 		},
@@ -263,7 +292,7 @@ func TestAuthenticate(t *testing.T) {
 				t.Error(err)
 				return
 			}
-			if tt.isCookie {
+			if tt.withCredentials {
 				req.AddCookie(&http.Cookie{
 					Name:  "cookie-name",
 					Value: token,
@@ -295,14 +324,16 @@ func TestLogout(t *testing.T) {
 	ctrl.Interactor = *inter
 
 	cases := []struct {
-		name          string
-		userId        int
-		prepareMockFn func(m *mock_usecase.MockSessionRepository, userId int)
-		response      controllers.Response
+		name            string
+		userId          int
+		withCredentials bool
+		prepareMockFn   func(m *mock_usecase.MockSessionRepository, userId int)
+		response        controllers.Response
 	}{
 		{
-			name:   "sessionにuserIdが設定されている場合、ログアウト成功",
-			userId: 1,
+			name:            "sessionにuserIdが設定されている場合、ログアウト成功",
+			userId:          1,
+			withCredentials: true,
 			prepareMockFn: func(m *mock_usecase.MockSessionRepository, userId int) {
 				pUser := &domain.User{
 					ID: userId,
@@ -315,8 +346,24 @@ func TestLogout(t *testing.T) {
 			},
 		},
 		{
-			name:   "sessionにuserIdが設定されていない場合、ログアウト失敗",
-			userId: 0,
+			name:            "リクエストにcookieの認証情報が含まれない場合(withCredentials: false)、ログアウト失敗",
+			userId:          1,
+			withCredentials: false,
+			prepareMockFn: func(m *mock_usecase.MockSessionRepository, userId int) {
+				pUser := &domain.User{
+					ID: userId,
+				}
+				m.EXPECT().FindById(userId).Return(pUser, nil).AnyTimes()
+			},
+			response: controllers.Response{
+				Status:  401,
+				Message: "認証に失敗しました",
+			},
+		},
+		{
+			name:            "sessionにuserIdが設定されていない場合、ログアウト失敗",
+			userId:          0,
+			withCredentials: true,
 			prepareMockFn: func(m *mock_usecase.MockSessionRepository, userId int) {
 				pUser := &domain.User{
 					ID: userId,
@@ -348,6 +395,11 @@ func TestLogout(t *testing.T) {
 			if err != nil {
 				t.Error(err)
 				return
+			}
+			if tt.withCredentials {
+				req.AddCookie(&http.Cookie{
+					Name: "cookie-name",
+				})
 			}
 			ctrl.Logout(w, req)
 			buf, _ := ioutil.ReadAll(w.Body)
