@@ -6,6 +6,9 @@ Golang の基本的な知識を習得するために開発している Todo ア�
 基礎的なところから理解を図るために極力、フレームワークを利用せずに開発に努めております。
 また合わせて、React+TypeScript+Redux の組み合わせでアプリを作成することも目標としており、こちらも最低限のパッケージで開発を進めております。
 
+<br>
+<br>
+
 ## 環境構築
 
 下記のサイトをもとに、golang の開発効率の向上を図るため`.air`によるホットリロードを実現
@@ -23,6 +26,8 @@ MySQL において発行された SQL を log ディレクトリ以下に記録
   |_mysql/Dockerfile
       |_conf.d/my.conf
 ```
+<br>
+<br>
 
 ## 使用技術
 
@@ -53,6 +58,9 @@ Golang 主要パッケージ
 - .air(Golang のホットリロード)
 - deleve(Golang におけるデバッグ)
 
+<br>
+<br>
+
 ## アーキテクチャ設計
 
 _api(golang)/Clean Architecture を採用_
@@ -79,6 +87,9 @@ _client(react)/Atomic Design を採用_
 - メンテナンスが容易になる
 
 [参考サイト 3](https://www.codegrid.net/articles/2017-atomic-design-1/)
+
+<br>
+<br>
 
 ## ローカルでの起動方法
 
@@ -139,6 +150,9 @@ docker exec -it react_container /bin/sh
 docker exec -it mysql_container /bin/sh
 ```
 
+<br>
+<br>
+
 ## テストデータ投入
 
 ```
@@ -154,6 +168,8 @@ sam@exm.com
 パスワード
 password
 ```
+<br>
+<br>
 
 ## 各種ログ確認
 
@@ -166,6 +182,9 @@ docker logs go_container
 MySQL のクエリを確認
 
 `/mysql/lgos/mysqld.log`
+
+<br>
+<br>
 
 ## 主要機能
 
@@ -198,6 +217,9 @@ Todo が 5 以上投稿されるとページネーションにより、データ
 
 一部、ファイルに対してテストコードを作成
 
+<br>
+<br>
+
 ## モデルデザイン
 
 User
@@ -225,6 +247,8 @@ create table if not exists todos (
 	created_at datetime default current_timestamp
 );
 ```
+<br>
+<br>
 
 ## 基本操作
 
@@ -237,6 +261,9 @@ create table if not exists todos (
 一覧画面から各 Todo の詳細情報のページに遷移することや、完了未完了の操作、削除の操作が可能
 
 詳細画面(`todo/show/:id`)からはより詳細の Todo 情報を確認でき編集や削除の操作も可能
+
+<br>
+<br>
 
 ## テストコード実行
 
@@ -269,6 +296,9 @@ TEST ALL COMPLETED
 
 エラーログの詳細が表示
 
+<br>
+<br>
+
 ## 各種 API 仕様詳細
 
 以下のサイトを参考にデザイン
@@ -278,3 +308,6 @@ TEST ALL COMPLETED
 - [User API](https://github.com/kory-jp/react_golang_mux/tree/main/api/interfaces/controllers/users)
 - [Session API](https://github.com/kory-jp/react_golang_mux/tree/main/api/interfaces/controllers/sessions)
 - [Todo API](https://github.com/kory-jp/react_golang_mux/tree/main/api/interfaces/controllers/todos)
+
+<br>
+<br>
