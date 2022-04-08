@@ -59,8 +59,6 @@ _api(golang)/Clean Architecture を採用_
 
 ![](https://blog.tai2.net/images/CleanArchitecture.jpg)
 
-<br>
-
 以下の理由で採用
 
 - 再利用性の高い設計になり生産性が向上する
@@ -68,6 +66,8 @@ _api(golang)/Clean Architecture を採用_
 - 変化に強い設計になる
 
 [参考サイト 2](https://qiita.com/hirotakan/items/698c1f5773a3cca6193e)
+
+<br>
 
 _client(react)/Atomic Design を採用_
 
