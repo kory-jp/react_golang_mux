@@ -255,13 +255,6 @@ MySQL のクエリを確認
 <br>
 <br>
 
-## モデルデザイン
-
-![ER](https://user-images.githubusercontent.com/66899822/162355336-c32b4fab-8d98-493a-84ee-38ba890869f1.png)
-
-<br>
-<br>
-
 ## テストコード実行
 
 - 実装したテストコード
@@ -292,6 +285,13 @@ TEST ALL COMPLETED
 - 失敗した場合
 
 エラーログの詳細が表示
+
+<br>
+<br>
+
+## モデルデザイン
+
+![ER](https://user-images.githubusercontent.com/66899822/162355336-c32b4fab-8d98-493a-84ee-38ba890869f1.png)
 
 <br>
 <br>
