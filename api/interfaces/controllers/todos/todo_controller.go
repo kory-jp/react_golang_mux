@@ -24,12 +24,6 @@ type TodoController struct {
 	Interactor usecase.TodoInteractor
 }
 
-type ResponseFormat struct {
-	Message string       `json:"message"`
-	Todos   domain.Todos `json:"todos"`
-	SumPage float64      `json:"sumPage"`
-}
-
 type Response struct {
 	Status  int          `json:"status"`
 	Message string       `json:"message"`
@@ -161,14 +155,6 @@ func (controller *TodoController) Create(w http.ResponseWriter, r *http.Request)
 	todoType.Title = r.Form.Get("title")
 	todoType.Content = r.Form.Get("content")
 	todoType.ImagePath = uploadFileName
-
-	if err = todoType.TodoValidate(); err != nil {
-		fmt.Println(err)
-		log.Println(err)
-		resStr := new(Response).SetResp(400, err.Error(), nil, nil, 0)
-		fmt.Fprintln(w, resStr)
-		return
-	}
 
 	mess, err := controller.Interactor.Add(*todoType)
 	if err != nil {

@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/kory-jp/react_golang_mux/api/infrastructure/mysql"
+
 	_ "github.com/go-sql-driver/mysql"
 
 	"github.com/kory-jp/react_golang_mux/api/config"
@@ -33,6 +35,14 @@ func NewSqlHandler() *SqlHandler {
 		fmt.Println("データベース接続失敗")
 	} else {
 		fmt.Println("データベース接続成功")
+	}
+
+	query := mysql.Query()
+	for i := 0; i < len(query); i++ {
+		_, err := conn.Exec(query[i])
+		if err != nil {
+			fmt.Println(err)
+		}
 	}
 
 	sqlHandler := new(SqlHandler)
