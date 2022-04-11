@@ -14,6 +14,10 @@ func main() {
 	} else {
 		if err := seed.TodosSeed(con); err != nil {
 			fmt.Println(err)
+		} else {
+			if err := seed.TagsSeed(con); err != nil {
+				fmt.Println(err)
+			}
 		}
 	}
 }
