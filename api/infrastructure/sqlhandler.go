@@ -44,7 +44,6 @@ func NewSqlHandler() *SqlHandler {
 			fmt.Println(err)
 		}
 	}
-
 	sqlHandler := new(SqlHandler)
 	sqlHandler.Conn = conn
 	return sqlHandler
@@ -80,6 +79,28 @@ func (handler *SqlHandler) Query(statement string, args ...interface{}) (databas
 	row := new(SqlRow)
 	row.Rows = rows
 	return row, nil
+}
+
+func (handler *SqlHandler) DoInTx(f func(tx *sql.Tx) (interface{}, error)) (interface{}, error) {
+	tx, err := handler.Conn.Begin()
+	if err != nil {
+		fmt.Println(err)
+		log.Panicln(err)
+		return nil, err
+	}
+
+	v, err := f(tx)
+	if err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+
+	if err := tx.Commit(); err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+
+	return v, nil
 }
 
 func (r SqlResult) LastInsertId() (int64, error) {

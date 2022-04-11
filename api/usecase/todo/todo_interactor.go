@@ -1,15 +1,19 @@
 package usecase
 
 import (
+	"database/sql"
 	"errors"
 	"fmt"
 	"log"
+
+	"github.com/kory-jp/react_golang_mux/api/usecase/transaction"
 
 	"github.com/kory-jp/react_golang_mux/api/domain"
 )
 
 type TodoInteractor struct {
 	TodoRepository TodoRepository
+	Transaction    transaction.SqlHandler
 }
 
 type TodoMessage struct {
@@ -17,20 +21,38 @@ type TodoMessage struct {
 }
 
 func (interactor *TodoInteractor) Add(t domain.Todo) (mess *TodoMessage, err error) {
+	// if err = t.TodoValidate(); err == nil {
+	// 	err = interactor.TodoRepository.Store(t)
+	// 	if err != nil {
+	// 		fmt.Println(err)
+	// 		log.Println(err)
+	// 		err = errors.New("保存に失敗しました")
+	// 		return
+	// 	}
+	// 	mess = &TodoMessage{
+	// 		Message: "保存しました",
+	// 	}
+	// 	return mess, nil
+	// }
+	// return nil, err
+
 	if err = t.TodoValidate(); err == nil {
-		err = interactor.TodoRepository.Store(t)
-		if err != nil {
-			fmt.Println(err)
-			log.Println(err)
-			err = errors.New("保存に失敗しました")
-			return
-		}
-		mess = &TodoMessage{
-			Message: "保存しました",
-		}
-		return mess, nil
+		fmt.Println(interactor.Transaction)
+		_, err = interactor.Transaction.DoInTx(func(tx *sql.Tx) (interface{}, error) {
+			err = interactor.TodoRepository.Store(t)
+			return nil, err
+		})
 	}
-	return nil, err
+	if err != nil {
+		fmt.Println(err)
+		log.Println(err)
+		err = errors.New("保存に失敗しました")
+		return nil, err
+	}
+	mess = &TodoMessage{
+		Message: "保存しました",
+	}
+	return mess, nil
 }
 
 func (interactor *TodoInteractor) Todos(userId int, page int) (todos domain.Todos, sumPage float64, err error) {
