@@ -13,32 +13,34 @@ import (
 	"strings"
 	"testing"
 
+	usecase "github.com/kory-jp/react_golang_mux/api/usecase/todo"
+	mock_usecase "github.com/kory-jp/react_golang_mux/api/usecase/todo/mock"
+
+	mock_transaction "github.com/kory-jp/react_golang_mux/api/usecase/transaction/mock"
+
 	"github.com/golang/mock/gomock"
 	"github.com/gorilla/sessions"
 	"github.com/kory-jp/react_golang_mux/api/domain"
 	controllers "github.com/kory-jp/react_golang_mux/api/interfaces/controllers/todos"
-	"github.com/kory-jp/react_golang_mux/api/interfaces/database"
 	mock_database "github.com/kory-jp/react_golang_mux/api/interfaces/mock"
 	"github.com/stretchr/testify/assert"
 )
 
 var store = sessions.NewCookieStore([]byte(os.Getenv("SESSION_KEY")))
-var todo domain.Todo
-var allTodosCount float64
 var response *controllers.Response
 
 func TestCreate(t *testing.T) {
 	// --- 各種mockをインスタンス ---
-	sqlhandler, ctrl, result, _ := setMock(t)
-	// --- api/interfaces/databases/todo_repository Mockの引数で渡すSQLクエリを取得
-	createTodoQuery := database.CreateTodoState
+	ctrl, todoRepository, transaction := setMock(t)
 
 	cases := []struct {
-		name          string
-		args          domain.Todo
-		isImage       bool
-		prepareMockFn func(m *mock_database.MockSqlHandler, r *mock_database.MockResult, statement string, todo domain.Todo)
-		response      controllers.Response
+		name                   string
+		args                   domain.Todo
+		isImage                bool
+		prepareTrasMockFn      func(m *mock_transaction.MockSqlHandler)
+		prepareRepoStoreMockFn func(m *mock_usecase.MockTodoRepository, args domain.Todo)
+		prepareMockFn          func(m *mock_database.MockSqlHandler, r *mock_database.MockResult, statement string, todo domain.Todo)
+		response               controllers.Response
 	}{
 		{
 			name: "必須項目が入力された場合(画像有り)、データ保存成功",
@@ -49,13 +51,11 @@ func TestCreate(t *testing.T) {
 				ImagePath: "test.png",
 			},
 			isImage: true,
-			prepareMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockResult, statement string, args domain.Todo) {
-				r.EXPECT().RowsAffected().Return(int64(0), nil).AnyTimes()
-				m.EXPECT().
-					// --- 保存される画像名は自動生成される文字列となるためテストデータにおいて同名の画像名を引数として渡すことができないため
-					// gomock.Any()を利用してどのような引数でも受け取れる手法を用いている(created_atも同様) ---
-					Execute(statement, args.UserID, args.Title, args.Content, gomock.Any(), false, gomock.Any()).
-					Return(r, nil)
+			prepareTrasMockFn: func(m *mock_transaction.MockSqlHandler) {
+				m.EXPECT().DoInTx(gomock.Any()).Return(nil, nil).AnyTimes()
+			},
+			prepareRepoStoreMockFn: func(m *mock_usecase.MockTodoRepository, args domain.Todo) {
+				m.EXPECT().Store(args).Return(nil)
 			},
 			response: controllers.Response{
 				Status:  200,
@@ -70,11 +70,11 @@ func TestCreate(t *testing.T) {
 				Content: "test content",
 			},
 			isImage: false,
-			prepareMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockResult, statement string, args domain.Todo) {
-				r.EXPECT().RowsAffected().Return(int64(0), nil).AnyTimes()
-				m.EXPECT().
-					Execute(statement, args.UserID, args.Title, args.Content, gomock.Any(), false, gomock.Any()).
-					Return(r, nil)
+			prepareTrasMockFn: func(m *mock_transaction.MockSqlHandler) {
+				m.EXPECT().DoInTx(gomock.Any()).Return(nil, nil).AnyTimes()
+			},
+			prepareRepoStoreMockFn: func(m *mock_usecase.MockTodoRepository, args domain.Todo) {
+				m.EXPECT().Store(args).Return(nil)
 			},
 			response: controllers.Response{
 				Status:  200,
@@ -89,12 +89,11 @@ func TestCreate(t *testing.T) {
 				Content: "test content",
 			},
 			isImage: false,
-			prepareMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockResult, statement string, args domain.Todo) {
-				r.EXPECT().RowsAffected().Return(int64(0), nil).AnyTimes()
-				m.EXPECT().
-					Execute(statement, args.UserID, args.Title, args.Content, gomock.Any(), false, gomock.Any()).
-					Return(r, nil).
-					AnyTimes()
+			prepareTrasMockFn: func(m *mock_transaction.MockSqlHandler) {
+				m.EXPECT().DoInTx(gomock.Any()).Return(nil, nil).AnyTimes()
+			},
+			prepareRepoStoreMockFn: func(m *mock_usecase.MockTodoRepository, args domain.Todo) {
+				m.EXPECT().Store(args).Return(nil)
 			},
 			response: controllers.Response{
 				Status:  401,
@@ -109,12 +108,11 @@ func TestCreate(t *testing.T) {
 				Content: "test content",
 			},
 			isImage: false,
-			prepareMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockResult, statement string, args domain.Todo) {
-				r.EXPECT().RowsAffected().Return(int64(0), nil).AnyTimes()
-				m.EXPECT().
-					Execute(statement, args.UserID, args.Title, args.Content, gomock.Any(), false, gomock.Any()).
-					Return(r, nil).
-					AnyTimes()
+			prepareTrasMockFn: func(m *mock_transaction.MockSqlHandler) {
+				m.EXPECT().DoInTx(gomock.Any()).Return(nil, nil).AnyTimes()
+			},
+			prepareRepoStoreMockFn: func(m *mock_usecase.MockTodoRepository, args domain.Todo) {
+				m.EXPECT().Store(args).Return(nil)
 			},
 			response: controllers.Response{
 				Status:  400,
@@ -129,12 +127,11 @@ func TestCreate(t *testing.T) {
 				Content: "test content",
 			},
 			isImage: false,
-			prepareMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockResult, statement string, args domain.Todo) {
-				r.EXPECT().RowsAffected().Return(int64(0), nil).AnyTimes()
-				m.EXPECT().
-					Execute(statement, args.UserID, args.Title, args.Content, gomock.Any(), false, gomock.Any()).
-					Return(r, nil).
-					AnyTimes()
+			prepareTrasMockFn: func(m *mock_transaction.MockSqlHandler) {
+				m.EXPECT().DoInTx(gomock.Any()).Return(nil, nil).AnyTimes()
+			},
+			prepareRepoStoreMockFn: func(m *mock_usecase.MockTodoRepository, args domain.Todo) {
+				m.EXPECT().Store(args).Return(nil)
 			},
 			response: controllers.Response{
 				Status:  400,
@@ -149,12 +146,11 @@ func TestCreate(t *testing.T) {
 				Content: strings.Repeat("t", 2001),
 			},
 			isImage: false,
-			prepareMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockResult, statement string, args domain.Todo) {
-				r.EXPECT().RowsAffected().Return(int64(0), nil).AnyTimes()
-				m.EXPECT().
-					Execute(statement, args.UserID, args.Title, args.Content, gomock.Any(), false, gomock.Any()).
-					Return(r, nil).
-					AnyTimes()
+			prepareTrasMockFn: func(m *mock_transaction.MockSqlHandler) {
+				m.EXPECT().DoInTx(gomock.Any()).Return(nil, nil).AnyTimes()
+			},
+			prepareRepoStoreMockFn: func(m *mock_usecase.MockTodoRepository, args domain.Todo) {
+				m.EXPECT().Store(args).Return(nil)
 			},
 			response: controllers.Response{
 				Status:  400,
@@ -180,7 +176,8 @@ func TestCreate(t *testing.T) {
 			SetSessionUserId(t, w, req, tt.args.UserID)
 
 			// --- mock ---
-			tt.prepareMockFn(sqlhandler, result, createTodoQuery, tt.args)
+			tt.prepareTrasMockFn(transaction)
+			tt.prepareRepoStoreMockFn(todoRepository, tt.args)
 
 			// --- テスト実行 ---
 			ctrl.Create(w, req)
@@ -193,35 +190,23 @@ func TestCreate(t *testing.T) {
 }
 
 func TestIndex(t *testing.T) {
-	sqlhandler, ctrl, _, row := setMock(t)
-	sumTodoItemsQuery := database.SumTodoItemsState
-	getTodosQuery := database.GetTodosState
+	ctrl, todoRepository, _ := setMock(t)
 
 	cases := []struct {
-		name                     string
-		loginUserId              int
-		nowPage                  int
-		prepareGetNumTodosMockFn func(m *mock_database.MockSqlHandler, r *mock_database.MockRow, statement string, userId int)
-		prepareGetTodosMockFn    func(m *mock_database.MockSqlHandler, r *mock_database.MockRow, statement string, userId int, offset int, todo domain.Todo)
-		response                 controllers.Response
+		name                          string
+		loginUserId                   int
+		nowPage                       int
+		prepareRepoFindByUserIdMockFn func(m *mock_usecase.MockTodoRepository, userId int, page int)
+		prepareGetNumTodosMockFn      func(m *mock_database.MockSqlHandler, r *mock_database.MockRow, statement string, userId int)
+		prepareGetTodosMockFn         func(m *mock_database.MockSqlHandler, r *mock_database.MockRow, statement string, userId int, offset int, todo domain.Todo)
+		response                      controllers.Response
 	}{
 		{
 			name:        "必須項目が入力された場合、データ取得に成功",
 			loginUserId: 1,
 			nowPage:     1,
-			prepareGetNumTodosMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockRow, statement string, userId int) {
-				r.EXPECT().Next().Return(false).AnyTimes()
-				r.EXPECT().Scan(&allTodosCount).Return(nil).AnyTimes()
-				r.EXPECT().Err().Return(nil).AnyTimes()
-				r.EXPECT().Close().Return(nil).AnyTimes()
-				m.EXPECT().Query(statement, userId).Return(r, nil).AnyTimes()
-			},
-			prepareGetTodosMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockRow, statement string, userId int, offset int, todo domain.Todo) {
-				r.EXPECT().Scan(&todo.ID, &todo.UserID, &todo.Title, &todo.Content, &todo.ImagePath, &todo.IsFinished, &todo.CreatedAt).Return(nil).AnyTimes()
-				r.EXPECT().Next().Return(false).AnyTimes()
-				r.EXPECT().Err().Return(nil).AnyTimes()
-				r.EXPECT().Close().Return(nil).AnyTimes()
-				m.EXPECT().Query(statement, userId, offset).Return(r, nil).AnyTimes()
+			prepareRepoFindByUserIdMockFn: func(m *mock_usecase.MockTodoRepository, userId int, page int) {
+				m.EXPECT().FindByUserId(userId, page).Return([]domain.Todo{{UserID: userId}}, 1.0, nil)
 			},
 			response: controllers.Response{
 				Status:  200,
@@ -232,20 +217,8 @@ func TestIndex(t *testing.T) {
 			name:        "userIdが0の場合、データ取得に失敗",
 			loginUserId: 0,
 			nowPage:     1,
-			prepareGetNumTodosMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockRow, statement string, userId int) {
-				r.EXPECT().Next().Return(false).AnyTimes()
-				r.EXPECT().Scan(&allTodosCount).Return(nil).AnyTimes()
-				r.EXPECT().Err().Return(nil).AnyTimes()
-				r.EXPECT().Err().Return(nil).AnyTimes()
-				r.EXPECT().Close().Return(nil).AnyTimes()
-				m.EXPECT().Query(statement, userId).Return(r, nil).AnyTimes()
-			},
-			prepareGetTodosMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockRow, statement string, userId int, offset int, todo domain.Todo) {
-				r.EXPECT().Scan(&todo.ID, &todo.UserID, &todo.Title, &todo.Content, &todo.ImagePath, &todo.IsFinished, &todo.CreatedAt).Return(nil).AnyTimes()
-				r.EXPECT().Next().Return(false).AnyTimes()
-				r.EXPECT().Err().Return(nil).AnyTimes()
-				r.EXPECT().Close().Return(nil).AnyTimes()
-				m.EXPECT().Query(statement, userId, offset).Return(r, nil).AnyTimes()
+			prepareRepoFindByUserIdMockFn: func(m *mock_usecase.MockTodoRepository, userId int, page int) {
+				m.EXPECT().FindByUserId(userId, page).Return([]domain.Todo{{UserID: userId}}, 1.0, nil)
 			},
 			response: controllers.Response{
 				Status:  401,
@@ -256,19 +229,8 @@ func TestIndex(t *testing.T) {
 			name:        "現在ページ情報(nowPage)が0の場合、データ取得に失敗",
 			loginUserId: 1,
 			nowPage:     0,
-			prepareGetNumTodosMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockRow, statement string, userId int) {
-				r.EXPECT().Next().Return(false).AnyTimes()
-				r.EXPECT().Scan(&allTodosCount).Return(nil).AnyTimes()
-				r.EXPECT().Err().Return(nil).AnyTimes()
-				r.EXPECT().Close().Return(nil).AnyTimes()
-				m.EXPECT().Query(statement, userId).Return(r, nil).AnyTimes()
-			},
-			prepareGetTodosMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockRow, statement string, userId int, offset int, todo domain.Todo) {
-				r.EXPECT().Scan(&todo.ID, &todo.UserID, &todo.Title, &todo.Content, &todo.ImagePath, &todo.IsFinished, &todo.CreatedAt).Return(nil).AnyTimes()
-				r.EXPECT().Next().Return(false).AnyTimes()
-				r.EXPECT().Err().Return(nil).AnyTimes()
-				r.EXPECT().Close().Return(nil).AnyTimes()
-				m.EXPECT().Query(statement, userId, offset).Return(r, nil).AnyTimes()
+			prepareRepoFindByUserIdMockFn: func(m *mock_usecase.MockTodoRepository, userId int, page int) {
+				m.EXPECT().FindByUserId(userId, page).Return([]domain.Todo{{UserID: userId}}, 1.0, nil)
 			},
 			response: controllers.Response{
 				Status:  400,
@@ -288,8 +250,7 @@ func TestIndex(t *testing.T) {
 			w := httptest.NewRecorder()
 			SetSessionUserId(t, w, req, tt.loginUserId)
 
-			tt.prepareGetNumTodosMockFn(sqlhandler, row, sumTodoItemsQuery, tt.loginUserId)
-			tt.prepareGetTodosMockFn(sqlhandler, row, getTodosQuery, tt.loginUserId, 0, todo)
+			tt.prepareRepoFindByUserIdMockFn(todoRepository, tt.loginUserId, tt.nowPage)
 
 			ctrl.Index(w, req)
 			buf, _ := ioutil.ReadAll(w.Body)
@@ -301,26 +262,21 @@ func TestIndex(t *testing.T) {
 }
 
 func TestShow(t *testing.T) {
-	sqlhandler, ctrl, _, row := setMock(t)
-	showTodoQuery := database.ShowTodoState
+	ctrl, todoRepository, _ := setMock(t)
 
 	cases := []struct {
-		name          string
-		todoId        int
-		loginUserId   int
-		prepareMockFn func(m *mock_database.MockSqlHandler, r *mock_database.MockRow, statement string, id int, userId int, todo domain.Todo)
-		response      controllers.Response
+		name                               string
+		todoId                             int
+		loginUserId                        int
+		prepareRepoFindByIdAndUserIdMockFn func(m *mock_usecase.MockTodoRepository, id int, userId int)
+		response                           controllers.Response
 	}{
 		{
 			name:        "必須項目が入力された場合、データ取得に成功",
 			todoId:      1,
 			loginUserId: 1,
-			prepareMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockRow, statement string, id int, userId int, todo domain.Todo) {
-				r.EXPECT().Scan(&todo.ID, &todo.UserID, &todo.Title, &todo.Content, &todo.ImagePath, &todo.IsFinished, &todo.CreatedAt).Return(nil).AnyTimes()
-				r.EXPECT().Next().Return(false).AnyTimes()
-				r.EXPECT().Err().Return(nil).AnyTimes()
-				r.EXPECT().Close().Return(nil).AnyTimes()
-				m.EXPECT().Query(statement, id, userId).Return(r, nil).AnyTimes()
+			prepareRepoFindByIdAndUserIdMockFn: func(m *mock_usecase.MockTodoRepository, id int, userId int) {
+				m.EXPECT().FindByIdAndUserId(id, userId).Return(&domain.Todo{ID: id, UserID: userId}, nil)
 			},
 			response: controllers.Response{
 				Status:  200,
@@ -331,12 +287,8 @@ func TestShow(t *testing.T) {
 			name:        "todoIdがnilの場合、データ取得に失敗",
 			todoId:      0,
 			loginUserId: 1,
-			prepareMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockRow, statement string, id int, userId int, todo domain.Todo) {
-				r.EXPECT().Scan(&todo.ID, &todo.UserID, &todo.Title, &todo.Content, &todo.ImagePath, &todo.IsFinished, &todo.CreatedAt).Return(nil).AnyTimes()
-				r.EXPECT().Next().Return(false).AnyTimes()
-				r.EXPECT().Err().Return(nil).AnyTimes()
-				r.EXPECT().Close().Return(nil).AnyTimes()
-				m.EXPECT().Query(statement, id, userId).Return(r, nil).AnyTimes()
+			prepareRepoFindByIdAndUserIdMockFn: func(m *mock_usecase.MockTodoRepository, id int, userId int) {
+				m.EXPECT().FindByIdAndUserId(id, userId).Return(&domain.Todo{ID: id, UserID: userId}, nil)
 			},
 			response: controllers.Response{
 				Status:  400,
@@ -347,12 +299,8 @@ func TestShow(t *testing.T) {
 			name:        "userIdがnilの場合、データ取得に失敗",
 			todoId:      1,
 			loginUserId: 0,
-			prepareMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockRow, statement string, id int, userId int, todo domain.Todo) {
-				r.EXPECT().Scan(&todo.ID, &todo.UserID, &todo.Title, &todo.Content, &todo.ImagePath, &todo.IsFinished, &todo.CreatedAt).Return(nil).AnyTimes()
-				r.EXPECT().Next().Return(false).AnyTimes()
-				r.EXPECT().Err().Return(nil).AnyTimes()
-				r.EXPECT().Close().Return(nil).AnyTimes()
-				m.EXPECT().Query(statement, id, userId).Return(r, nil).AnyTimes()
+			prepareRepoFindByIdAndUserIdMockFn: func(m *mock_usecase.MockTodoRepository, id int, userId int) {
+				m.EXPECT().FindByIdAndUserId(id, userId).Return(&domain.Todo{ID: id, UserID: userId}, nil)
 			},
 			response: controllers.Response{
 				Status:  401,
@@ -372,7 +320,7 @@ func TestShow(t *testing.T) {
 			w := httptest.NewRecorder()
 			SetSessionUserId(t, w, req, tt.loginUserId)
 
-			tt.prepareMockFn(sqlhandler, row, showTodoQuery, tt.todoId, tt.loginUserId, todo)
+			tt.prepareRepoFindByIdAndUserIdMockFn(todoRepository, tt.todoId, tt.loginUserId)
 
 			ctrl.Show(w, req)
 			buf, _ := ioutil.ReadAll(w.Body)
@@ -384,16 +332,15 @@ func TestShow(t *testing.T) {
 }
 
 func TestUpdate(t *testing.T) {
-	sqlhandler, ctrl, result, _ := setMock(t)
-	upateTodoQuery := database.UpdateTodoState
+	ctrl, todoRepository, _ := setMock(t)
 
 	cases := []struct {
-		name          string
-		args          domain.Todo
-		loginUserId   int
-		isImage       bool
-		prepareMockFn func(m *mock_database.MockSqlHandler, r *mock_database.MockResult, statement string, todo domain.Todo)
-		response      controllers.Response
+		name                       string
+		args                       domain.Todo
+		loginUserId                int
+		isImage                    bool
+		prepareRepoOverwriteMockFn func(m *mock_usecase.MockTodoRepository)
+		response                   controllers.Response
 	}{
 		{
 			name: "必須項目が入力された場合(画像有り)、データ保存成功",
@@ -406,11 +353,8 @@ func TestUpdate(t *testing.T) {
 			},
 			loginUserId: 1,
 			isImage:     true,
-			prepareMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockResult, statement string, args domain.Todo) {
-				r.EXPECT().RowsAffected().Return(int64(0), nil).AnyTimes()
-				m.EXPECT().
-					Execute(statement, args.Title, args.Content, gomock.Any(), args.ID, args.UserID).
-					Return(r, nil)
+			prepareRepoOverwriteMockFn: func(m *mock_usecase.MockTodoRepository) {
+				m.EXPECT().Overwrite(gomock.Any()).Return(nil)
 			},
 			response: controllers.Response{
 				Status:  200,
@@ -427,11 +371,8 @@ func TestUpdate(t *testing.T) {
 			},
 			loginUserId: 1,
 			isImage:     false,
-			prepareMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockResult, statement string, args domain.Todo) {
-				r.EXPECT().RowsAffected().Return(int64(0), nil).AnyTimes()
-				m.EXPECT().
-					Execute(statement, args.Title, args.Content, gomock.Any(), args.ID, args.UserID).
-					Return(r, nil)
+			prepareRepoOverwriteMockFn: func(m *mock_usecase.MockTodoRepository) {
+				m.EXPECT().Overwrite(gomock.Any()).Return(nil)
 			},
 			response: controllers.Response{
 				Status:  200,
@@ -448,12 +389,8 @@ func TestUpdate(t *testing.T) {
 			},
 			loginUserId: 0,
 			isImage:     false,
-			prepareMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockResult, statement string, args domain.Todo) {
-				r.EXPECT().RowsAffected().Return(int64(0), nil).AnyTimes()
-				m.EXPECT().
-					Execute(statement, args.Title, args.Content, gomock.Any(), args.ID, args.UserID).
-					Return(r, nil).
-					AnyTimes()
+			prepareRepoOverwriteMockFn: func(m *mock_usecase.MockTodoRepository) {
+				m.EXPECT().Overwrite(gomock.Any()).Return(nil)
 			},
 			response: controllers.Response{
 				Status:  401,
@@ -470,12 +407,8 @@ func TestUpdate(t *testing.T) {
 			},
 			loginUserId: 1,
 			isImage:     false,
-			prepareMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockResult, statement string, args domain.Todo) {
-				r.EXPECT().RowsAffected().Return(int64(0), nil).AnyTimes()
-				m.EXPECT().
-					Execute(statement, args.Title, args.Content, gomock.Any(), args.ID, args.UserID).
-					Return(r, nil).
-					AnyTimes()
+			prepareRepoOverwriteMockFn: func(m *mock_usecase.MockTodoRepository) {
+				m.EXPECT().Overwrite(gomock.Any()).Return(nil)
 			},
 			response: controllers.Response{
 				Status:  400,
@@ -492,12 +425,8 @@ func TestUpdate(t *testing.T) {
 			},
 			loginUserId: 1,
 			isImage:     false,
-			prepareMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockResult, statement string, args domain.Todo) {
-				r.EXPECT().RowsAffected().Return(int64(0), nil).AnyTimes()
-				m.EXPECT().
-					Execute(statement, args.Title, args.Content, gomock.Any(), args.ID, args.UserID).
-					Return(r, nil).
-					AnyTimes()
+			prepareRepoOverwriteMockFn: func(m *mock_usecase.MockTodoRepository) {
+				m.EXPECT().Overwrite(gomock.Any()).Return(nil)
 			},
 			response: controllers.Response{
 				Status:  400,
@@ -514,12 +443,8 @@ func TestUpdate(t *testing.T) {
 			},
 			loginUserId: 1,
 			isImage:     false,
-			prepareMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockResult, statement string, args domain.Todo) {
-				r.EXPECT().RowsAffected().Return(int64(0), nil).AnyTimes()
-				m.EXPECT().
-					Execute(statement, args.Title, args.Content, gomock.Any(), args.ID, args.UserID).
-					Return(r, nil).
-					AnyTimes()
+			prepareRepoOverwriteMockFn: func(m *mock_usecase.MockTodoRepository) {
+				m.EXPECT().Overwrite(gomock.Any()).Return(nil)
 			},
 			response: controllers.Response{
 				Status:  400,
@@ -546,7 +471,7 @@ func TestUpdate(t *testing.T) {
 			SetSessionUserId(t, w, req, tt.loginUserId)
 
 			// --- mock ---
-			tt.prepareMockFn(sqlhandler, result, upateTodoQuery, tt.args)
+			tt.prepareRepoOverwriteMockFn(todoRepository)
 
 			// --- テスト実行 ---
 			ctrl.Update(w, req)
@@ -559,18 +484,16 @@ func TestUpdate(t *testing.T) {
 }
 
 func TestIsFinished(t *testing.T) {
-	sqlhandler, ctrl, result, row := setMock(t)
-	changeBoolQuery := database.ChangeBoolState
-	showTodoQuery := database.ShowTodoState
+	ctrl, todoRepository, _ := setMock(t)
 
 	cases := []struct {
-		name                               string
-		todoId                             int
-		args                               domain.Todo
-		loginUserId                        int
-		prepareChangeBoolMockFn            func(m *mock_database.MockSqlHandler, r *mock_database.MockResult, statement string, todoId int, todo domain.Todo, userId int)
-		prepareFindTodoByIdAndUserIdMockFn func(m *mock_database.MockSqlHandler, r *mock_database.MockRow, statement string, todoId int, userId int, todo domain.Todo)
-		response                           controllers.Response
+		name                  string
+		todoId                int
+		args                  domain.Todo
+		loginUserId           int
+		prepareMockChangeBlFn func(m *mock_usecase.MockTodoRepository, id int, userId int, todo domain.Todo)
+		prepareMockFindByFn   func(m *mock_usecase.MockTodoRepository, id int, userId int)
+		response              controllers.Response
 	}{
 		{
 			name:   "必須項目が入力された場合、更新メッセージを取得",
@@ -579,21 +502,15 @@ func TestIsFinished(t *testing.T) {
 				IsFinished: true,
 			},
 			loginUserId: 1,
-			prepareChangeBoolMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockResult, statement string, todoId int, todo domain.Todo, userId int) {
-				r.EXPECT().RowsAffected().Return(int64(0), nil).AnyTimes()
-				m.EXPECT().
-					Execute(statement, todo.IsFinished, todoId, userId).
-					Return(r, nil)
+			prepareMockChangeBlFn: func(m *mock_usecase.MockTodoRepository, id int, userId int, todo domain.Todo) {
+				m.EXPECT().ChangeBoolean(id, userId, todo).Return(nil)
 			},
-			prepareFindTodoByIdAndUserIdMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockRow, statement string, todoId int, userId int, todo domain.Todo) {
-				r.EXPECT().Next().Return(false).AnyTimes()
-				r.EXPECT().Scan(&todo.ID, &todo.UserID, &todo.Title, &todo.Content, &todo.ImagePath, &todo.IsFinished, &todo.CreatedAt).Return(nil).AnyTimes()
-				r.EXPECT().Close().Return(nil).AnyTimes()
-				m.EXPECT().Query(statement, todoId, userId).Return(r, nil)
+			prepareMockFindByFn: func(m *mock_usecase.MockTodoRepository, id int, userId int) {
+				m.EXPECT().FindByIdAndUserId(id, userId).Return(&domain.Todo{ID: id, UserID: userId, IsFinished: true}, nil)
 			},
 			response: controllers.Response{
 				Status:  200,
-				Message: "未完了の項目が追加されました",
+				Message: "完了しました",
 			},
 		},
 		{
@@ -603,20 +520,11 @@ func TestIsFinished(t *testing.T) {
 				IsFinished: true,
 			},
 			loginUserId: 1,
-			prepareChangeBoolMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockResult, statement string, todoId int, todo domain.Todo, userId int) {
-				r.EXPECT().RowsAffected().Return(int64(0), nil).AnyTimes()
-				m.EXPECT().
-					Execute(statement, todo.IsFinished, todoId, userId).
-					Return(r, nil).
-					AnyTimes()
+			prepareMockChangeBlFn: func(m *mock_usecase.MockTodoRepository, id int, userId int, todo domain.Todo) {
+				m.EXPECT().ChangeBoolean(id, userId, todo).Return(nil)
 			},
-			prepareFindTodoByIdAndUserIdMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockRow, statement string, todoId int, userId int, todo domain.Todo) {
-				r.EXPECT().Next().Return(false).AnyTimes()
-				r.EXPECT().Scan(&todo.ID, &todo.UserID, &todo.Title, &todo.Content, &todo.ImagePath, &todo.IsFinished, &todo.CreatedAt).Return(nil).AnyTimes()
-				r.EXPECT().Close().Return(nil).AnyTimes()
-				m.EXPECT().Query(statement, todoId, userId).
-					Return(r, nil).
-					AnyTimes()
+			prepareMockFindByFn: func(m *mock_usecase.MockTodoRepository, id int, userId int) {
+				m.EXPECT().FindByIdAndUserId(id, userId).Return(&domain.Todo{ID: id, UserID: userId, IsFinished: true}, nil)
 			},
 			response: controllers.Response{
 				Status:  400,
@@ -630,20 +538,11 @@ func TestIsFinished(t *testing.T) {
 				IsFinished: true,
 			},
 			loginUserId: 0,
-			prepareChangeBoolMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockResult, statement string, todoId int, todo domain.Todo, userId int) {
-				r.EXPECT().RowsAffected().Return(int64(0), nil).AnyTimes()
-				m.EXPECT().
-					Execute(statement, todo.IsFinished, todoId, userId).
-					Return(r, nil).
-					AnyTimes()
+			prepareMockChangeBlFn: func(m *mock_usecase.MockTodoRepository, id int, userId int, todo domain.Todo) {
+				m.EXPECT().ChangeBoolean(id, userId, todo).Return(nil)
 			},
-			prepareFindTodoByIdAndUserIdMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockRow, statement string, todoId int, userId int, todo domain.Todo) {
-				r.EXPECT().Next().Return(false).AnyTimes()
-				r.EXPECT().Scan(&todo.ID, &todo.UserID, &todo.Title, &todo.Content, &todo.ImagePath, &todo.IsFinished, &todo.CreatedAt).Return(nil).AnyTimes()
-				r.EXPECT().Close().Return(nil).AnyTimes()
-				m.EXPECT().Query(statement, todoId, userId).
-					Return(r, nil).
-					AnyTimes()
+			prepareMockFindByFn: func(m *mock_usecase.MockTodoRepository, id int, userId int) {
+				m.EXPECT().FindByIdAndUserId(id, userId).Return(&domain.Todo{ID: id, UserID: userId, IsFinished: true}, nil)
 			},
 			response: controllers.Response{
 				Status:  401,
@@ -663,8 +562,8 @@ func TestIsFinished(t *testing.T) {
 			SetSessionUserId(t, w, req, tt.loginUserId)
 
 			// --- mock ---
-			tt.prepareChangeBoolMockFn(sqlhandler, result, changeBoolQuery, tt.todoId, tt.args, tt.loginUserId)
-			tt.prepareFindTodoByIdAndUserIdMockFn(sqlhandler, row, showTodoQuery, tt.todoId, tt.loginUserId, todo)
+			tt.prepareMockChangeBlFn(todoRepository, tt.todoId, tt.loginUserId, tt.args)
+			tt.prepareMockFindByFn(todoRepository, tt.todoId, tt.loginUserId)
 
 			// --- テスト実行 ---
 			ctrl.IsFinished(w, req)
@@ -677,25 +576,21 @@ func TestIsFinished(t *testing.T) {
 }
 
 func TestDelete(t *testing.T) {
-	sqlhandler, ctrl, result, _ := setMock(t)
-	deleteTodoQuery := database.DeleteTodoState
+	ctrl, todoRepository, _ := setMock(t)
 
 	cases := []struct {
-		name          string
-		todoId        int
-		loginUserId   int
-		prepareMockFn func(m *mock_database.MockSqlHandler, r *mock_database.MockResult, statement string, todoId int, loginUserId int)
-		response      controllers.Response
+		name                     string
+		todoId                   int
+		loginUserId              int
+		prepareRepoErasureMockFn func(m *mock_usecase.MockTodoRepository, id int, userId int)
+		response                 controllers.Response
 	}{
 		{
 			name:        "必須項目が入力された場合、データ削除成功",
 			todoId:      1,
 			loginUserId: 1,
-			prepareMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockResult, statement string, todoId int, loginUserId int) {
-				r.EXPECT().RowsAffected().Return(int64(0), nil).AnyTimes()
-				m.EXPECT().
-					Execute(statement, todoId, loginUserId).
-					Return(r, nil)
+			prepareRepoErasureMockFn: func(m *mock_usecase.MockTodoRepository, id int, userId int) {
+				m.EXPECT().Erasure(id, userId).Return(nil)
 			},
 			response: controllers.Response{
 				Status:  200,
@@ -706,12 +601,8 @@ func TestDelete(t *testing.T) {
 			name:        "todoIdがnilの場合、データ削除失敗",
 			todoId:      0,
 			loginUserId: 1,
-			prepareMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockResult, statement string, todoId int, loginUserId int) {
-				r.EXPECT().RowsAffected().Return(int64(0), nil).AnyTimes()
-				m.EXPECT().
-					Execute(statement, todoId, loginUserId).
-					Return(r, nil).
-					AnyTimes()
+			prepareRepoErasureMockFn: func(m *mock_usecase.MockTodoRepository, id int, userId int) {
+				m.EXPECT().Erasure(id, userId).Return(nil)
 			},
 			response: controllers.Response{
 				Status:  400,
@@ -722,12 +613,8 @@ func TestDelete(t *testing.T) {
 			name:        "loginUserIdがnilの場合、データ削除失敗",
 			todoId:      1,
 			loginUserId: 0,
-			prepareMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockResult, statement string, todoId int, loginUserId int) {
-				r.EXPECT().RowsAffected().Return(int64(0), nil).AnyTimes()
-				m.EXPECT().
-					Execute(statement, todoId, loginUserId).
-					Return(r, nil).
-					AnyTimes()
+			prepareRepoErasureMockFn: func(m *mock_usecase.MockTodoRepository, id int, userId int) {
+				m.EXPECT().Erasure(id, userId).Return(nil)
 			},
 			response: controllers.Response{
 				Status:  401,
@@ -746,7 +633,7 @@ func TestDelete(t *testing.T) {
 			SetSessionUserId(t, w, req, tt.loginUserId)
 
 			// --- mock ---
-			tt.prepareMockFn(sqlhandler, result, deleteTodoQuery, tt.todoId, tt.loginUserId)
+			tt.prepareRepoErasureMockFn(todoRepository, tt.todoId, tt.loginUserId)
 
 			// --- テスト実行 ---
 			ctrl.Delete(w, req)
@@ -759,19 +646,15 @@ func TestDelete(t *testing.T) {
 }
 
 func TestDeleteIndex(t *testing.T) {
-	sqlhandler, ctrl, result, row := setMock(t)
-	deleteTodoQuery := database.DeleteTodoState
-	getSumTodoItemsQuery := database.SumTodoItemsState
-	getTodosQuery := database.GetTodosState
+	ctrl, todoRepository, _ := setMock(t)
 
 	cases := []struct {
 		name                     string
 		todoId                   int
 		loginUserId              int
 		page                     int
-		prepareDeleteMockFn      func(m *mock_database.MockSqlHandler, r *mock_database.MockResult, statement string, todoId int, loginUserId int)
-		prepareGetNumTodosMockFn func(m *mock_database.MockSqlHandler, r *mock_database.MockRow, statement string, userId int)
-		prepareGetTodosMockFn    func(m *mock_database.MockSqlHandler, r *mock_database.MockRow, statement string, userId int, offset int, todo domain.Todo)
+		prepareRepoErasureMockFn func(m *mock_usecase.MockTodoRepository, id int, userId int)
+		prepareRepoFindByMockFn  func(m *mock_usecase.MockTodoRepository, userId int, page int)
 		response                 controllers.Response
 	}{
 		{
@@ -779,25 +662,11 @@ func TestDeleteIndex(t *testing.T) {
 			todoId:      2,
 			loginUserId: 1,
 			page:        1,
-			prepareDeleteMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockResult, statement string, todoId int, loginUserId int) {
-				r.EXPECT().RowsAffected().Return(int64(0), nil).AnyTimes()
-				m.EXPECT().
-					Execute(statement, todoId, loginUserId).
-					Return(r, nil)
+			prepareRepoErasureMockFn: func(m *mock_usecase.MockTodoRepository, id int, userId int) {
+				m.EXPECT().Erasure(id, userId).Return(nil)
 			},
-			prepareGetNumTodosMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockRow, statement string, userId int) {
-				r.EXPECT().Next().Return(false).AnyTimes()
-				r.EXPECT().Scan(&allTodosCount).Return(nil).AnyTimes()
-				r.EXPECT().Err().Return(nil).AnyTimes()
-				r.EXPECT().Close().Return(nil).AnyTimes()
-				m.EXPECT().Query(statement, userId).Return(r, nil).AnyTimes()
-			},
-			prepareGetTodosMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockRow, statement string, userId int, offset int, todo domain.Todo) {
-				r.EXPECT().Scan(&todo.ID, &todo.UserID, &todo.Title, &todo.Content, &todo.ImagePath, &todo.IsFinished, &todo.CreatedAt).Return(nil).AnyTimes()
-				r.EXPECT().Next().Return(false).AnyTimes()
-				r.EXPECT().Err().Return(nil).AnyTimes()
-				r.EXPECT().Close().Return(nil).AnyTimes()
-				m.EXPECT().Query(statement, userId, offset).Return(r, nil).AnyTimes()
+			prepareRepoFindByMockFn: func(m *mock_usecase.MockTodoRepository, userId int, page int) {
+				m.EXPECT().FindByUserId(userId, page).Return([]domain.Todo{{UserID: userId}}, 1.0, nil)
 			},
 			response: controllers.Response{
 				Status:  200,
@@ -809,26 +678,11 @@ func TestDeleteIndex(t *testing.T) {
 			todoId:      0,
 			loginUserId: 1,
 			page:        1,
-			prepareDeleteMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockResult, statement string, todoId int, loginUserId int) {
-				r.EXPECT().RowsAffected().Return(int64(0), nil).AnyTimes()
-				m.EXPECT().
-					Execute(statement, todoId, loginUserId).
-					Return(r, nil).
-					AnyTimes()
+			prepareRepoErasureMockFn: func(m *mock_usecase.MockTodoRepository, id int, userId int) {
+				m.EXPECT().Erasure(id, userId).Return(nil)
 			},
-			prepareGetNumTodosMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockRow, statement string, userId int) {
-				r.EXPECT().Next().Return(false).AnyTimes()
-				r.EXPECT().Scan(&allTodosCount).Return(nil).AnyTimes()
-				r.EXPECT().Err().Return(nil).AnyTimes()
-				r.EXPECT().Close().Return(nil).AnyTimes()
-				m.EXPECT().Query(statement, userId).Return(r, nil).AnyTimes()
-			},
-			prepareGetTodosMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockRow, statement string, userId int, offset int, todo domain.Todo) {
-				r.EXPECT().Scan(&todo.ID, &todo.UserID, &todo.Title, &todo.Content, &todo.ImagePath, &todo.IsFinished, &todo.CreatedAt).Return(nil).AnyTimes()
-				r.EXPECT().Next().Return(false).AnyTimes()
-				r.EXPECT().Err().Return(nil).AnyTimes()
-				r.EXPECT().Close().Return(nil).AnyTimes()
-				m.EXPECT().Query(statement, userId, offset).Return(r, nil).AnyTimes()
+			prepareRepoFindByMockFn: func(m *mock_usecase.MockTodoRepository, userId int, page int) {
+				m.EXPECT().FindByUserId(userId, page).Return([]domain.Todo{{UserID: userId}}, 1.0, nil)
 			},
 			response: controllers.Response{
 				Status:  400,
@@ -840,26 +694,11 @@ func TestDeleteIndex(t *testing.T) {
 			todoId:      1,
 			loginUserId: 0,
 			page:        1,
-			prepareDeleteMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockResult, statement string, todoId int, loginUserId int) {
-				r.EXPECT().RowsAffected().Return(int64(0), nil).AnyTimes()
-				m.EXPECT().
-					Execute(statement, todoId, loginUserId).
-					Return(r, nil).
-					AnyTimes()
+			prepareRepoErasureMockFn: func(m *mock_usecase.MockTodoRepository, id int, userId int) {
+				m.EXPECT().Erasure(id, userId).Return(nil)
 			},
-			prepareGetNumTodosMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockRow, statement string, userId int) {
-				r.EXPECT().Next().Return(false).AnyTimes()
-				r.EXPECT().Scan(&allTodosCount).Return(nil).AnyTimes()
-				r.EXPECT().Err().Return(nil).AnyTimes()
-				r.EXPECT().Close().Return(nil).AnyTimes()
-				m.EXPECT().Query(statement, userId).Return(r, nil).AnyTimes()
-			},
-			prepareGetTodosMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockRow, statement string, userId int, offset int, todo domain.Todo) {
-				r.EXPECT().Scan(&todo.ID, &todo.UserID, &todo.Title, &todo.Content, &todo.ImagePath, &todo.IsFinished, &todo.CreatedAt).Return(nil).AnyTimes()
-				r.EXPECT().Next().Return(false).AnyTimes()
-				r.EXPECT().Err().Return(nil).AnyTimes()
-				r.EXPECT().Close().Return(nil).AnyTimes()
-				m.EXPECT().Query(statement, userId, offset).Return(r, nil).AnyTimes()
+			prepareRepoFindByMockFn: func(m *mock_usecase.MockTodoRepository, userId int, page int) {
+				m.EXPECT().FindByUserId(userId, page).Return([]domain.Todo{{UserID: userId}}, 1.0, nil)
 			},
 			response: controllers.Response{
 				Status:  401,
@@ -878,9 +717,8 @@ func TestDeleteIndex(t *testing.T) {
 			SetSessionUserId(t, w, req, tt.loginUserId)
 
 			// --- mock ---
-			tt.prepareDeleteMockFn(sqlhandler, result, deleteTodoQuery, tt.todoId, tt.loginUserId)
-			tt.prepareGetNumTodosMockFn(sqlhandler, row, getSumTodoItemsQuery, tt.loginUserId)
-			tt.prepareGetTodosMockFn(sqlhandler, row, getTodosQuery, tt.loginUserId, 0, todo)
+			tt.prepareRepoErasureMockFn(todoRepository, tt.todoId, tt.loginUserId)
+			tt.prepareRepoFindByMockFn(todoRepository, tt.loginUserId, tt.page)
 
 			// --- テスト実行 ---
 			ctrl.DeleteInIndex(w, req)
@@ -893,14 +731,18 @@ func TestDeleteIndex(t *testing.T) {
 }
 
 // --- 各種Mockのインスタンス処理 ---
-func setMock(t *testing.T) (sqlhandler *mock_database.MockSqlHandler, ctrl *controllers.TodoController, result *mock_database.MockResult, row *mock_database.MockRow) {
+func setMock(t *testing.T) (ctrl *controllers.TodoController, todoRepository *mock_usecase.MockTodoRepository, transaction *mock_transaction.MockSqlHandler) {
 	c := gomock.NewController(t)
 	defer c.Finish()
 	// --- api/interfaces/database/sqlhandlerのモック ---
-	sqlhandler = mock_database.NewMockSqlHandler(c)
+	sqlhandler := mock_database.NewMockSqlHandler(c)
+	transaction = mock_transaction.NewMockSqlHandler(c)
+	todoRepository = mock_usecase.NewMockTodoRepository(c)
 	ctrl = controllers.NewTodoController(sqlhandler)
-	result = mock_database.NewMockResult(c)
-	row = mock_database.NewMockRow(c)
+	Interactor := usecase.TodoInteractor{}
+	Interactor.Transaction = transaction
+	Interactor.TodoRepository = todoRepository
+	ctrl.Interactor = Interactor
 	return
 }
 

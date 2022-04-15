@@ -5,5 +5,5 @@ import (
 )
 
 type SqlHandler interface {
-	DoInTx(f func(tx *sql.Tx) (interface{}, error)) (interface{}, error)
+	DoInTx(func(tx *sql.Tx) (interface{}, error)) (interface{}, error)
 }
