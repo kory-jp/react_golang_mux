@@ -13,6 +13,8 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/kory-jp/react_golang_mux/api/usecase/transaction"
+
 	controllers "github.com/kory-jp/react_golang_mux/api/interfaces/controllers/sessions"
 
 	"github.com/kory-jp/react_golang_mux/api/domain"
@@ -45,6 +47,7 @@ func NewTodoController(sqlHandler database.SqlHandler) *TodoController {
 			TodoRepository: &database.TodoRepository{
 				SqlHandler: sqlHandler,
 			},
+			Transaction: transaction.SqlHandler(sqlHandler),
 		},
 	}
 }

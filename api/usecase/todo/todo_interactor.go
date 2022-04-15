@@ -21,38 +21,24 @@ type TodoMessage struct {
 }
 
 func (interactor *TodoInteractor) Add(t domain.Todo) (mess *TodoMessage, err error) {
-	// if err = t.TodoValidate(); err == nil {
-	// 	err = interactor.TodoRepository.Store(t)
-	// 	if err != nil {
-	// 		fmt.Println(err)
-	// 		log.Println(err)
-	// 		err = errors.New("保存に失敗しました")
-	// 		return
-	// 	}
-	// 	mess = &TodoMessage{
-	// 		Message: "保存しました",
-	// 	}
-	// 	return mess, nil
-	// }
-	// return nil, err
-
 	if err = t.TodoValidate(); err == nil {
-		fmt.Println(interactor.Transaction)
+		fmt.Println("25:", interactor.Transaction)
 		_, err = interactor.Transaction.DoInTx(func(tx *sql.Tx) (interface{}, error) {
 			err = interactor.TodoRepository.Store(t)
 			return nil, err
 		})
+		if err != nil {
+			fmt.Println(err)
+			log.Println(err)
+			err = errors.New("保存に失敗しました")
+			return nil, err
+		}
+		mess = &TodoMessage{
+			Message: "保存しました",
+		}
+		return mess, nil
 	}
-	if err != nil {
-		fmt.Println(err)
-		log.Println(err)
-		err = errors.New("保存に失敗しました")
-		return nil, err
-	}
-	mess = &TodoMessage{
-		Message: "保存しました",
-	}
-	return mess, nil
+	return nil, err
 }
 
 func (interactor *TodoInteractor) Todos(userId int, page int) (todos domain.Todos, sumPage float64, err error) {
