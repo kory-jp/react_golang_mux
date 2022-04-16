@@ -11,6 +11,7 @@ import (
 	"path"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/kory-jp/react_golang_mux/api/usecase/transaction"
@@ -47,6 +48,9 @@ func NewTodoController(sqlHandler database.SqlHandler) *TodoController {
 			TodoRepository: &database.TodoRepository{
 				SqlHandler: sqlHandler,
 			},
+			TodoTagRelationsRepository: &database.TodTagRelationsRepository{
+				SqlHandler: sqlHandler,
+			},
 			Transaction: transaction.SqlHandler(sqlHandler),
 		},
 	}
@@ -64,7 +68,6 @@ func GetUserId(r *http.Request) (userId int, err error) {
 }
 
 func (controller *TodoController) Create(w http.ResponseWriter, r *http.Request) {
-
 	var file multipart.File
 	var fileHeader *multipart.FileHeader
 	var err error
@@ -159,7 +162,17 @@ func (controller *TodoController) Create(w http.ResponseWriter, r *http.Request)
 	todoType.Content = r.Form.Get("content")
 	todoType.ImagePath = uploadFileName
 
-	mess, err := controller.Interactor.Add(*todoType)
+	var tagIds []int
+	tIs := r.Form.Get("tagIds")
+	tIs = strings.Replace(tIs, "[", "", 1)
+	tIs = strings.Replace(tIs, "]", "", 1)
+	arr1 := strings.Split(tIs, ",")
+	for _, v := range arr1 {
+		toInt, _ := strconv.Atoi(v)
+		tagIds = append(tagIds, toInt)
+	}
+
+	mess, err := controller.Interactor.Add(*todoType, tagIds)
 	if err != nil {
 		resStr := new(Response).SetResp(400, err.Error(), nil, nil, 0)
 		fmt.Fprintln(w, resStr)
@@ -170,7 +183,6 @@ func (controller *TodoController) Create(w http.ResponseWriter, r *http.Request)
 }
 
 func (controller *TodoController) Index(w http.ResponseWriter, r *http.Request) {
-
 	// URLから取得したいページ番目の情報
 	page, err := strconv.Atoi(r.FormValue("page"))
 	if err != nil || page == 0 {

@@ -12,23 +12,28 @@ import (
 )
 
 type TodoInteractor struct {
-	TodoRepository TodoRepository
-	Transaction    transaction.SqlHandler
+	TodoRepository             TodoRepository
+	TodoTagRelationsRepository TodoTagRelationsRepository
+	Transaction                transaction.SqlHandler
 }
 
 type TodoMessage struct {
 	Message string
 }
 
-func (interactor *TodoInteractor) Add(t domain.Todo) (mess *TodoMessage, err error) {
+func (interactor *TodoInteractor) Add(t domain.Todo, tagIds []int) (mess *TodoMessage, err error) {
 	if err = t.TodoValidate(); err == nil {
-		fmt.Println("25:", interactor.Transaction)
 		_, err = interactor.Transaction.DoInTx(func(tx *sql.Tx) (interface{}, error) {
-			err = interactor.TodoRepository.Store(t)
+			todoId, err := interactor.TodoRepository.Store(t)
+			if err != nil {
+				return nil, err
+			}
+			err = interactor.TodoTagRelationsRepository.Store(todoId, tagIds)
+			fmt.Println("////IsERR?////", err)
 			return nil, err
 		})
 		if err != nil {
-			fmt.Println(err)
+			fmt.Println("$$$$$IsERR$$$$", err)
 			log.Println(err)
 			err = errors.New("保存に失敗しました")
 			return nil, err
