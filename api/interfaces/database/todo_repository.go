@@ -1,6 +1,7 @@
 package database
 
 import (
+	"database/sql"
 	"fmt"
 	"log"
 	"math"
@@ -98,14 +99,21 @@ var DeleteTodoState = `
 		user_id = ?
 `
 
-func (repo *TodoRepository) Store(t domain.Todo) (err error) {
-	_, err = repo.Execute(CreateTodoState, t.UserID, t.Title, t.Content, t.ImagePath, false, time.Now())
+func (repo *TodoRepository) TransStore(tx *sql.Tx, t domain.Todo) (id int64, err error) {
+	result, err := repo.TransExecute(tx, CreateTodoState, t.UserID, t.Title, t.Content, t.ImagePath, false, time.Now())
 	if err != nil {
 		fmt.Println(err)
 		log.Println(err)
-		return err
+		return 0, err
 	}
-	return err
+	id, err = result.LastInsertId()
+	if err != nil {
+		fmt.Println(err)
+		log.Println(err)
+		return 0, err
+	}
+	fmt.Println("create Todo ID", id)
+	return id, nil
 }
 
 func (repo *TodoRepository) FindByUserId(identifier int, page int) (todos domain.Todos, sumPage float64, err error) {

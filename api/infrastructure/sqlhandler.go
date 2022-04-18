@@ -94,13 +94,23 @@ func (handler *SqlHandler) DoInTx(f func(tx *sql.Tx) (interface{}, error)) (inte
 		tx.Rollback()
 		return nil, err
 	}
-
 	if err := tx.Commit(); err != nil {
 		tx.Rollback()
 		return nil, err
 	}
-
 	return v, nil
+}
+
+func (handler *SqlHandler) TransExecute(tx *sql.Tx, statement string, args ...interface{}) (database.Result, error) {
+	res := SqlResult{}
+	result, err := tx.Exec(statement, args...)
+	if err != nil {
+		fmt.Println(err)
+		log.Println(err)
+		return res, err
+	}
+	res.Result = result
+	return res, nil
 }
 
 func (r SqlResult) LastInsertId() (int64, error) {

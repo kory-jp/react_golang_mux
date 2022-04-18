@@ -12,19 +12,24 @@ import (
 )
 
 type TodoInteractor struct {
-	TodoRepository TodoRepository
-	Transaction    transaction.SqlHandler
+	TodoRepository             TodoRepository
+	TodoTagRelationsRepository TodoTagRelationsRepository
+	Transaction                transaction.SqlHandler
 }
 
 type TodoMessage struct {
 	Message string
 }
 
-func (interactor *TodoInteractor) Add(t domain.Todo) (mess *TodoMessage, err error) {
+func (interactor *TodoInteractor) Add(t domain.Todo, tagIds []int) (mess *TodoMessage, err error) {
 	if err = t.TodoValidate(); err == nil {
-		fmt.Println("25:", interactor.Transaction)
 		_, err = interactor.Transaction.DoInTx(func(tx *sql.Tx) (interface{}, error) {
-			err = interactor.TodoRepository.Store(t)
+			todoId, err := interactor.TodoRepository.TransStore(tx, t)
+			if err != nil {
+				return nil, err
+			}
+			err = interactor.TodoTagRelationsRepository.TransStore(tx, todoId, tagIds)
+			fmt.Println(err)
 			return nil, err
 		})
 		if err != nil {
