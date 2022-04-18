@@ -1,5 +1,9 @@
 package usecase
 
+import (
+	"database/sql"
+)
+
 type TodoTagRelationsRepository interface {
-	Store(int64, []int) error
+	TransStore(*sql.Tx, int64, []int) error
 }

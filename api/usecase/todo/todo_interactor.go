@@ -24,16 +24,16 @@ type TodoMessage struct {
 func (interactor *TodoInteractor) Add(t domain.Todo, tagIds []int) (mess *TodoMessage, err error) {
 	if err = t.TodoValidate(); err == nil {
 		_, err = interactor.Transaction.DoInTx(func(tx *sql.Tx) (interface{}, error) {
-			todoId, err := interactor.TodoRepository.Store(t)
+			todoId, err := interactor.TodoRepository.TransStore(tx, t)
 			if err != nil {
 				return nil, err
 			}
-			err = interactor.TodoTagRelationsRepository.Store(todoId, tagIds)
-			fmt.Println("////IsERR?////", err)
+			err = interactor.TodoTagRelationsRepository.TransStore(tx, todoId, tagIds)
+			fmt.Println(err)
 			return nil, err
 		})
 		if err != nil {
-			fmt.Println("$$$$$IsERR$$$$", err)
+			fmt.Println(err)
 			log.Println(err)
 			err = errors.New("保存に失敗しました")
 			return nil, err

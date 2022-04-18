@@ -83,29 +83,34 @@ func (handler *SqlHandler) Query(statement string, args ...interface{}) (databas
 
 func (handler *SqlHandler) DoInTx(f func(tx *sql.Tx) (interface{}, error)) (interface{}, error) {
 	tx, err := handler.Conn.Begin()
-	fmt.Println("DoInTx?")
-	fmt.Println("tx:", tx)
 	if err != nil {
 		fmt.Println(err)
 		log.Panicln(err)
 		return nil, err
 	}
 
-	fmt.Println("DoInTx2?")
 	v, err := f(tx)
 	if err != nil {
-		fmt.Println("*****DoInTxERR*****:", err)
 		tx.Rollback()
 		return nil, err
 	}
-	fmt.Println("DoInTx3?")
-	fmt.Println("v:", v)
 	if err := tx.Commit(); err != nil {
 		tx.Rollback()
 		return nil, err
 	}
-	fmt.Println("DoInTx4?")
 	return v, nil
+}
+
+func (handler *SqlHandler) TransExecute(tx *sql.Tx, statement string, args ...interface{}) (database.Result, error) {
+	res := SqlResult{}
+	result, err := tx.Exec(statement, args...)
+	if err != nil {
+		fmt.Println(err)
+		log.Println(err)
+		return res, err
+	}
+	res.Result = result
+	return res, nil
 }
 
 func (r SqlResult) LastInsertId() (int64, error) {
