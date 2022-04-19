@@ -60,8 +60,47 @@ var ShowTodoState = `
 	where
 		id = ?
 	and
-		user_id = ?		
+		user_id = ?
 `
+
+var ShowTagsState = `
+	select
+		tg.id,
+		tg.value,
+		tg.label
+	from
+		tags as tg
+	left join
+		todo_tag_relations as ttr
+	on
+		tg.id = ttr.tag_id
+	where
+		ttr.todo_id = ?
+`
+
+// var ShowTodoState = `
+// 	select
+// 		t.*,
+// 		group_concat(tg.id),
+// 		group_concat(tg.value),
+// 		group_concat(tg.label)
+// 	from
+// 		todos as t
+// 	left join
+// 		todo_tag_relations as ttr
+// 	on
+// 		t.id = ttr.todo_id
+// 	left join
+// 		tags as tg
+// 	on
+// 		ttr.tag_id = tg.id
+// 	where
+// 		t.id = ?
+// 	and
+// 		t.user_id = ?
+// 	group by
+// 		t.id
+// `
 
 // --- Todo更新 ---
 var UpdateTodoState = `
@@ -186,7 +225,9 @@ func (repo *TodoRepository) FindByUserId(identifier int, page int) (todos domain
 	return todos, sumPage, err
 }
 
+// --- Todo詳細情報取得 ---
 func (repo *TodoRepository) FindByIdAndUserId(identifier int, userIdentifier int) (todo *domain.Todo, err error) {
+	fmt.Println("repo OK?")
 	row, err := repo.Query(ShowTodoState, identifier, userIdentifier)
 	if err != nil {
 		fmt.Println(err)
@@ -218,6 +259,30 @@ func (repo *TodoRepository) FindByIdAndUserId(identifier int, userIdentifier int
 		IsFinished: isFinished,
 		CreatedAt:  created_at,
 	}
+	rows, err := repo.Query(ShowTagsState, identifier)
+	if err != nil {
+		fmt.Println(err)
+		log.Println(err)
+		return nil, err
+	}
+	defer row.Close()
+
+	var tags domain.Tags
+	for rows.Next() {
+		var tag domain.Tag
+		err = rows.Scan(
+			&tag.ID,
+			&tag.Value,
+			&tag.Label,
+		)
+		if err != nil {
+			fmt.Println(err)
+			log.Println(err)
+			return nil, err
+		}
+		tags = append(tags, tag)
+	}
+	todo.Tags = tags
 	return todo, nil
 }
 
