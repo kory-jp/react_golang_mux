@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log"
 	"math"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/kory-jp/react_golang_mux/api/domain"
@@ -12,6 +14,31 @@ import (
 
 type TodoRepository struct {
 	SqlHandler
+}
+
+type U8Tags struct {
+	U8ID    []uint8
+	U8Value []uint8
+	U8Label []uint8
+}
+
+func (u *U8Tags) ToTypeTags() (tgs domain.Tags) {
+	var tag domain.Tag
+	// uint8 => string => []string
+	uIDArr := strings.Split(string(u.U8ID), ",")
+	uValArr := strings.Split(string(u.U8Value), ",")
+	uLablArr := strings.Split(string(u.U8Label), ",")
+
+	if uIDArr[0] == "" {
+		return nil
+	}
+	for i, v := range uIDArr {
+		tag.ID, _ = strconv.Atoi(v)
+		tag.Value = uValArr[i]
+		tag.Label = uLablArr[i]
+		tgs = append(tgs, tag)
+	}
+	return
 }
 
 // --- テストで利用するためクエリ部分を書き出して定義 ---
@@ -40,11 +67,24 @@ var SumTodoItemsState = `
 // --- Todo一覧取得 ---
 var GetTodosState = `
 	select
-		*
+		t.*,
+		group_concat(tg.id),
+		group_concat(tg.value),
+		group_concat(tg.label)
 	from
-		todos
+		todos as t
+	left join
+		todo_tag_relations as ttr
+	on
+		t.id = ttr.todo_id
+	left join
+		tags as tg
+	on
+		ttr.tag_id = tg.id
 	where
-		user_id = ?
+		t.user_id = ?
+	group by
+		t.id
 	order by
 		id desc
 	limit 5
@@ -54,53 +94,27 @@ var GetTodosState = `
 // --- Todo詳細取得 ---
 var ShowTodoState = `
 	select
-		*
+		t.*,
+		group_concat(tg.id),
+		group_concat(tg.value),
+		group_concat(tg.label)
 	from
-		todos
-	where
-		id = ?
-	and
-		user_id = ?
-`
-
-var ShowTagsState = `
-	select
-		tg.id,
-		tg.value,
-		tg.label
-	from
-		tags as tg
+		todos as t
 	left join
 		todo_tag_relations as ttr
 	on
-		tg.id = ttr.tag_id
+		t.id = ttr.todo_id
+	left join
+		tags as tg
+	on
+		ttr.tag_id = tg.id
 	where
-		ttr.todo_id = ?
+		t.id = ?
+	and
+		t.user_id = ?
+	group by
+		t.id
 `
-
-// var ShowTodoState = `
-// 	select
-// 		t.*,
-// 		group_concat(tg.id),
-// 		group_concat(tg.value),
-// 		group_concat(tg.label)
-// 	from
-// 		todos as t
-// 	left join
-// 		todo_tag_relations as ttr
-// 	on
-// 		t.id = ttr.todo_id
-// 	left join
-// 		tags as tg
-// 	on
-// 		ttr.tag_id = tg.id
-// 	where
-// 		t.id = ?
-// 	and
-// 		t.user_id = ?
-// 	group by
-// 		t.id
-// `
 
 // --- Todo更新 ---
 var UpdateTodoState = `
@@ -138,6 +152,7 @@ var DeleteTodoState = `
 		user_id = ?
 `
 
+// --- Todo新規追加 ---
 func (repo *TodoRepository) TransStore(tx *sql.Tx, t domain.Todo) (id int64, err error) {
 	result, err := repo.TransExecute(tx, CreateTodoState, t.UserID, t.Title, t.Content, t.ImagePath, false, time.Now())
 	if err != nil {
@@ -154,6 +169,7 @@ func (repo *TodoRepository) TransStore(tx *sql.Tx, t domain.Todo) (id int64, err
 	return id, nil
 }
 
+// --- Todo一覧取得(5件づつ取得) ---
 func (repo *TodoRepository) FindByUserId(identifier int, page int) (todos domain.Todos, sumPage float64, err error) {
 	// 投稿されたTodoデータ総数を取得
 	var allTodosCount float64
@@ -200,6 +216,7 @@ func (repo *TodoRepository) FindByUserId(identifier int, page int) (todos domain
 
 	for rows.Next() {
 		var todo domain.Todo
+		var u8tags U8Tags
 		err = rows.Scan(
 			&todo.ID,
 			&todo.UserID,
@@ -208,12 +225,17 @@ func (repo *TodoRepository) FindByUserId(identifier int, page int) (todos domain
 			&todo.ImagePath,
 			&todo.IsFinished,
 			&todo.CreatedAt,
+			&u8tags.U8ID,
+			&u8tags.U8Value,
+			&u8tags.U8Label,
 		)
 		if err != nil {
 			fmt.Println(err)
 			log.Println(err)
 			return nil, 0, err
 		}
+		tags := u8tags.ToTypeTags()
+		todo.Tags = tags
 		todos = append(todos, todo)
 	}
 	err = rows.Err()
@@ -241,13 +263,26 @@ func (repo *TodoRepository) FindByIdAndUserId(identifier int, userIdentifier int
 	var imagePath string
 	var isFinished bool
 	var created_at time.Time
+	var u8tags U8Tags
 	row.Next()
-	if err = row.Scan(&id, &userId, &title, &content, &imagePath, &isFinished, &created_at); err != nil {
+	if err = row.Scan(
+		&id,
+		&userId,
+		&title,
+		&content,
+		&imagePath,
+		&isFinished,
+		&created_at,
+		&u8tags.U8ID,
+		&u8tags.U8Value,
+		&u8tags.U8Label,
+	); err != nil {
 		fmt.Println(err)
 		log.Println(err)
 		return nil, err
 	}
 	row.Close()
+	tags := u8tags.ToTypeTags()
 	todo = &domain.Todo{
 		ID:         id,
 		UserID:     userId,
@@ -256,34 +291,12 @@ func (repo *TodoRepository) FindByIdAndUserId(identifier int, userIdentifier int
 		ImagePath:  imagePath,
 		IsFinished: isFinished,
 		CreatedAt:  created_at,
+		Tags:       tags,
 	}
-	rows, err := repo.Query(ShowTagsState, identifier)
-	if err != nil {
-		fmt.Println(err)
-		log.Println(err)
-		return nil, err
-	}
-	defer row.Close()
-
-	var tags domain.Tags
-	for rows.Next() {
-		var tag domain.Tag
-		err = rows.Scan(
-			&tag.ID,
-			&tag.Value,
-			&tag.Label,
-		)
-		if err != nil {
-			fmt.Println(err)
-			log.Println(err)
-			return nil, err
-		}
-		tags = append(tags, tag)
-	}
-	todo.Tags = tags
 	return todo, nil
 }
 
+// --- Todoの更新処理 ---
 func (repo *TodoRepository) TransOverwrite(tx *sql.Tx, t domain.Todo) (err error) {
 	_, err = repo.TransExecute(tx, UpdateTodoState, t.Title, t.Content, t.ImagePath, t.ID, t.UserID)
 	if err != nil {
@@ -299,6 +312,7 @@ func (repo *TodoRepository) TransOverwrite(tx *sql.Tx, t domain.Todo) (err error
 	return nil
 }
 
+// --- Todoの完了未完了を変更 ---
 func (repo *TodoRepository) ChangeBoolean(id int, userId int, t domain.Todo) (err error) {
 	_, err = repo.Execute(ChangeBoolState, t.IsFinished, id, userId)
 	if err != nil {
@@ -309,6 +323,7 @@ func (repo *TodoRepository) ChangeBoolean(id int, userId int, t domain.Todo) (er
 	return err
 }
 
+// --- Todo削除 ---
 func (repo *TodoRepository) Erasure(id int, userId int) (err error) {
 	_, err = repo.Execute(DeleteTodoState, id, userId)
 	if err != nil {
