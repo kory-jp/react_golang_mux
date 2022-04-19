@@ -48,7 +48,7 @@ func NewTodoController(sqlHandler database.SqlHandler) *TodoController {
 			TodoRepository: &database.TodoRepository{
 				SqlHandler: sqlHandler,
 			},
-			TodoTagRelationsRepository: &database.TodTagRelationsRepository{
+			TodoTagRelationsRepository: &database.TodoTagRelationsRepository{
 				SqlHandler: sqlHandler,
 			},
 			Transaction: transaction.SqlHandler(sqlHandler),
@@ -63,6 +63,10 @@ func GetUserId(r *http.Request) (userId int, err error) {
 		fmt.Println(err)
 		return 0, err
 	}
+	if session.Values["userId"] == nil || session.Values["userId"] == 0 {
+		return 0, err
+	}
+
 	userId = session.Values["userId"].(int)
 	return userId, nil
 }
@@ -365,8 +369,18 @@ func (controller *TodoController) Update(w http.ResponseWriter, r *http.Request)
 		}
 	}
 
+	var tagIds []int
+	tIs := r.Form.Get("tagIds")
+	tIs = strings.Replace(tIs, "[", "", 1)
+	tIs = strings.Replace(tIs, "]", "", 1)
+	arr1 := strings.Split(tIs, ",")
+	for _, v := range arr1 {
+		toInt, _ := strconv.Atoi(v)
+		tagIds = append(tagIds, toInt)
+	}
+
 	// -------
-	mess, err := controller.Interactor.UpdateTodo(*todoType)
+	mess, err := controller.Interactor.UpdateTodo(*todoType, tagIds)
 	if err != nil {
 		fmt.Println(err)
 		log.Println(err)

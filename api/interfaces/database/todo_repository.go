@@ -151,7 +151,6 @@ func (repo *TodoRepository) TransStore(tx *sql.Tx, t domain.Todo) (id int64, err
 		log.Println(err)
 		return 0, err
 	}
-	fmt.Println("create Todo ID", id)
 	return id, nil
 }
 
@@ -227,7 +226,6 @@ func (repo *TodoRepository) FindByUserId(identifier int, page int) (todos domain
 
 // --- Todo詳細情報取得 ---
 func (repo *TodoRepository) FindByIdAndUserId(identifier int, userIdentifier int) (todo *domain.Todo, err error) {
-	fmt.Println("repo OK?")
 	row, err := repo.Query(ShowTodoState, identifier, userIdentifier)
 	if err != nil {
 		fmt.Println(err)
@@ -286,14 +284,19 @@ func (repo *TodoRepository) FindByIdAndUserId(identifier int, userIdentifier int
 	return todo, nil
 }
 
-func (repo *TodoRepository) Overwrite(t domain.Todo) (err error) {
-	_, err = repo.Execute(UpdateTodoState, t.Title, t.Content, t.ImagePath, t.ID, t.UserID)
+func (repo *TodoRepository) TransOverwrite(tx *sql.Tx, t domain.Todo) (err error) {
+	_, err = repo.TransExecute(tx, UpdateTodoState, t.Title, t.Content, t.ImagePath, t.ID, t.UserID)
 	if err != nil {
 		fmt.Println(err)
 		log.Println(err)
 		return err
 	}
-	return err
+	if err != nil {
+		fmt.Println(err)
+		log.Println(err)
+		return err
+	}
+	return nil
 }
 
 func (repo *TodoRepository) ChangeBoolean(id int, userId int, t domain.Todo) (err error) {
