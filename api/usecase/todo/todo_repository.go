@@ -11,6 +11,6 @@ type TodoRepository interface {
 	FindByUserId(int, int) (domain.Todos, float64, error)
 	Erasure(int, int) error
 	FindByIdAndUserId(int, int) (*domain.Todo, error)
-	Overwrite(domain.Todo) error
+	TransOverwrite(*sql.Tx, domain.Todo) error
 	ChangeBoolean(int, int, domain.Todo) error
 }

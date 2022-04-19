@@ -81,9 +81,17 @@ func (interactor *TodoInteractor) TodoByIdAndUserId(id int, userId int) (todo *d
 	return todo, nil
 }
 
-func (interactor *TodoInteractor) UpdateTodo(t domain.Todo) (mess *TodoMessage, err error) {
+func (interactor *TodoInteractor) UpdateTodo(t domain.Todo, tagIds []int) (mess *TodoMessage, err error) {
 	if err = t.TodoValidate(); err == nil {
-		err = interactor.TodoRepository.Overwrite(t)
+		_, err = interactor.Transaction.DoInTx(func(tx *sql.Tx) (interface{}, error) {
+			err = interactor.TodoRepository.TransOverwrite(tx, t)
+			if err != nil {
+				return nil, err
+			}
+			err = interactor.TodoTagRelationsRepository.TransOverwrite(tx, t.ID, tagIds)
+			fmt.Println(err)
+			return nil, err
+		})
 		if err != nil {
 			fmt.Println(err)
 			log.Println(err)
