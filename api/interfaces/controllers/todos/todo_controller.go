@@ -71,6 +71,7 @@ func GetUserId(r *http.Request) (userId int, err error) {
 	return userId, nil
 }
 
+// --- Todo新規追加 ----
 func (controller *TodoController) Create(w http.ResponseWriter, r *http.Request) {
 	var file multipart.File
 	var fileHeader *multipart.FileHeader
@@ -186,6 +187,7 @@ func (controller *TodoController) Create(w http.ResponseWriter, r *http.Request)
 	fmt.Fprintln(w, resStr)
 }
 
+// --- Todo一覧取得 ---
 func (controller *TodoController) Index(w http.ResponseWriter, r *http.Request) {
 	// URLから取得したいページ番目の情報
 	page, err := strconv.Atoi(r.FormValue("page"))
@@ -217,6 +219,7 @@ func (controller *TodoController) Index(w http.ResponseWriter, r *http.Request) 
 	fmt.Fprintln(w, resStr)
 }
 
+// --- Todo詳細情報取得 ---
 func (controller *TodoController) Show(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(path.Base(r.URL.Path))
 	if err != nil || id == 0 {
@@ -249,6 +252,45 @@ func (controller *TodoController) Show(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, resStr)
 }
 
+func (controller *TodoController) TagSearch(w http.ResponseWriter, r *http.Request) {
+	tagId, err := strconv.Atoi(path.Base(r.URL.Path))
+	if err != nil || tagId == 0 {
+		fmt.Println(err)
+		log.Println(err)
+		resStr := new(Response).SetResp(400, "データ取得に失敗しました", nil, nil, 0)
+		fmt.Fprintln(w, resStr)
+		return
+	}
+
+	page, err := strconv.Atoi(r.FormValue("page"))
+	if err != nil || page == 0 {
+		fmt.Println(err)
+		log.Println(err)
+		resStr := new(Response).SetResp(400, "データ取得に失敗しました", nil, nil, 0)
+		fmt.Fprintln(w, resStr)
+		return
+	}
+
+	userId, err := GetUserId(r)
+	if err != nil || userId == 0 {
+		fmt.Println(err)
+		log.Println(err)
+		resStr := new(Response).SetResp(401, "ログインをしてください", nil, nil, 0)
+		fmt.Fprintln(w, resStr)
+		return
+	}
+
+	todos, sumPage, err := controller.Interactor.SearchTag(tagId, userId, page)
+	if err != nil {
+		resStr := new(Response).SetResp(400, err.Error(), nil, nil, 0)
+		fmt.Fprintln(w, resStr)
+		return
+	}
+	resStr := new(Response).SetResp(200, "タグ検索成功", todos, nil, sumPage)
+	fmt.Fprintln(w, resStr)
+}
+
+// --- Todo更新 ---
 func (controller *TodoController) Update(w http.ResponseWriter, r *http.Request) {
 	var file multipart.File
 	var fileHeader *multipart.FileHeader
@@ -393,6 +435,7 @@ func (controller *TodoController) Update(w http.ResponseWriter, r *http.Request)
 	fmt.Fprintln(w, resStr)
 }
 
+// --- Todo完了未完了を変更 ---
 func (controller *TodoController) IsFinished(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(path.Base(r.URL.Path))
 	if err != nil || id == 0 {
@@ -440,6 +483,7 @@ func (controller *TodoController) IsFinished(w http.ResponseWriter, r *http.Requ
 	fmt.Fprintln(w, resStr)
 }
 
+// --- Todo削除 ---
 func (controller *TodoController) Delete(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(path.Base(r.URL.Path))
 	if err != nil || id == 0 {
@@ -471,6 +515,7 @@ func (controller *TodoController) Delete(w http.ResponseWriter, r *http.Request)
 	fmt.Fprintln(w, resStr)
 }
 
+// --- Todo削除 + 一覧取得 ---
 func (controller *TodoController) DeleteInIndex(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(path.Base(r.URL.Path))
 	if err != nil || id == 0 {

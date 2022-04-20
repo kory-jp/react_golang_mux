@@ -21,6 +21,7 @@ type TodoMessage struct {
 	Message string
 }
 
+// --- Todo新規追加 ---
 func (interactor *TodoInteractor) Add(t domain.Todo, tagIds []int) (mess *TodoMessage, err error) {
 	if err = t.TodoValidate(); err == nil {
 		_, err = interactor.Transaction.DoInTx(func(tx *sql.Tx) (interface{}, error) {
@@ -46,6 +47,7 @@ func (interactor *TodoInteractor) Add(t domain.Todo, tagIds []int) (mess *TodoMe
 	return nil, err
 }
 
+// --- Todo一覧取得 ---
 func (interactor *TodoInteractor) Todos(userId int, page int) (todos domain.Todos, sumPage float64, err error) {
 	if userId == 0 || page == 0 {
 		err = errors.New("データ取得に失敗しました")
@@ -64,6 +66,7 @@ func (interactor *TodoInteractor) Todos(userId int, page int) (todos domain.Todo
 	return todos, sumPage, nil
 }
 
+// --- Todo詳細情報取得 ---
 func (interactor *TodoInteractor) TodoByIdAndUserId(id int, userId int) (todo *domain.Todo, err error) {
 	if id == 0 || userId == 0 {
 		err = errors.New("データ取得に失敗しました")
@@ -81,6 +84,27 @@ func (interactor *TodoInteractor) TodoByIdAndUserId(id int, userId int) (todo *d
 	return todo, nil
 }
 
+// --- タグ検索 ---
+func (interactor *TodoInteractor) SearchTag(tagId int, userId int, page int) (todos domain.Todos, sumPage float64, err error) {
+	if tagId == 0 || userId == 0 || page == 0 {
+		err = errors.New("データ取得に失敗しました")
+		fmt.Println(err)
+		log.Println(err)
+		return nil, 0, err
+	}
+
+	todos, sumPage, err = interactor.TodoRepository.FindByTagId(tagId, userId, page)
+	if err != nil {
+		fmt.Println(err)
+		log.Println(err)
+		err = errors.New("データ取得に失敗しました")
+		return nil, 0, err
+	}
+
+	return todos, sumPage, nil
+}
+
+// --- Todo更新 ---
 func (interactor *TodoInteractor) UpdateTodo(t domain.Todo, tagIds []int) (mess *TodoMessage, err error) {
 	if err = t.TodoValidate(); err == nil {
 		_, err = interactor.Transaction.DoInTx(func(tx *sql.Tx) (interface{}, error) {
@@ -106,6 +130,7 @@ func (interactor *TodoInteractor) UpdateTodo(t domain.Todo, tagIds []int) (mess 
 	return nil, err
 }
 
+// --- Todo完了未完了変更 ---
 func (interactor *TodoInteractor) IsFinishedTodo(id int, t domain.Todo, userId int) (mess *TodoMessage, err error) {
 	if id == 0 || userId == 0 {
 		err = errors.New("データ取得に失敗しました")
@@ -142,6 +167,7 @@ func (interactor *TodoInteractor) IsFinishedTodo(id int, t domain.Todo, userId i
 	return mess, nil
 }
 
+// --- Todo削除 ---
 func (interactor *TodoInteractor) DeleteTodo(id int, userId int) (mess *TodoMessage, err error) {
 	if id == 0 || userId == 0 {
 		err = errors.New("データ取得に失敗しました")
@@ -163,6 +189,7 @@ func (interactor *TodoInteractor) DeleteTodo(id int, userId int) (mess *TodoMess
 	return mess, nil
 }
 
+// --- Todo削除 + 一覧取得
 func (interactor *TodoInteractor) DeleteTodoInIndex(id int, userId int, page int) (todos domain.Todos, sumPage float64, mess *TodoMessage, err error) {
 	if id == 0 || userId == 0 || page == 0 {
 		err = errors.New("データ取得に失敗しました")

@@ -32,6 +32,7 @@ func Init() {
 	r.Methods("POST").Path("/api/new").HandlerFunc(todoController.Create)
 	r.Methods("GET").Path("/api/todos").HandlerFunc(todoController.Index)
 	r.Methods("GET").Path("/api/todos/{id:[0-9]+}").HandlerFunc(todoController.Show)
+	r.Methods("GET").Path("/api/todos/tag/{id:[0-9]+}").HandlerFunc(todoController.TagSearch)
 	r.Methods("POST").Path("/api/todos/update/{id:[0-9]+}").HandlerFunc(todoController.Update)
 	r.Methods("POST").Path("/api/todos/isfinished/{id:[0-9]+}").HandlerFunc(todoController.IsFinished)
 	r.Methods("DELETE").Path("/api/todos/delete/{id:[0-9]+}").HandlerFunc(todoController.Delete)
