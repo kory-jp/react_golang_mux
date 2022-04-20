@@ -16,6 +16,9 @@ type TodoRepository struct {
 	SqlHandler
 }
 
+// 投稿されたTodoデータ総数を取得
+var allTodosCount float64
+
 type U8Tags struct {
 	U8ID    []uint8
 	U8Value []uint8
@@ -116,6 +119,63 @@ var ShowTodoState = `
 		t.id
 `
 
+// --- Tag検索 ---
+var FindByTagIdSumTodoItemsState = `
+	select count(*) from
+		todos as t
+	left join
+		todo_tag_relations as ttr
+	on
+		t.id = ttr.todo_id
+	left join
+		tags as tg
+	on
+		ttr.tag_id = tg.id
+	where
+		tg.id = ?
+	and
+		t.user_id = ?
+`
+
+var FindByTagIdTodosState = `
+	select
+		t.*,
+		group_concat(tg.id),
+		group_concat(tg.value),
+		group_concat(tg.label)
+	from
+		todos as t
+	left join
+		todo_tag_relations as ttr
+	on
+		t.id = ttr.todo_id
+	left join
+		tags as tg
+	on
+		ttr.tag_id = tg.id
+	where
+		t.id in (
+			select
+				ttr.todo_id
+			from
+				todo_tag_relations as ttr
+			left join
+				tags as tg
+			on
+				ttr.tag_id = tg.id
+			where
+				tg.id = ?
+		)
+	and
+		t.user_id = ?
+	group by
+		t.id
+	order by
+		id desc
+	limit 5
+	offset ?
+`
+
 // --- Todo更新 ---
 var UpdateTodoState = `
 	update
@@ -171,8 +231,6 @@ func (repo *TodoRepository) TransStore(tx *sql.Tx, t domain.Todo) (id int64, err
 
 // --- Todo一覧取得(5件づつ取得) ---
 func (repo *TodoRepository) FindByUserId(identifier int, page int) (todos domain.Todos, sumPage float64, err error) {
-	// 投稿されたTodoデータ総数を取得
-	var allTodosCount float64
 	row, err := repo.Query(SumTodoItemsState, identifier)
 	if err != nil {
 		fmt.Println(err)
@@ -294,6 +352,79 @@ func (repo *TodoRepository) FindByIdAndUserId(identifier int, userIdentifier int
 		Tags:       tags,
 	}
 	return todo, nil
+}
+
+// --- Todoタグ検索 ---
+func (repo *TodoRepository) FindByTagId(tagId int, userId int, page int) (todos domain.Todos, sumPage float64, err error) {
+	row, err := repo.Query(FindByTagIdSumTodoItemsState, tagId, userId)
+	if err != nil {
+		fmt.Println(err)
+		log.Println(err)
+		return nil, 0.0, err
+	}
+	defer row.Close()
+
+	for row.Next() {
+		err = row.Scan(&allTodosCount)
+		if err != nil {
+			fmt.Println(err)
+			log.Println(err)
+			return nil, 0, err
+		}
+	}
+	err = row.Err()
+	if err != nil {
+		fmt.Println(err)
+	}
+	row.Close()
+
+	sumPage = math.Ceil(allTodosCount / 5)
+
+	var offsetNum int
+	if page == 1 {
+		offsetNum = 0
+	} else {
+		offsetNum = (page - 1) * 5
+	}
+
+	rows, err := repo.Query(FindByTagIdTodosState, tagId, userId, offsetNum)
+	if err != nil {
+		fmt.Println(err)
+		log.Println(err)
+		return nil, 0, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var todo domain.Todo
+		var u8tags U8Tags
+		err = rows.Scan(
+			&todo.ID,
+			&todo.UserID,
+			&todo.Title,
+			&todo.Content,
+			&todo.ImagePath,
+			&todo.IsFinished,
+			&todo.CreatedAt,
+			&u8tags.U8ID,
+			&u8tags.U8Value,
+			&u8tags.U8Label,
+		)
+		if err != nil {
+			fmt.Println(err)
+			log.Println(err)
+			return nil, 0, err
+		}
+		tags := u8tags.ToTypeTags()
+		todo.Tags = tags
+		todos = append(todos, todo)
+	}
+	err = rows.Err()
+	if err != nil {
+		fmt.Println(err)
+	}
+	rows.Close()
+	return todos, sumPage, err
 }
 
 // --- Todoの更新処理 ---
