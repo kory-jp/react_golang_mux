@@ -29,8 +29,9 @@ func (interactor *TodoInteractor) Add(t domain.Todo, tagIds []int) (mess *TodoMe
 			if err != nil {
 				return nil, err
 			}
-			err = interactor.TodoTagRelationsRepository.TransStore(tx, todoId, tagIds)
-			fmt.Println(err)
+			if tagIds[0] != 0 {
+				err = interactor.TodoTagRelationsRepository.TransStore(tx, todoId, tagIds)
+			}
 			return nil, err
 		})
 		if err != nil {
