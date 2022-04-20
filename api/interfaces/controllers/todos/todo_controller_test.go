@@ -2,6 +2,7 @@ package controllers_test
 
 import (
 	"bytes"
+	"database/sql"
 	"encoding/json"
 	"io"
 	"io/ioutil"
@@ -32,14 +33,14 @@ var response *controllers.Response
 func TestCreate(t *testing.T) {
 	// --- 各種mockをインスタンス ---
 	ctrl, todoRepository, transaction := setMock(t)
+	var tx *sql.Tx
 
 	cases := []struct {
 		name                   string
 		args                   domain.Todo
 		isImage                bool
 		prepareTrasMockFn      func(m *mock_transaction.MockSqlHandler)
-		prepareRepoStoreMockFn func(m *mock_usecase.MockTodoRepository, args domain.Todo)
-		prepareMockFn          func(m *mock_database.MockSqlHandler, r *mock_database.MockResult, statement string, todo domain.Todo)
+		prepareRepoStoreMockFn func(m *mock_usecase.MockTodoRepository, tx *sql.Tx, args domain.Todo)
 		response               controllers.Response
 	}{
 		{
@@ -54,8 +55,8 @@ func TestCreate(t *testing.T) {
 			prepareTrasMockFn: func(m *mock_transaction.MockSqlHandler) {
 				m.EXPECT().DoInTx(gomock.Any()).Return(nil, nil).AnyTimes()
 			},
-			prepareRepoStoreMockFn: func(m *mock_usecase.MockTodoRepository, args domain.Todo) {
-				m.EXPECT().Store(args).Return(nil)
+			prepareRepoStoreMockFn: func(m *mock_usecase.MockTodoRepository, tx *sql.Tx, args domain.Todo) {
+				m.EXPECT().TransStore(tx, args).Return(int64(1), nil)
 			},
 			response: controllers.Response{
 				Status:  200,
@@ -73,8 +74,8 @@ func TestCreate(t *testing.T) {
 			prepareTrasMockFn: func(m *mock_transaction.MockSqlHandler) {
 				m.EXPECT().DoInTx(gomock.Any()).Return(nil, nil).AnyTimes()
 			},
-			prepareRepoStoreMockFn: func(m *mock_usecase.MockTodoRepository, args domain.Todo) {
-				m.EXPECT().Store(args).Return(nil)
+			prepareRepoStoreMockFn: func(m *mock_usecase.MockTodoRepository, tx *sql.Tx, args domain.Todo) {
+				m.EXPECT().TransStore(tx, args).Return(int64(1), nil)
 			},
 			response: controllers.Response{
 				Status:  200,
@@ -92,8 +93,8 @@ func TestCreate(t *testing.T) {
 			prepareTrasMockFn: func(m *mock_transaction.MockSqlHandler) {
 				m.EXPECT().DoInTx(gomock.Any()).Return(nil, nil).AnyTimes()
 			},
-			prepareRepoStoreMockFn: func(m *mock_usecase.MockTodoRepository, args domain.Todo) {
-				m.EXPECT().Store(args).Return(nil)
+			prepareRepoStoreMockFn: func(m *mock_usecase.MockTodoRepository, tx *sql.Tx, args domain.Todo) {
+				m.EXPECT().TransStore(tx, args).Return(int64(1), nil)
 			},
 			response: controllers.Response{
 				Status:  401,
@@ -111,8 +112,8 @@ func TestCreate(t *testing.T) {
 			prepareTrasMockFn: func(m *mock_transaction.MockSqlHandler) {
 				m.EXPECT().DoInTx(gomock.Any()).Return(nil, nil).AnyTimes()
 			},
-			prepareRepoStoreMockFn: func(m *mock_usecase.MockTodoRepository, args domain.Todo) {
-				m.EXPECT().Store(args).Return(nil)
+			prepareRepoStoreMockFn: func(m *mock_usecase.MockTodoRepository, tx *sql.Tx, args domain.Todo) {
+				m.EXPECT().TransStore(tx, args).Return(int64(1), nil)
 			},
 			response: controllers.Response{
 				Status:  400,
@@ -130,8 +131,8 @@ func TestCreate(t *testing.T) {
 			prepareTrasMockFn: func(m *mock_transaction.MockSqlHandler) {
 				m.EXPECT().DoInTx(gomock.Any()).Return(nil, nil).AnyTimes()
 			},
-			prepareRepoStoreMockFn: func(m *mock_usecase.MockTodoRepository, args domain.Todo) {
-				m.EXPECT().Store(args).Return(nil)
+			prepareRepoStoreMockFn: func(m *mock_usecase.MockTodoRepository, tx *sql.Tx, args domain.Todo) {
+				m.EXPECT().TransStore(tx, args).Return(int64(1), nil)
 			},
 			response: controllers.Response{
 				Status:  400,
@@ -149,8 +150,8 @@ func TestCreate(t *testing.T) {
 			prepareTrasMockFn: func(m *mock_transaction.MockSqlHandler) {
 				m.EXPECT().DoInTx(gomock.Any()).Return(nil, nil).AnyTimes()
 			},
-			prepareRepoStoreMockFn: func(m *mock_usecase.MockTodoRepository, args domain.Todo) {
-				m.EXPECT().Store(args).Return(nil)
+			prepareRepoStoreMockFn: func(m *mock_usecase.MockTodoRepository, tx *sql.Tx, args domain.Todo) {
+				m.EXPECT().TransStore(tx, args).Return(int64(1), nil)
 			},
 			response: controllers.Response{
 				Status:  400,
@@ -177,7 +178,7 @@ func TestCreate(t *testing.T) {
 
 			// --- mock ---
 			tt.prepareTrasMockFn(transaction)
-			tt.prepareRepoStoreMockFn(todoRepository, tt.args)
+			tt.prepareRepoStoreMockFn(todoRepository, tx, tt.args)
 
 			// --- テスト実行 ---
 			ctrl.Create(w, req)
@@ -197,8 +198,6 @@ func TestIndex(t *testing.T) {
 		loginUserId                   int
 		nowPage                       int
 		prepareRepoFindByUserIdMockFn func(m *mock_usecase.MockTodoRepository, userId int, page int)
-		prepareGetNumTodosMockFn      func(m *mock_database.MockSqlHandler, r *mock_database.MockRow, statement string, userId int)
-		prepareGetTodosMockFn         func(m *mock_database.MockSqlHandler, r *mock_database.MockRow, statement string, userId int, offset int, todo domain.Todo)
 		response                      controllers.Response
 	}{
 		{
@@ -331,15 +330,104 @@ func TestShow(t *testing.T) {
 	}
 }
 
-func TestUpdate(t *testing.T) {
+func TestTagSearch(t *testing.T) {
 	ctrl, todoRepository, _ := setMock(t)
+
+	cases := []struct {
+		name                         string
+		tagId                        int
+		loginUserId                  int
+		nowPage                      int
+		prepareRepoFindByTagIdMockFn func(m *mock_usecase.MockTodoRepository, tagId int, userId int, page int)
+		response                     controllers.Response
+	}{
+		{
+			name:        "必須項目が入力された場合、データ取得に成功",
+			tagId:       1,
+			loginUserId: 1,
+			nowPage:     1,
+			prepareRepoFindByTagIdMockFn: func(m *mock_usecase.MockTodoRepository, tagId int, userId int, page int) {
+				m.EXPECT().FindByTagId(tagId, userId, page).Return([]domain.Todo{{UserID: userId, Tags: []domain.Tag{{ID: tagId}}}}, float64(1), nil)
+			},
+			response: controllers.Response{
+				Status:  200,
+				Message: "タグ検索成功",
+			},
+		},
+		{
+			name:        "tagIdが0の場合、データ取得に失敗",
+			tagId:       0,
+			loginUserId: 1,
+			nowPage:     1,
+			prepareRepoFindByTagIdMockFn: func(m *mock_usecase.MockTodoRepository, tagId int, userId int, page int) {
+				m.EXPECT().FindByTagId(tagId, userId, page).Return([]domain.Todo{{UserID: userId, Tags: []domain.Tag{{ID: tagId}}}}, float64(1), nil)
+			},
+			response: controllers.Response{
+				Status:  400,
+				Message: "データ取得に失敗しました",
+			},
+		},
+		{
+			name:        "userIdが0の場合、データ取得に失敗",
+			tagId:       1,
+			loginUserId: 0,
+			nowPage:     1,
+			prepareRepoFindByTagIdMockFn: func(m *mock_usecase.MockTodoRepository, tagId int, userId int, page int) {
+				m.EXPECT().FindByTagId(tagId, userId, page).Return([]domain.Todo{{UserID: userId, Tags: []domain.Tag{{ID: tagId}}}}, float64(1), nil)
+			},
+			response: controllers.Response{
+				Status:  401,
+				Message: "ログインをしてください",
+			},
+		},
+		{
+			name:        "現在ページ情報(nowPage)が0の場合、データ取得に失敗",
+			tagId:       1,
+			loginUserId: 1,
+			nowPage:     0,
+			prepareRepoFindByTagIdMockFn: func(m *mock_usecase.MockTodoRepository, tagId int, userId int, page int) {
+				m.EXPECT().FindByTagId(tagId, userId, page).Return([]domain.Todo{{UserID: userId, Tags: []domain.Tag{{ID: tagId}}}}, float64(1), nil)
+			},
+			response: controllers.Response{
+				Status:  400,
+				Message: "データ取得に失敗しました",
+			},
+		},
+	}
+
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			var buffer bytes.Buffer
+			writer := multipart.NewWriter(&buffer)
+			writer.Close()
+			apiURL := "/api/todos/tag/" + strconv.Itoa(tt.tagId) + "?page=" + strconv.Itoa(tt.nowPage)
+			req := httptest.NewRequest("GET", apiURL, &buffer)
+			req.Header.Add("Content-Type", writer.FormDataContentType())
+			w := httptest.NewRecorder()
+			SetSessionUserId(t, w, req, tt.loginUserId)
+
+			tt.prepareRepoFindByTagIdMockFn(todoRepository, tt.tagId, tt.loginUserId, tt.nowPage)
+
+			ctrl.TagSearch(w, req)
+			buf, _ := ioutil.ReadAll(w.Body)
+			json.Unmarshal(buf, &response)
+			assert.Equal(t, tt.response.Status, response.Status)
+			assert.Equal(t, tt.response.Message, response.Message)
+		})
+	}
+}
+
+func TestUpdate(t *testing.T) {
+	ctrl, todoRepository, transaction := setMock(t)
+	var tx *sql.Tx
 
 	cases := []struct {
 		name                       string
 		args                       domain.Todo
 		loginUserId                int
 		isImage                    bool
-		prepareRepoOverwriteMockFn func(m *mock_usecase.MockTodoRepository)
+		prepareTrasMockFn          func(m *mock_transaction.MockSqlHandler)
+		prepareRepoOverwriteMockFn func(m *mock_usecase.MockTodoRepository, tx *sql.Tx)
 		response                   controllers.Response
 	}{
 		{
@@ -353,8 +441,11 @@ func TestUpdate(t *testing.T) {
 			},
 			loginUserId: 1,
 			isImage:     true,
-			prepareRepoOverwriteMockFn: func(m *mock_usecase.MockTodoRepository) {
-				m.EXPECT().Overwrite(gomock.Any()).Return(nil)
+			prepareTrasMockFn: func(m *mock_transaction.MockSqlHandler) {
+				m.EXPECT().DoInTx(gomock.Any()).Return(nil, nil).AnyTimes()
+			},
+			prepareRepoOverwriteMockFn: func(m *mock_usecase.MockTodoRepository, tx *sql.Tx) {
+				m.EXPECT().TransOverwrite(tx, gomock.Any()).Return(nil)
 			},
 			response: controllers.Response{
 				Status:  200,
@@ -371,8 +462,11 @@ func TestUpdate(t *testing.T) {
 			},
 			loginUserId: 1,
 			isImage:     false,
-			prepareRepoOverwriteMockFn: func(m *mock_usecase.MockTodoRepository) {
-				m.EXPECT().Overwrite(gomock.Any()).Return(nil)
+			prepareTrasMockFn: func(m *mock_transaction.MockSqlHandler) {
+				m.EXPECT().DoInTx(gomock.Any()).Return(nil, nil).AnyTimes()
+			},
+			prepareRepoOverwriteMockFn: func(m *mock_usecase.MockTodoRepository, tx *sql.Tx) {
+				m.EXPECT().TransOverwrite(tx, gomock.Any()).Return(nil)
 			},
 			response: controllers.Response{
 				Status:  200,
@@ -389,8 +483,11 @@ func TestUpdate(t *testing.T) {
 			},
 			loginUserId: 0,
 			isImage:     false,
-			prepareRepoOverwriteMockFn: func(m *mock_usecase.MockTodoRepository) {
-				m.EXPECT().Overwrite(gomock.Any()).Return(nil)
+			prepareTrasMockFn: func(m *mock_transaction.MockSqlHandler) {
+				m.EXPECT().DoInTx(gomock.Any()).Return(nil, nil).AnyTimes()
+			},
+			prepareRepoOverwriteMockFn: func(m *mock_usecase.MockTodoRepository, tx *sql.Tx) {
+				m.EXPECT().TransOverwrite(tx, gomock.Any()).Return(nil)
 			},
 			response: controllers.Response{
 				Status:  401,
@@ -407,8 +504,11 @@ func TestUpdate(t *testing.T) {
 			},
 			loginUserId: 1,
 			isImage:     false,
-			prepareRepoOverwriteMockFn: func(m *mock_usecase.MockTodoRepository) {
-				m.EXPECT().Overwrite(gomock.Any()).Return(nil)
+			prepareTrasMockFn: func(m *mock_transaction.MockSqlHandler) {
+				m.EXPECT().DoInTx(gomock.Any()).Return(nil, nil).AnyTimes()
+			},
+			prepareRepoOverwriteMockFn: func(m *mock_usecase.MockTodoRepository, tx *sql.Tx) {
+				m.EXPECT().TransOverwrite(tx, gomock.Any()).Return(nil)
 			},
 			response: controllers.Response{
 				Status:  400,
@@ -425,8 +525,11 @@ func TestUpdate(t *testing.T) {
 			},
 			loginUserId: 1,
 			isImage:     false,
-			prepareRepoOverwriteMockFn: func(m *mock_usecase.MockTodoRepository) {
-				m.EXPECT().Overwrite(gomock.Any()).Return(nil)
+			prepareTrasMockFn: func(m *mock_transaction.MockSqlHandler) {
+				m.EXPECT().DoInTx(gomock.Any()).Return(nil, nil).AnyTimes()
+			},
+			prepareRepoOverwriteMockFn: func(m *mock_usecase.MockTodoRepository, tx *sql.Tx) {
+				m.EXPECT().TransOverwrite(tx, gomock.Any()).Return(nil)
 			},
 			response: controllers.Response{
 				Status:  400,
@@ -443,8 +546,11 @@ func TestUpdate(t *testing.T) {
 			},
 			loginUserId: 1,
 			isImage:     false,
-			prepareRepoOverwriteMockFn: func(m *mock_usecase.MockTodoRepository) {
-				m.EXPECT().Overwrite(gomock.Any()).Return(nil)
+			prepareTrasMockFn: func(m *mock_transaction.MockSqlHandler) {
+				m.EXPECT().DoInTx(gomock.Any()).Return(nil, nil).AnyTimes()
+			},
+			prepareRepoOverwriteMockFn: func(m *mock_usecase.MockTodoRepository, tx *sql.Tx) {
+				m.EXPECT().TransOverwrite(tx, gomock.Any()).Return(nil)
 			},
 			response: controllers.Response{
 				Status:  400,
@@ -471,7 +577,8 @@ func TestUpdate(t *testing.T) {
 			SetSessionUserId(t, w, req, tt.loginUserId)
 
 			// --- mock ---
-			tt.prepareRepoOverwriteMockFn(todoRepository)
+			tt.prepareTrasMockFn(transaction)
+			tt.prepareRepoOverwriteMockFn(todoRepository, tx)
 
 			// --- テスト実行 ---
 			ctrl.Update(w, req)

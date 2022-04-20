@@ -90,6 +90,26 @@ func (mr *MockSqlHandlerMockRecorder) Query(arg0 interface{}, arg1 ...interface{
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Query", reflect.TypeOf((*MockSqlHandler)(nil).Query), varargs...)
 }
 
+// TransExecute mocks base method.
+func (m *MockSqlHandler) TransExecute(arg0 *sql.Tx, arg1 string, arg2 ...interface{}) (database.Result, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{arg0, arg1}
+	for _, a := range arg2 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "TransExecute", varargs...)
+	ret0, _ := ret[0].(database.Result)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// TransExecute indicates an expected call of TransExecute.
+func (mr *MockSqlHandlerMockRecorder) TransExecute(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{arg0, arg1}, arg2...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TransExecute", reflect.TypeOf((*MockSqlHandler)(nil).TransExecute), varargs...)
+}
+
 // MockResult is a mock of Result interface.
 type MockResult struct {
 	ctrl     *gomock.Controller
