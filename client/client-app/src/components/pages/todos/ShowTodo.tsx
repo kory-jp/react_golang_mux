@@ -8,7 +8,7 @@ import { useParams } from "react-router-dom";
 
 import sample1 from "../../../assets/images/sample1.jpeg"
 import LoadingLayout from "../../molecules/loading/LoadingLayout";
-import { RooState } from "../../../reducks/store/store";
+import { RootState } from "../../../reducks/store/store";
 import { deleteTodo, showTodo, updateIsFinished } from "../../../reducks/todos/operations";
 import useLoadingState from "../../../hooks/useLoadingState";
 import { FormControlLabel } from "@material-ui/core";
@@ -21,7 +21,7 @@ export const ShowTodo: FC = () => {
   const dispatch = useDispatch()
   const params: Params = useParams();
   const id: number = Number(params.id)
-  const todo = useSelector((state: RooState) => state.todo)
+  const todo = useSelector((state: RootState) => state.todo)
   const loadingState = useLoadingState()
   const [finish, setFinish] = useState(false)
 

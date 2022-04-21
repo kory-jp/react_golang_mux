@@ -6,4 +6,5 @@ export const ActionTypes = {
   createTodo: "CREATETODO",
   indexTodos: "INDEXTODOS",
   nowLoading: "NOWLOADING",
+  indexTags: "INDEXTAGS",
 }
