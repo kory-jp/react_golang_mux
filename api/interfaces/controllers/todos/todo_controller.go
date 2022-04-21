@@ -168,12 +168,13 @@ func (controller *TodoController) Create(w http.ResponseWriter, r *http.Request)
 	todoType.ImagePath = uploadFileName
 
 	var tagIds []int
-	tIs := r.Form.Get("tagIds")
-	tIs = strings.Replace(tIs, "[", "", 1)
-	tIs = strings.Replace(tIs, "]", "", 1)
-	arr1 := strings.Split(tIs, ",")
-	for _, v := range arr1 {
-		toInt, _ := strconv.Atoi(v)
+	ids := r.Form["tagIds"]
+	for _, v := range ids {
+		toInt, err := strconv.Atoi(v)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
 		tagIds = append(tagIds, toInt)
 	}
 
