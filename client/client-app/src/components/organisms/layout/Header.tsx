@@ -9,13 +9,13 @@ import LogoutIcon from '@mui/icons-material/Logout';
 
 import { PrimaryButton } from "../../atoms/button/PrimaryButton";
 import Toast from "../../molecules/toast/Toast";
-import { RooState } from "../../../reducks/store/store";
+import { RootState } from "../../../reducks/store/store";
 import { isLoggedIn, logout } from "../../../reducks/users/opretions";
 import DefautlDrawer from "../../molecules/drawer/DefaultDrawer";
 
 export const Header: FC = () => {
   const dispatch = useDispatch()
-  const user = useSelector((state: RooState) => state.user)
+  const user = useSelector((state: RootState) => state.user)
   const [open ,setOpen] = useState(false)
 
   useEffect(() => {

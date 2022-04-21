@@ -1,4 +1,3 @@
-import { ArrowBackIosOutlined } from "@mui/icons-material";
 import { Action } from "redux";
 import { ActionTypes } from "../store/actionTypes";
 

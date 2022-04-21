@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import PostCard from "../../organisms/posts/PostCard";
 import useLoadingState from "../../../hooks/useLoadingState";
 import LoadingLayout from "../../molecules/loading/LoadingLayout";
-import { RooState } from "../../../reducks/store/store";
+import { RootState } from "../../../reducks/store/store";
 import { indexTodos } from "../../../reducks/todos/operations";
 import { Todos } from "../../../reducks/todos/types";
 import DefaultPagination from "../../molecules/pagination/DefaultPagination";
@@ -16,7 +16,7 @@ import { push } from "connected-react-router";
 export const IndexTodos: FC = () => {
   const dispatch = useDispatch()
   const loadingState = useLoadingState()
-  const todos: Todos = useSelector((state: RooState) => state.todos)
+  const todos: Todos = useSelector((state: RootState) => state.todos)
   const {sumPage, setSumPage, queryPage} = usePagination()
 
   useEffect(() => {

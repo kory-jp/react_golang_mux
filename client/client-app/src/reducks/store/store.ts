@@ -9,14 +9,17 @@ import { UserReducer } from "../users/reducers";
 import { Todo, Todos } from "../todos/types";
 import { LoadingReducer } from "../loading/reducers";
 import { Loading } from "../loading/types";
+import { TagReducer } from "../tags/reducers";
+import { Tags } from "../tags/types";
 
 const composeEnhancers = (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 
-export type RooState = {
+export type RootState = {
   user: User
   todo: Todo
   todos: Todos
   loading: Loading
+  tags: Tags
 }
 
 export default function createInitStore(history: any ) {
@@ -27,7 +30,8 @@ export default function createInitStore(history: any ) {
       todos: TodoReducer,
       user: UserReducer,
       toasts: ToastReducer,
-      loading: LoadingReducer
+      loading: LoadingReducer,
+      tags: TagReducer
     }),
     composeEnhancers(
       applyMiddleware(routerMiddleware(history), thunk)

@@ -2,12 +2,14 @@ import CameraAltIcon from '@mui/icons-material/CameraAlt';
 import ClearIcon from '@mui/icons-material/Clear';
 import { Button, Divider, FormControl, Input, InputLabel, Paper, Stack, TextField} from "@mui/material";
 import { Box } from "@mui/system";
-import React, { FC, useCallback, useState } from "react";
+import React, { FC, useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import { PrimaryButton } from "../../atoms/button/PrimaryButton";
 import { createTodo } from "../../../reducks/todos/operations";
 import TagSelection from '../../organisms/layout/TagSelction';
+import { indexTags } from '../../../reducks/tags/operations';
+import { RootState } from '../../../reducks/store/store';
 
 export const NewTodo: FC = () => {
   const dispatch = useDispatch()
@@ -16,6 +18,12 @@ export const NewTodo: FC = () => {
   const [image, setImage] = useState<File>()
   const [preview, setPreview] =useState('')
   const [tags, setTags] = useState([])
+
+  useEffect(() => {
+    dispatch(indexTags())
+  }, [dispatch])
+
+  const options = useSelector((state: RootState) => state.tags)
   
   const inputTitle = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     setTitle(event.target.value)
@@ -56,19 +64,9 @@ export const NewTodo: FC = () => {
   }, [formData])
 
 
-  // --- タグ操作 ---
-  const TestSeeds = [
-    {id: 1, value: "test1", label: "テスト1"},
-    {id: 2, value: "test2", label: "テスト2"},
-    {id: 3, value: "test3", label: "テスト3"},
-    {id: 4, value: "test4", label: "テスト4"},
-  ]
-
   const onChangeSelectTags = useCallback((event) => {
     setTags(event)
   }, [setTags])
-
-  console.log(tags)
 
   return(
     <>
@@ -129,7 +127,7 @@ export const NewTodo: FC = () => {
             </FormControl>
             {/* --- タグ選択 --- */}
             <FormControl fullWidth>
-              <TagSelection options={TestSeeds} onChange={onChangeSelectTags}/>
+              <TagSelection options={options} onChange={onChangeSelectTags}/>
             </FormControl>
             {/* <FormControl> ----削除------ */}
             <InputLabel htmlFor="upImage">
