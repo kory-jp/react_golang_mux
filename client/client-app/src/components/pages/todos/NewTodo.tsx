@@ -10,6 +10,7 @@ import { createTodo } from "../../../reducks/todos/operations";
 import TagSelection from '../../organisms/layout/TagSelction';
 import { indexTags } from '../../../reducks/tags/operations';
 import { RootState } from '../../../reducks/store/store';
+import { Tags } from '../../../reducks/tags/types';
 
 export const NewTodo: FC = () => {
   const dispatch = useDispatch()
@@ -17,7 +18,7 @@ export const NewTodo: FC = () => {
   const [content, setContent] = useState('')
   const [image, setImage] = useState<File>()
   const [preview, setPreview] =useState('')
-  const [tags, setTags] = useState([])
+  const [tags, setTags] = useState<Tags>([])
 
   useEffect(() => {
     dispatch(indexTags())
@@ -49,13 +50,20 @@ export const NewTodo: FC = () => {
     setPreview('')
   }, [])
 
+  console.log(tags)
+
   const createFormData = useCallback(() => {
     const formData = new FormData()
     formData.append('title', title)
     formData.append('content', content)
     if (image) formData.append('image', image)
+    for(let i in tags) {
+      let tagId = String(tags[i].id)
+      console.log(tagId)
+      formData.append('tagIds', tagId)
+    }
     return formData
-  }, [title, content, image])
+  }, [title, content, image, tags])
 
 
   const formData = createFormData()
