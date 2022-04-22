@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/kory-jp/react_golang_mux/api/infrastructure/mysql"
+
 	_ "github.com/go-sql-driver/mysql"
 
 	"github.com/kory-jp/react_golang_mux/api/config"
@@ -35,6 +37,13 @@ func NewSqlHandler() *SqlHandler {
 		fmt.Println("データベース接続成功")
 	}
 
+	query := mysql.Query()
+	for i := 0; i < len(query); i++ {
+		_, err := conn.Exec(query[i])
+		if err != nil {
+			fmt.Println(err)
+		}
+	}
 	sqlHandler := new(SqlHandler)
 	sqlHandler.Conn = conn
 	return sqlHandler
@@ -70,6 +79,38 @@ func (handler *SqlHandler) Query(statement string, args ...interface{}) (databas
 	row := new(SqlRow)
 	row.Rows = rows
 	return row, nil
+}
+
+func (handler *SqlHandler) DoInTx(f func(tx *sql.Tx) (interface{}, error)) (interface{}, error) {
+	tx, err := handler.Conn.Begin()
+	if err != nil {
+		fmt.Println(err)
+		log.Panicln(err)
+		return nil, err
+	}
+
+	v, err := f(tx)
+	if err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+	if err := tx.Commit(); err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+	return v, nil
+}
+
+func (handler *SqlHandler) TransExecute(tx *sql.Tx, statement string, args ...interface{}) (database.Result, error) {
+	res := SqlResult{}
+	result, err := tx.Exec(statement, args...)
+	if err != nil {
+		fmt.Println(err)
+		log.Println(err)
+		return res, err
+	}
+	res.Result = result
+	return res, nil
 }
 
 func (r SqlResult) LastInsertId() (int64, error) {

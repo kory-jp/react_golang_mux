@@ -10,7 +10,8 @@ const initialState: Todos = [
     image: null,
     imagePath: undefined,
     isFinished: false,
-    createdAt: null
+    createdAt: null,
+    tags: []
   }
 ]
 

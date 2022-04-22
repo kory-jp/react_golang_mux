@@ -5,6 +5,7 @@
 package mock_usecase
 
 import (
+	sql "database/sql"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
@@ -77,6 +78,22 @@ func (mr *MockTodoRepositoryMockRecorder) FindByIdAndUserId(arg0, arg1 interface
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByIdAndUserId", reflect.TypeOf((*MockTodoRepository)(nil).FindByIdAndUserId), arg0, arg1)
 }
 
+// FindByTagId mocks base method.
+func (m *MockTodoRepository) FindByTagId(arg0, arg1, arg2 int) (domain.Todos, float64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "FindByTagId", arg0, arg1, arg2)
+	ret0, _ := ret[0].(domain.Todos)
+	ret1, _ := ret[1].(float64)
+	ret2, _ := ret[2].(error)
+	return ret0, ret1, ret2
+}
+
+// FindByTagId indicates an expected call of FindByTagId.
+func (mr *MockTodoRepositoryMockRecorder) FindByTagId(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByTagId", reflect.TypeOf((*MockTodoRepository)(nil).FindByTagId), arg0, arg1, arg2)
+}
+
 // FindByUserId mocks base method.
 func (m *MockTodoRepository) FindByUserId(arg0, arg1 int) (domain.Todos, float64, error) {
 	m.ctrl.T.Helper()
@@ -93,30 +110,31 @@ func (mr *MockTodoRepositoryMockRecorder) FindByUserId(arg0, arg1 interface{}) *
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByUserId", reflect.TypeOf((*MockTodoRepository)(nil).FindByUserId), arg0, arg1)
 }
 
-// Overwrite mocks base method.
-func (m *MockTodoRepository) Overwrite(arg0 domain.Todo) error {
+// TransOverwrite mocks base method.
+func (m *MockTodoRepository) TransOverwrite(arg0 *sql.Tx, arg1 domain.Todo) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Overwrite", arg0)
+	ret := m.ctrl.Call(m, "TransOverwrite", arg0, arg1)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// Overwrite indicates an expected call of Overwrite.
-func (mr *MockTodoRepositoryMockRecorder) Overwrite(arg0 interface{}) *gomock.Call {
+// TransOverwrite indicates an expected call of TransOverwrite.
+func (mr *MockTodoRepositoryMockRecorder) TransOverwrite(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Overwrite", reflect.TypeOf((*MockTodoRepository)(nil).Overwrite), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TransOverwrite", reflect.TypeOf((*MockTodoRepository)(nil).TransOverwrite), arg0, arg1)
 }
 
-// Store mocks base method.
-func (m *MockTodoRepository) Store(arg0 domain.Todo) error {
+// TransStore mocks base method.
+func (m *MockTodoRepository) TransStore(arg0 *sql.Tx, arg1 domain.Todo) (int64, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Store", arg0)
-	ret0, _ := ret[0].(error)
-	return ret0
+	ret := m.ctrl.Call(m, "TransStore", arg0, arg1)
+	ret0, _ := ret[0].(int64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
-// Store indicates an expected call of Store.
-func (mr *MockTodoRepositoryMockRecorder) Store(arg0 interface{}) *gomock.Call {
+// TransStore indicates an expected call of TransStore.
+func (mr *MockTodoRepositoryMockRecorder) TransStore(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Store", reflect.TypeOf((*MockTodoRepository)(nil).Store), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TransStore", reflect.TypeOf((*MockTodoRepository)(nil).TransStore), arg0, arg1)
 }

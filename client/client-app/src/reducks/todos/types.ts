@@ -1,6 +1,6 @@
-import { ArrowBackIosOutlined } from "@mui/icons-material";
 import { Action } from "redux";
 import { ActionTypes } from "../store/actionTypes";
+import { Tags } from "../tags/types";
 
 export type Todo = {
   id: number,
@@ -11,6 +11,7 @@ export type Todo = {
   imagePath: string | undefined,
   isFinished: boolean,
   createdAt: Date | null,
+  tags: Tags
 }
 
 export type Todos= Todo[]

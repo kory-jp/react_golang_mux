@@ -1,10 +1,13 @@
 package usecase_test
 
 import (
+	"database/sql"
 	"errors"
 	"reflect"
 	"strings"
 	"testing"
+
+	mock_transaction "github.com/kory-jp/react_golang_mux/api/usecase/transaction/mock"
 
 	"github.com/stretchr/testify/assert"
 
@@ -16,16 +19,19 @@ import (
 )
 
 func TestAdd(t *testing.T) {
+	var tx *sql.Tx
 	// mockを作成
-	inter, TodoRepository := setMock(t)
+	inter, TodoRepository, Transaction := setMock(t)
 
 	// テストケースを作成
 	cases := []struct {
-		name          string
-		args          domain.Todo
-		prepareMockFn func(m *mock_usecase.MockTodoRepository, args domain.Todo)
-		wantMess      usecase.TodoMessage
-		wantErr       error
+		name               string
+		args               domain.Todo
+		tags               []int
+		prepareTrasMockFn  func(m *mock_transaction.MockSqlHandler)
+		prepareStoreMockFn func(m *mock_usecase.MockTodoRepository, tx *sql.Tx, args domain.Todo)
+		wantMess           usecase.TodoMessage
+		wantErr            error
 	}{
 		{
 			name: "必須項目が入力された場合、データ保存成功",
@@ -36,8 +42,12 @@ func TestAdd(t *testing.T) {
 				ImagePath:  "testImg",
 				IsFinished: false,
 			},
-			prepareMockFn: func(m *mock_usecase.MockTodoRepository, args domain.Todo) {
-				m.EXPECT().Store(args).Return(nil)
+			tags: []int{1, 2, 3},
+			prepareTrasMockFn: func(m *mock_transaction.MockSqlHandler) {
+				m.EXPECT().DoInTx(gomock.Any()).Return(nil, nil).AnyTimes()
+			},
+			prepareStoreMockFn: func(m *mock_usecase.MockTodoRepository, tx *sql.Tx, args domain.Todo) {
+				m.EXPECT().TransStore(tx, args).Return(int64(1), nil)
 			},
 			wantMess: usecase.TodoMessage{
 				Message: "保存しました",
@@ -51,8 +61,11 @@ func TestAdd(t *testing.T) {
 				ImagePath:  "testImg",
 				IsFinished: false,
 			},
-			prepareMockFn: func(m *mock_usecase.MockTodoRepository, args domain.Todo) {
-				m.EXPECT().Store(args).Return(nil).AnyTimes()
+			prepareTrasMockFn: func(m *mock_transaction.MockSqlHandler) {
+				m.EXPECT().DoInTx(gomock.Any()).Return(nil, nil).AnyTimes()
+			},
+			prepareStoreMockFn: func(m *mock_usecase.MockTodoRepository, tx *sql.Tx, args domain.Todo) {
+				m.EXPECT().TransStore(tx, args).Return(int64(0), nil).AnyTimes()
 			},
 			wantErr: errors.New("ユーザーIDは必須です。"),
 		},
@@ -64,8 +77,11 @@ func TestAdd(t *testing.T) {
 				ImagePath:  "testImg",
 				IsFinished: false,
 			},
-			prepareMockFn: func(m *mock_usecase.MockTodoRepository, args domain.Todo) {
-				m.EXPECT().Store(args).Return(nil).AnyTimes()
+			prepareTrasMockFn: func(m *mock_transaction.MockSqlHandler) {
+				m.EXPECT().DoInTx(gomock.Any()).Return(nil, nil).AnyTimes()
+			},
+			prepareStoreMockFn: func(m *mock_usecase.MockTodoRepository, tx *sql.Tx, args domain.Todo) {
+				m.EXPECT().TransStore(tx, args).Return(int64(0), nil).AnyTimes()
 			},
 			wantErr: errors.New("タイトルは必須です。"),
 		},
@@ -78,8 +94,11 @@ func TestAdd(t *testing.T) {
 				ImagePath:  "testImg",
 				IsFinished: false,
 			},
-			prepareMockFn: func(m *mock_usecase.MockTodoRepository, args domain.Todo) {
-				m.EXPECT().Store(args).Return(nil).AnyTimes()
+			prepareTrasMockFn: func(m *mock_transaction.MockSqlHandler) {
+				m.EXPECT().DoInTx(gomock.Any()).Return(nil, nil).AnyTimes()
+			},
+			prepareStoreMockFn: func(m *mock_usecase.MockTodoRepository, tx *sql.Tx, args domain.Todo) {
+				m.EXPECT().TransStore(tx, args).Return(int64(0), nil).AnyTimes()
 			},
 			wantErr: errors.New("タイトルは50文字未満の入力になります。"),
 		},
@@ -92,8 +111,11 @@ func TestAdd(t *testing.T) {
 				ImagePath:  "testImg",
 				IsFinished: false,
 			},
-			prepareMockFn: func(m *mock_usecase.MockTodoRepository, args domain.Todo) {
-				m.EXPECT().Store(args).Return(nil).AnyTimes()
+			prepareTrasMockFn: func(m *mock_transaction.MockSqlHandler) {
+				m.EXPECT().DoInTx(gomock.Any()).Return(nil, nil).AnyTimes()
+			},
+			prepareStoreMockFn: func(m *mock_usecase.MockTodoRepository, tx *sql.Tx, args domain.Todo) {
+				m.EXPECT().TransStore(tx, args).Return(int64(0), nil).AnyTimes()
 			},
 			wantErr: errors.New("メモは2000文字を超えて入力はできません。"),
 		},
@@ -101,8 +123,9 @@ func TestAdd(t *testing.T) {
 
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
-			tt.prepareMockFn(TodoRepository, tt.args)
-			mess, err := inter.Add(tt.args)
+			tt.prepareTrasMockFn(Transaction)
+			tt.prepareStoreMockFn(TodoRepository, tx, tt.args)
+			mess, err := inter.Add(tt.args, tt.tags)
 			if err == nil {
 				assert.Equal(t, tt.wantMess, *mess)
 			} else if err.Error() != tt.wantErr.Error() {
@@ -113,7 +136,7 @@ func TestAdd(t *testing.T) {
 }
 
 func TestTodos(t *testing.T) {
-	inter, TodoRepository := setMock(t)
+	inter, TodoRepository, _ := setMock(t)
 
 	cases := []struct {
 		name          string
@@ -170,7 +193,7 @@ func TestTodos(t *testing.T) {
 }
 
 func TestTodoByIdAndUserId(t *testing.T) {
-	inter, TodoRepository := setMock(t)
+	inter, TodoRepository, _ := setMock(t)
 
 	cases := []struct {
 		name          string
@@ -225,15 +248,90 @@ func TestTodoByIdAndUserId(t *testing.T) {
 	}
 }
 
-func TestUpdateTodo(t *testing.T) {
-	inter, TodoRepository := setMock(t)
+func TestSearchTag(t *testing.T) {
+	inter, TodoRepository, _ := setMock(t)
 
 	cases := []struct {
 		name          string
-		args          domain.Todo
-		prepareMockFn func(m *mock_usecase.MockTodoRepository, args domain.Todo)
-		wantMess      usecase.TodoMessage
+		tagId         int
+		userId        int
+		page          int
+		prepareMockFn func(m *mock_usecase.MockTodoRepository, tagId int, userId int, page int)
+		wantTodos     domain.Todos
 		wantErr       error
+	}{
+		{
+			name:   "必須項目が入力された場合、データ取得成功",
+			tagId:  1,
+			userId: 1,
+			page:   1,
+			prepareMockFn: func(m *mock_usecase.MockTodoRepository, tagId int, userId int, page int) {
+				m.EXPECT().FindByTagId(tagId, userId, page).Return([]domain.Todo{{UserID: userId, Tags: []domain.Tag{{ID: tagId}}}}, float64(1), nil)
+			},
+			wantTodos: []domain.Todo{{UserID: 1, Tags: []domain.Tag{{ID: 1}}}},
+		},
+		{
+			name:   "tagIdがnilの場合、データ取得失敗",
+			tagId:  0,
+			userId: 1,
+			page:   1,
+			prepareMockFn: func(m *mock_usecase.MockTodoRepository, tagId int, userId int, page int) {
+				m.EXPECT().FindByTagId(tagId, userId, page).Return([]domain.Todo{{UserID: userId, Tags: []domain.Tag{{ID: tagId}}}}, float64(1), nil)
+			},
+			wantErr: errors.New("データ取得に失敗しました"),
+		},
+		{
+			name:   "userIdがnilの場合、データ取得失敗",
+			tagId:  1,
+			userId: 0,
+			page:   1,
+			prepareMockFn: func(m *mock_usecase.MockTodoRepository, tagId int, userId int, page int) {
+				m.EXPECT().FindByTagId(tagId, userId, page).Return([]domain.Todo{{UserID: userId, Tags: []domain.Tag{{ID: tagId}}}}, float64(1), nil)
+			},
+			wantErr: errors.New("データ取得に失敗しました"),
+		},
+		{
+			name:   "pageがnilの場合、データ取得失敗",
+			tagId:  1,
+			userId: 1,
+			page:   0,
+			prepareMockFn: func(m *mock_usecase.MockTodoRepository, tagId int, userId int, page int) {
+				m.EXPECT().FindByTagId(tagId, userId, page).Return([]domain.Todo{{UserID: userId, Tags: []domain.Tag{{ID: tagId}}}}, float64(1), nil)
+			},
+			wantErr: errors.New("データ取得に失敗しました"),
+		},
+	}
+
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			tt.prepareMockFn(TodoRepository, tt.tagId, tt.userId, tt.page)
+			todos, _, err := inter.SearchTag(tt.tagId, tt.userId, tt.page)
+			if err != nil {
+				if err.Error() != tt.wantErr.Error() {
+					t.Error("actual:", err, "want:", tt.wantErr)
+					return
+				}
+				return
+			}
+			if !reflect.DeepEqual(todos, tt.wantTodos) {
+				assert.Equal(t, tt.wantTodos, todos)
+			}
+		})
+	}
+}
+
+func TestUpdateTodo(t *testing.T) {
+	inter, TodoRepository, Transaction := setMock(t)
+	var tx *sql.Tx
+
+	cases := []struct {
+		name                   string
+		args                   domain.Todo
+		tags                   []int
+		prepareTrasMockFn      func(m *mock_transaction.MockSqlHandler)
+		prepareOverWriteMockFn func(m *mock_usecase.MockTodoRepository, tx *sql.Tx, args domain.Todo)
+		wantMess               usecase.TodoMessage
+		wantErr                error
 	}{
 		{
 			name: "必須項目が入力された場合、データ更新成功",
@@ -244,8 +342,12 @@ func TestUpdateTodo(t *testing.T) {
 				ImagePath:  "testUpdateImage",
 				IsFinished: false,
 			},
-			prepareMockFn: func(m *mock_usecase.MockTodoRepository, args domain.Todo) {
-				m.EXPECT().Overwrite(args).Return(nil)
+			tags: []int{1, 2},
+			prepareTrasMockFn: func(m *mock_transaction.MockSqlHandler) {
+				m.EXPECT().DoInTx(gomock.Any()).Return(nil, nil).AnyTimes()
+			},
+			prepareOverWriteMockFn: func(m *mock_usecase.MockTodoRepository, tx *sql.Tx, args domain.Todo) {
+				m.EXPECT().TransOverwrite(tx, args).Return(nil)
 			},
 			wantMess: usecase.TodoMessage{
 				Message: "更新しました",
@@ -259,8 +361,12 @@ func TestUpdateTodo(t *testing.T) {
 				ImagePath:  "testImg",
 				IsFinished: false,
 			},
-			prepareMockFn: func(m *mock_usecase.MockTodoRepository, args domain.Todo) {
-				m.EXPECT().Overwrite(args).Return(nil).AnyTimes()
+			tags: []int{1, 2},
+			prepareTrasMockFn: func(m *mock_transaction.MockSqlHandler) {
+				m.EXPECT().DoInTx(gomock.Any()).Return(nil, nil).AnyTimes()
+			},
+			prepareOverWriteMockFn: func(m *mock_usecase.MockTodoRepository, tx *sql.Tx, args domain.Todo) {
+				m.EXPECT().TransOverwrite(tx, args).Return(nil).AnyTimes()
 			},
 			wantErr: errors.New("ユーザーIDは必須です。"),
 		},
@@ -268,8 +374,9 @@ func TestUpdateTodo(t *testing.T) {
 
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
-			tt.prepareMockFn(TodoRepository, tt.args)
-			mess, err := inter.UpdateTodo(tt.args)
+			tt.prepareTrasMockFn(Transaction)
+			tt.prepareOverWriteMockFn(TodoRepository, tx, tt.args)
+			mess, err := inter.UpdateTodo(tt.args, tt.tags)
 			if err == nil {
 				if mess.Message != tt.wantMess.Message {
 					assert.Equal(t, tt.wantMess, mess)
@@ -282,7 +389,7 @@ func TestUpdateTodo(t *testing.T) {
 }
 
 func TestIsFinishedTodo(t *testing.T) {
-	inter, TodoRepository := setMock(t)
+	inter, TodoRepository, _ := setMock(t)
 
 	cases := []struct {
 		name                  string
@@ -397,7 +504,7 @@ func TestIsFinishedTodo(t *testing.T) {
 }
 
 func TestDeleteTodo(t *testing.T) {
-	inter, TodoRepository := setMock(t)
+	inter, TodoRepository, _ := setMock(t)
 
 	cases := []struct {
 		name          string
@@ -452,7 +559,7 @@ func TestDeleteTodo(t *testing.T) {
 }
 
 func TestDeleteTodoIndex(t *testing.T) {
-	inter, TodoRepository := setMock(t)
+	inter, TodoRepository, _ := setMock(t)
 
 	cases := []struct {
 		name                 string
@@ -535,12 +642,14 @@ func TestDeleteTodoIndex(t *testing.T) {
 }
 
 // --- 各種Mockをインスタンス ---
-func setMock(t *testing.T) (inter *usecase.TodoInteractor, TodoRepository *mock_usecase.MockTodoRepository) {
+func setMock(t *testing.T) (inter *usecase.TodoInteractor, TodoRepository *mock_usecase.MockTodoRepository, Transaction *mock_transaction.MockSqlHandler) {
 	// mockを作成
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	TodoRepository = mock_usecase.NewMockTodoRepository(ctrl)
+	Transaction = mock_transaction.NewMockSqlHandler(ctrl)
 	inter = &usecase.TodoInteractor{}
 	inter.TodoRepository = TodoRepository
+	inter.Transaction = Transaction
 	return
 }

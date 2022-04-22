@@ -17,6 +17,7 @@ type Todo struct {
 	ImagePath  string      `json:"imagePath"`
 	IsFinished bool        `json:"isFinished"`
 	CreatedAt  time.Time   `json:"createdAt"`
+	Tags       Tags        `json:"tags"`
 }
 
 type Todos []Todo

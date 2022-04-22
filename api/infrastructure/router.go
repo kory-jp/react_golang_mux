@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	sessions "github.com/kory-jp/react_golang_mux/api/interfaces/controllers/sessions"
+	tags "github.com/kory-jp/react_golang_mux/api/interfaces/controllers/tags"
 	todos "github.com/kory-jp/react_golang_mux/api/interfaces/controllers/todos"
 	users "github.com/kory-jp/react_golang_mux/api/interfaces/controllers/users"
 
@@ -25,6 +26,7 @@ func Init() {
 	todoController := todos.NewTodoController(NewSqlHandler())
 	userController := users.NewUserController(NewSqlHandler())
 	sessionController := sessions.NewSessionController(NewSqlHandler())
+	tagController := tags.NewTagController(NewSqlHandler())
 	r.Methods("POST").Path("/api/registration").HandlerFunc(userController.Create)
 	r.Methods("POST").Path("/api/login").HandlerFunc(sessionController.Login)
 	r.Methods("GET").Path("/api/authenticate").HandlerFunc(sessionController.Authenticate)
@@ -32,10 +34,12 @@ func Init() {
 	r.Methods("POST").Path("/api/new").HandlerFunc(todoController.Create)
 	r.Methods("GET").Path("/api/todos").HandlerFunc(todoController.Index)
 	r.Methods("GET").Path("/api/todos/{id:[0-9]+}").HandlerFunc(todoController.Show)
+	r.Methods("GET").Path("/api/todos/tag/{id:[0-9]+}").HandlerFunc(todoController.TagSearch)
 	r.Methods("POST").Path("/api/todos/update/{id:[0-9]+}").HandlerFunc(todoController.Update)
 	r.Methods("POST").Path("/api/todos/isfinished/{id:[0-9]+}").HandlerFunc(todoController.IsFinished)
 	r.Methods("DELETE").Path("/api/todos/delete/{id:[0-9]+}").HandlerFunc(todoController.Delete)
 	r.Methods("DELETE").Path("/api/todos/deleteinindex/{id:[0-9]+}").HandlerFunc(todoController.DeleteInIndex)
+	r.Methods("GET").Path("/api/tag").HandlerFunc(tagController.Index)
 	// ----- 画像配信URL ---------
 	r.PathPrefix("/api/img/").Handler(http.StripPrefix("/api/img/", http.FileServer(http.Dir("./assets/dev/img"))))
 	// -----

@@ -2,11 +2,15 @@ import CameraAltIcon from '@mui/icons-material/CameraAlt';
 import ClearIcon from '@mui/icons-material/Clear';
 import { Button, Divider, FormControl, Input, InputLabel, Paper, Stack, TextField} from "@mui/material";
 import { Box } from "@mui/system";
-import React, { FC, useCallback, useState } from "react";
+import React, { FC, useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import { PrimaryButton } from "../../atoms/button/PrimaryButton";
 import { createTodo } from "../../../reducks/todos/operations";
+import TagSelection from '../../molecules/tag/TagSelction';
+import { indexTags } from '../../../reducks/tags/operations';
+import { RootState } from '../../../reducks/store/store';
+import { Tags } from '../../../reducks/tags/types';
 
 export const NewTodo: FC = () => {
   const dispatch = useDispatch()
@@ -14,6 +18,13 @@ export const NewTodo: FC = () => {
   const [content, setContent] = useState('')
   const [image, setImage] = useState<File>()
   const [preview, setPreview] =useState('')
+  const [tags, setTags] = useState<Tags>([])
+
+  useEffect(() => {
+    dispatch(indexTags())
+  }, [dispatch])
+
+  const options = useSelector((state: RootState) => state.tags)
   
   const inputTitle = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     setTitle(event.target.value)
@@ -22,6 +33,10 @@ export const NewTodo: FC = () => {
   const inputContent = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     setContent(event.target.value)
   },[setContent])
+
+  const onChangeSelectTags = useCallback((event: React.SetStateAction<Tags>) => {
+    setTags(event)
+  }, [setTags])
   
   const previewImage = useCallback((event) => {
     const imageFile = event.target.files[0];
@@ -39,13 +54,18 @@ export const NewTodo: FC = () => {
     setPreview('')
   }, [])
 
+
   const createFormData = useCallback(() => {
     const formData = new FormData()
     formData.append('title', title)
     formData.append('content', content)
     if (image) formData.append('image', image)
+    for(let i in tags) {
+      let tagId = String(tags[i].id)
+      formData.append('tagIds', tagId)
+    }
     return formData
-  }, [title, content, image])
+  }, [title, content, image, tags])
 
 
   const formData = createFormData()
@@ -109,6 +129,10 @@ export const NewTodo: FC = () => {
                 rows={4}
                 onChange={inputContent}
               />
+            </FormControl>
+            {/* --- タグ選択 --- */}
+            <FormControl fullWidth>
+              <TagSelection isMulti={true} options={options} onChange={onChangeSelectTags}/>
             </FormControl>
             {/* <FormControl> ----削除------ */}
             <InputLabel htmlFor="upImage">

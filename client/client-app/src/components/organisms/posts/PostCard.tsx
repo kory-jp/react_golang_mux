@@ -1,5 +1,5 @@
 import { push } from "connected-react-router";
-import { Button, Card, CardActions, CardContent, CardMedia, Checkbox, FormControlLabel, Grid, Typography } from "@mui/material";
+import { Button, Card, CardActions, CardContent, CardMedia, Checkbox, Chip, FormControlLabel, Grid, Typography } from "@mui/material";
 import { Dispatch, FC, SetStateAction, useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -8,7 +8,7 @@ import StickyNote2Icon from '@mui/icons-material/StickyNote2';
 import sample1 from "../../../assets/images/sample1.jpeg"
 import { Todo } from "../../../reducks/todos/types";
 import { deleteTodoInIndex, updateIsFinished } from "../../../reducks/todos/operations";
-// import usePagination from "../../../hooks/usePagination";
+import { Tags } from "../../../reducks/tags/types";
 
 type Props = {
   todo: Todo,
@@ -18,6 +18,7 @@ type Props = {
 
 export const PostCard: FC<Props> = (props) => {
   const {todo, setSumPage, queryPage} = props;
+  const tags: Tags | null = todo.tags ? todo.tags : null
   const dispatch = useDispatch()
   const [finish, setFinish] = useState(false)
   const imagePath = process.env.REACT_APP_API_URL + `img/${todo.imagePath}`
@@ -44,6 +45,10 @@ export const PostCard: FC<Props> = (props) => {
     dispatch(deleteTodoInIndex(todo.id, setSumPage, queryPage))
   }, [todo])
 
+  const onClickToSearchTagTodo = useCallback((tagId: number) => {
+    dispatch(push(`/todo/tag/${tagId}`))
+  },[])
+
   return(
     <>
       <Card
@@ -52,6 +57,7 @@ export const PostCard: FC<Props> = (props) => {
           bgcolor: finish? 'text.disabled' : 'white'
         }}
       >
+        {/* ----- 画像セクション ----- */}
         <CardMedia 
           component="img"
           image={todo.imagePath? imagePath : sample1}
@@ -65,6 +71,7 @@ export const PostCard: FC<Props> = (props) => {
           }}
           onClick={onclickToShowTodo}
         />
+        {/* ----- タイトルセクション ----- */}
         <CardContent>
           <Typography
             sx={{
@@ -77,6 +84,7 @@ export const PostCard: FC<Props> = (props) => {
             {todo.title}
           </Typography>
         </CardContent>
+        {/* ----- 編集セクション ----- */}
         <CardActions>
           <Grid container>
             <Grid item xs={6}>
@@ -118,6 +126,24 @@ export const PostCard: FC<Props> = (props) => {
             </Grid>
           </Grid>
         </CardActions>
+        {
+            tags != null && (
+              <Grid container>
+                {tags.map(tag => (
+                  <Grid
+                    key={tag.id}
+                    marginLeft="10px"
+                    marginY="20px"
+                  >
+                    <Chip 
+                      label={tag.label}
+                      onClick={() => onClickToSearchTagTodo(tag.id)}
+                    />
+                  </Grid>
+                ))}
+              </Grid>
+            )
+          }
       </Card>
     </>
   )

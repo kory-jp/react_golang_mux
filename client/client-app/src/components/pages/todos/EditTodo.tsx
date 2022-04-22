@@ -11,6 +11,11 @@ import { PrimaryButton } from "../../atoms/button/PrimaryButton";
 import { nowLoadingState } from "../../../reducks/loading/actions";
 import { pushToast } from "../../../reducks/toasts/actions";
 import { updateTodo } from "../../../reducks/todos/operations";
+import TagSelction from "../../molecules/tag/TagSelction";
+import { indexTags } from "../../../reducks/tags/operations";
+import { RootState } from "../../../reducks/store/store";
+import { Tags } from "../../../reducks/tags/types";
+
 
 type Params = {
   id: string | undefined
@@ -20,6 +25,7 @@ export const EditTodo: FC = () => {
   const dispatch = useDispatch()
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
+  const [tags, setTags] = useState<Tags>([])
   const [imagePath, setImagePath] = useState('')
   const [image, setImage] = useState<File>()
   const [preview, setPreview] =useState('')
@@ -43,6 +49,7 @@ export const EditTodo: FC = () => {
             const todo = response.data.todo
             setTitle(todo.title)
             setContent(todo.content)
+            setTags(todo.tags)
             setImagePath(todo.imagePath)
             const imagePath = todo.imagePath? process.env.REACT_APP_API_URL + `img/${todo.imagePath}` : ''            
             setPreview(imagePath)
@@ -62,7 +69,10 @@ export const EditTodo: FC = () => {
 
   useEffect(() => {
     getTodoInfo(id)
+    dispatch(indexTags())
   }, [getTodoInfo])
+
+  const options = useSelector((state: RootState) => state.tags)
 
   const inputTitle = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     setTitle(event.target.value)
@@ -71,6 +81,10 @@ export const EditTodo: FC = () => {
   const inputContent = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     setContent(event.target.value)
   },[setContent])
+
+  const onChangeSelectTags = useCallback((event: React.SetStateAction<Tags>) => {
+    setTags(event)
+  }, [setTags])
   
   const previewImage = useCallback((event) => {
     const imageFile = event.target.files[0];
@@ -96,8 +110,12 @@ export const EditTodo: FC = () => {
     formData.append('content', content)
     if (image) formData.append('image', image)
     formData.append('imagePath', imagePath)
+    for(let i in tags) {
+      let tagId = String(tags[i].id)
+      formData.append('tagIds', tagId)
+    }
     return formData
-  }, [title, content, image, imagePath])
+  }, [title, content, tags, image, imagePath])
 
 
   const formData = createFormData()
@@ -160,6 +178,15 @@ export const EditTodo: FC = () => {
                 variant="standard"
                 rows={4}
                 onChange={inputContent}
+              />
+            </FormControl>
+            {/* --- タグ選択 --- */}
+            <FormControl fullWidth>
+              <TagSelction 
+                isMulti={true} 
+                options={options} 
+                onChange={onChangeSelectTags}
+                value={tags}
               />
             </FormControl>
             <InputLabel htmlFor="upImage">
