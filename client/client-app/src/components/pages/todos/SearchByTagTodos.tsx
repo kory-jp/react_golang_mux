@@ -1,30 +1,38 @@
 import { Grid } from "@mui/material";
 import { Box } from "@mui/system";
-import { FC, useCallback, useEffect, useState } from "react";
+import { FC, useCallback, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import PostCard from "../../organisms/posts/PostCard";
 import useLoadingState from "../../../hooks/useLoadingState";
 import LoadingLayout from "../../molecules/loading/LoadingLayout";
 import { RootState } from "../../../reducks/store/store";
-import { indexTodos } from "../../../reducks/todos/operations";
+import { searchTag } from "../../../reducks/todos/operations";
 import { Todos } from "../../../reducks/todos/types";
 import DefaultPagination from "../../molecules/pagination/DefaultPagination";
 import usePagination from "../../../hooks/usePagination";
 import { push } from "connected-react-router";
+import { useParams } from "react-router-dom";
 
-export const IndexTodos: FC = () => {
+type Params = {
+  id: string | undefined
+}
+
+export const SearchByTagTodos: FC = () => {
   const dispatch = useDispatch()
   const loadingState = useLoadingState()
-  const todos: Todos = useSelector((state: RootState) => state.todos)
+  const params: Params = useParams();
+  const id: number = Number(params.id)
   const {sumPage, setSumPage, queryPage} = usePagination()
-
+  
   useEffect(() => {
-    dispatch(indexTodos(setSumPage, queryPage))
-  }, [setSumPage, queryPage])
+    dispatch(searchTag(id, queryPage, setSumPage))
+  }, [id, setSumPage, queryPage])
 
+  const todos: Todos = useSelector((state: RootState) => state.todos)
+  
   const onChangeCurrentPage = useCallback((event: React.ChangeEvent<unknown>, page: number) => {
-    dispatch(push(`/todo?page=${page}`))
+    dispatch(push(`/todo/tag/${id}?page=${page}`))
   }, [])
 
   return(
@@ -90,4 +98,4 @@ export const IndexTodos: FC = () => {
   )
 }
 
-export default IndexTodos;
+export default SearchByTagTodos;
