@@ -2,18 +2,44 @@
 
 ## 概要/開発経緯
 
-Golang の基本的な知識を習得するために開発している Todo アプリになります。
+`Golang` の基本的な知識を習得するために開発している Todo アプリになります。
 基礎的なところから理解を図るために極力、フレームワークを利用せずに開発に努めております。
-また合わせて、React+TypeScript+Redux の組み合わせでアプリを作成することも目標としており、こちらも最低限のパッケージで開発を進めております。
+また合わせて、`React+TypeScript+Redux` の組み合わせでアプリを作成することも目標としており、こちらも最低限のパッケージで開発を進めております。
 
 <br>
 <br>
+
+## こだわったところ
+
+- API(golang)を`Clean Architecture`にて設計
+
+以前に `Ruby on Rails` にて作成したポートフォリオは `Rails`の設計である `MVC`に準じてアプリケーションを作成しました。
+
+[Railsのポートフォリオ](https://github.com/kory-jp/proto2)
+
+今回は別の視点からアプリ開発の知識を得ることを目標に設計に`Clean Architecture`を採用しました。保守性などの観点から`MVC`以上に各担当役割を細かく分けている設計思想なので、コーディングの際は常にファイルの役割を考えつつ多少コードの記載量が増えても役割ごとにファイル分割を意識しました。
+
+</br>
+
+- データ整合性を維持するデータベース処理`Transaction`を、上位レイアのアプリケーション層で実行できるように`interface`を用いたダックタイピングにて実現
+
+`Todo`をタグ分類するために、モデルとして`Todo`,`Tag`中間テーブルとして`Todo_Tag_Relations`を作成。`Todo`と`Todo_Tag_Relations`を保存する際に、どちらか一方が保存処理に失敗した場合、`Rollback`をするように設計しました。ポイントとして、`transaction`にまつわるデータベース操作は`Clean Architecture`において`interfaces/database`層が制御することになりますが、アプリにおけるデータの保存や廃棄の判断はより上位レイアの`usecase/interactor`(アプリケーション)層が関心をもつ必要があります。一方、上位レイア(アプリケーション層)は下位レイア(`interfaces/database`)に依存することは`Clean Architecture`においては設計思想に沿いません。そのため、DIP（依存関係逆転の原則）の考えのもと`interface`を用いて、いわゆるダックタイピングによりアプリケーション層にて`Transaction`操作を実現しました。
+
+</br>
+
+- API(golang)側の`Mock`を利用したテストコード
+
+上述の通り、API側の設計として、`Clean Architecture`を採用しており各種役割ごとに階層化されており、効率的にテストするために初めて`goMock`を採用しました。
+とくにアプリケーションロジックの役割をになっている `api/usecase/interactor` をテストする際に、通信やデータベース処理おいて発生したエラーなどアプリケーションロジックに関係ないエラーを排除できるような設計にできました。
+
+</br>
+</br>
 
 ## 環境構築
 
-下記のサイトをもとに、golang の開発効率の向上を図るため`.air`によるホットリロードを実現
+下記のサイトをもとに、`golang`の開発効率の向上を図るため`.air`によるホットリロードを実現
 
-MySQL において発行された SQL を log ディレクトリ以下に記録
+`MySQL`において発行された`SQL`を `log` ディレクトリ以下に記録
 
 [参考サイト 1](https://qiita.com/takuya911/items/2447c97525d4c48b72a2)
 
@@ -66,7 +92,7 @@ Golang 主要パッケージ
 
 ### バックエンド: Golang
 
-- 前回、Ruby on Railsでアプリを開発しており、次は静的型付け言語でフレームワーク無しの開発を考えていた
+- 前回、`Ruby on Rails`でアプリを開発しており、次は静的型付け言語でフレームワーク無しの開発を考えていた
 [Railsのポートフォリオ](https://github.com/kory-jp/proto2)
 - コードがシンプルで静的型付け言語においては学習難易度が低い
 - アプリを作成するためのライブラリが豊富
@@ -75,8 +101,8 @@ Golang 主要パッケージ
 ### フロントエンド: React/TypeScript
 
 - コンポーネント分割に重きをおくライブラリで、ある程度の分割が出来ていれば可読性が上がるのと同時にメンテナンス性が上がるため
-- TypeScriptを併用することで型によるさらなる安全性の向上
-- Vue との比較で、より深く JavaScript の理解が必要な React にキャリア初期から触れることで自己成長につながるのではないかと考えたため
+- `TypeScript`を併用することで型によるさらなる安全性の向上
+- `Vue` との比較で、より深く `JavaScript` の理解が必要な `React` にキャリア初期から触れることで自己成長につながるのではないかと考えたため
 
 <br>
 <br>
@@ -129,6 +155,8 @@ Todo
 - 編集
 - 削除
 - 完了/未完了切り替え
+- タグ分類
+- タグ検索
 
 その他
 
@@ -291,7 +319,8 @@ TEST ALL COMPLETED
 
 ## モデルデザイン
 
-![ER](https://user-images.githubusercontent.com/66899822/162355336-c32b4fab-8d98-493a-84ee-38ba890869f1.png)
+![ER](https://user-images.githubusercontent.com/66899822/164626589-301b288a-3c30-4e55-bbb7-d851143432fc.png)
+
 
 <br>
 <br>
@@ -301,6 +330,7 @@ TEST ALL COMPLETED
 以下のサイトを参考にデザイン
 
 [［API］ API 仕様書の書き方](https://qiita.com/sunstripe2011/items/9230396febfab2eae2c2)
+
 
 - [User API](https://github.com/kory-jp/react_golang_mux/tree/main/api/interfaces/controllers/users)
 - [Session API](https://github.com/kory-jp/react_golang_mux/tree/main/api/interfaces/controllers/sessions)
