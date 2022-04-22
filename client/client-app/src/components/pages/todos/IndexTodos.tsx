@@ -1,6 +1,6 @@
-import { Grid } from "@mui/material";
+import { FormControl, Grid } from "@mui/material";
 import { Box } from "@mui/system";
-import { ChangeEvent, FC, useCallback, useEffect } from "react";
+import { FC, useCallback, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import PostCard from "../../organisms/posts/PostCard";
@@ -12,6 +12,9 @@ import { Todos } from "../../../reducks/todos/types";
 import DefaultPagination from "../../molecules/pagination/DefaultPagination";
 import usePagination from "../../../hooks/usePagination";
 import { push } from "connected-react-router";
+import TagSelction from "../../organisms/layout/TagSelction";
+import { indexTags } from "../../../reducks/tags/operations";
+import { Tags} from "../../../reducks/tags/types"
 
 export const IndexTodos: FC = () => {
   const dispatch = useDispatch()
@@ -21,11 +24,19 @@ export const IndexTodos: FC = () => {
 
   useEffect(() => {
     dispatch(indexTodos(setSumPage, queryPage))
+    dispatch(indexTags())
   }, [setSumPage, queryPage])
 
-  const changeCurrentPage = useCallback((event: React.ChangeEvent<unknown>, page: number) => {
+  const options = useSelector((state: RootState) => state.tags)
+
+  const onChangeCurrentPage = useCallback((event: React.ChangeEvent<unknown>, page: number) => {
     dispatch(push(`/todo?page=${page}`))
   }, [])
+  const onChangeSelectTags = useCallback((event: React.SetStateAction<Tags>) => {
+    console.log(event)
+    // dispatch(searchTag(event))
+  },[])
+
 
   return(
     <>
@@ -34,6 +45,7 @@ export const IndexTodos: FC = () => {
         <LoadingLayout />
        ) : (
         <Box
+          id="index_content"
           sx={{
             marginY: {
               xs: '40px',
@@ -45,6 +57,18 @@ export const IndexTodos: FC = () => {
             }
           }}
         >
+          <Box
+            sx={{
+              marginBottom: {
+                xs: '40px',
+                md: '60px'
+              }
+            }}
+          >
+            <FormControl fullWidth>
+              <TagSelction options={options} onChange={onChangeSelectTags}/>
+            </FormControl>
+          </Box>
           {
             todos != null && todos.length > 0 && (
               <Grid container rowSpacing={1} columnSpacing={{xs: 1, sm: 2, md: 3}} paddingX={2}>
@@ -70,7 +94,7 @@ export const IndexTodos: FC = () => {
           } 
           <DefaultPagination 
             count={sumPage}
-            onChange={changeCurrentPage}
+            onChange={onChangeCurrentPage}
             page={queryPage}
           />
         </Box>

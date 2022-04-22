@@ -33,6 +33,10 @@ export const NewTodo: FC = () => {
   const inputContent = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     setContent(event.target.value)
   },[setContent])
+
+  const onChangeSelectTags = useCallback((event: React.SetStateAction<Tags>) => {
+    setTags(event)
+  }, [setTags])
   
   const previewImage = useCallback((event) => {
     const imageFile = event.target.files[0];
@@ -50,7 +54,6 @@ export const NewTodo: FC = () => {
     setPreview('')
   }, [])
 
-  console.log(tags)
 
   const createFormData = useCallback(() => {
     const formData = new FormData()
@@ -59,7 +62,6 @@ export const NewTodo: FC = () => {
     if (image) formData.append('image', image)
     for(let i in tags) {
       let tagId = String(tags[i].id)
-      console.log(tagId)
       formData.append('tagIds', tagId)
     }
     return formData
@@ -70,11 +72,6 @@ export const NewTodo: FC = () => {
   const onClickNewTodo = useCallback(() => {
     dispatch(createTodo(formData))
   }, [formData])
-
-
-  const onChangeSelectTags = useCallback((event) => {
-    setTags(event)
-  }, [setTags])
 
   return(
     <>
