@@ -97,6 +97,38 @@ export const showTodo = (id: number) => {
   }
 }
 
+export const searchTag = (tagId: number, queryPage: number, setSumPage: React.Dispatch<React.SetStateAction<number>>) => {
+  return async(dispatch: Dispatch<{}>) => {
+    dispatch(nowLoadingState(true))
+    const apiURL = process.env.REACT_APP_API_URL + `todos/tag/${tagId}?page=${queryPage}`
+    axios
+      .get(apiURL,
+      {
+        withCredentials: true,
+        headers:{
+          'Accept': 'application/json',  
+          'Content-Type': 'multipart/form-data'
+        }
+      }
+      ).then((response) => {
+        if (response.data.status == 200) {
+          dispatch(indexTodosAction(response.data.todos))
+          setSumPage(Number(response.data.sumPage))
+        } else {
+          dispatch(pushToast({title: response.data.message, severity: "error"}))
+        }
+      })
+      .catch((error) => {
+        dispatch(pushToast({title: 'データ取得に失敗しました', severity: "error"}))
+      })
+      .finally(() => {
+        setTimeout(() => {
+          dispatch(nowLoadingState(false));
+        }, 800);
+      });
+  }
+}
+
 export const updateTodo = (id: number, formdata: FormData) => {
   return async(dispatch: Dispatch<{}>) => {
     const apiURL = process.env.REACT_APP_API_URL + `todos/update/${id}`

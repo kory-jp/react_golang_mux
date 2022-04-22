@@ -7,7 +7,7 @@ import { useDispatch, useSelector } from "react-redux";
 
 import { PrimaryButton } from "../../atoms/button/PrimaryButton";
 import { createTodo } from "../../../reducks/todos/operations";
-import TagSelection from '../../organisms/layout/TagSelction';
+import TagSelection from '../../molecules/tag/TagSelction';
 import { indexTags } from '../../../reducks/tags/operations';
 import { RootState } from '../../../reducks/store/store';
 import { Tags } from '../../../reducks/tags/types';
@@ -132,7 +132,7 @@ export const NewTodo: FC = () => {
             </FormControl>
             {/* --- タグ選択 --- */}
             <FormControl fullWidth>
-              <TagSelection options={options} onChange={onChangeSelectTags}/>
+              <TagSelection isMulti={true} options={options} onChange={onChangeSelectTags}/>
             </FormControl>
             {/* <FormControl> ----削除------ */}
             <InputLabel htmlFor="upImage">
