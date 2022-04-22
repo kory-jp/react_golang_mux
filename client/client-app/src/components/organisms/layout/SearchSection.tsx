@@ -26,6 +26,7 @@ export const SearchSection: FC = () => {
   return (
     <Box
       id="searchSection"
+      marginBottom="20px"
     >
       <Paper
         sx={{

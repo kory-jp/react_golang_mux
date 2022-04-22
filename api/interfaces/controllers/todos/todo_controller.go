@@ -11,7 +11,6 @@ import (
 	"path"
 	"path/filepath"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/kory-jp/react_golang_mux/api/usecase/transaction"
@@ -293,7 +292,7 @@ func (controller *TodoController) TagSearch(w http.ResponseWriter, r *http.Reque
 	fmt.Fprintln(w, resStr)
 }
 
-// --- Todo更新 ---
+// ----- Todo更新 -----
 func (controller *TodoController) Update(w http.ResponseWriter, r *http.Request) {
 	var file multipart.File
 	var fileHeader *multipart.FileHeader
@@ -415,13 +414,17 @@ func (controller *TodoController) Update(w http.ResponseWriter, r *http.Request)
 	}
 
 	var tagIds []int
-	tIs := r.Form.Get("tagIds")
-	tIs = strings.Replace(tIs, "[", "", 1)
-	tIs = strings.Replace(tIs, "]", "", 1)
-	arr1 := strings.Split(tIs, ",")
-	for _, v := range arr1 {
-		toInt, _ := strconv.Atoi(v)
-		tagIds = append(tagIds, toInt)
+	ids := r.Form["tagIds"]
+	fmt.Println("ids:", ids)
+	if len(ids) != 0 {
+		for _, v := range ids {
+			toInt, err := strconv.Atoi(v)
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+			tagIds = append(tagIds, toInt)
+		}
 	}
 
 	// -------
