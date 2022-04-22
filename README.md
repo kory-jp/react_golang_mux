@@ -15,7 +15,7 @@
 
 以前に `Ruby on Rails` にて作成したポートフォリオは `Rails`の設計である `MVC`に準じてアプリケーションを作成しました。
 
-[Railsのポートフォリオ](https://github.com/kory-jp/proto2)
+[Rails のポートフォリオ](https://github.com/kory-jp/proto2)
 
 今回は別の視点からアプリ開発の知識を得ることを目標に設計に`Clean Architecture`を採用しました。保守性などの観点から`MVC`以上に各担当役割を細かく分けている設計思想なので、コーディングの際は常にファイルの役割を考えつつ多少コードの記載量が増えても役割ごとにファイル分割を意識しました。
 
@@ -29,7 +29,7 @@
 
 - API(golang)側の`Mock`を利用したテストコード
 
-上述の通り、API側の設計として、`Clean Architecture`を採用しており各種役割ごとに階層化されており、効率的にテストするために初めて`goMock`を採用しました。
+上述の通り、API 側の設計として、`Clean Architecture`を採用しており各種役割ごとに階層化されており、効率的にテストするために初めて`goMock`を採用しました。
 とくにアプリケーションロジックの役割をになっている `api/usecase/interactor` をテストする際に、通信やデータベース処理おいて発生したエラーなどアプリケーションロジックに関係ないエラーを排除できるような設計にできました。
 
 </br>
@@ -52,6 +52,7 @@
   |_mysql/Dockerfile
       |_conf.d/my.conf
 ```
+
 <br>
 <br>
 
@@ -93,7 +94,7 @@ Golang 主要パッケージ
 ### バックエンド: Golang
 
 - 前回、`Ruby on Rails`でアプリを開発しており、次は静的型付け言語でフレームワーク無しの開発を考えていた
-[Railsのポートフォリオ](https://github.com/kory-jp/proto2)
+  [Rails のポートフォリオ](https://github.com/kory-jp/proto2)
 - コードがシンプルで静的型付け言語においては学習難易度が低い
 - アプリを作成するためのライブラリが豊富
 - 近年の言語としての勢い
@@ -265,6 +266,7 @@ sam@exm.com
 パスワード
 password
 ```
+
 <br>
 <br>
 
@@ -321,7 +323,6 @@ TEST ALL COMPLETED
 
 ![ER](https://user-images.githubusercontent.com/66899822/164626589-301b288a-3c30-4e55-bbb7-d851143432fc.png)
 
-
 <br>
 <br>
 
@@ -331,10 +332,10 @@ TEST ALL COMPLETED
 
 [［API］ API 仕様書の書き方](https://qiita.com/sunstripe2011/items/9230396febfab2eae2c2)
 
-
 - [User API](https://github.com/kory-jp/react_golang_mux/tree/main/api/interfaces/controllers/users)
 - [Session API](https://github.com/kory-jp/react_golang_mux/tree/main/api/interfaces/controllers/sessions)
 - [Todo API](https://github.com/kory-jp/react_golang_mux/tree/main/api/interfaces/controllers/todos)
+- [Tag API](https://github.com/kory-jp/react_golang_mux/tree/main/api/interfaces/controllers/tags)
 
 <br>
 <br>

@@ -2,15 +2,16 @@
 
 ## API 一覧
 
-| No. | API 機能 No. | 種類 | API 名      | 機能概要       |
-| --: | -----------: | :--- | :---------- | :------------- |
-|   0 |     TODO-000 | API  | Create      | Todo 新規作成  |
-|   1 |     TODO-001 | API  | Index       | 一覧表示       |
-|   2 |     TODO-002 | API  | Show        | 詳細表示       |
-|   3 |     TODO-003 | API  | Update      | 更新           |
-|   4 |     TODO-004 | API  | IsFinished  | 完了状態更新   |
-|   5 |     TODO-005 | API  | Delete      | 削除           |
-|   6 |     TODO-006 | API  | DeleteIndex | 削除後一覧取得 |
+| No. | API 機能 No. | 種類 | API 名      | 機能概要              |
+| --: | -----------: | :--- | :---------- | :-------------------- |
+|   0 |     TODO-000 | API  | Create      | Todo 新規作成         |
+|   1 |     TODO-001 | API  | Index       | 一覧表示              |
+|   2 |     TODO-002 | API  | Show        | 詳細表示              |
+|   3 |     TODO-003 | API  | Update      | 更新                  |
+|   4 |     TODO-004 | API  | IsFinished  | 完了状態更新          |
+|   5 |     TODO-005 | API  | Delete      | 削除                  |
+|   6 |     TODO-006 | API  | DeleteIndex | 削除後一覧取得        |
+|   7 |     TODO-007 | API  | TagSearch   | タグによる Todos 取得 |
 
 ## TODO-000
 
@@ -42,6 +43,15 @@
 | title    |   文字列 |    50 文字 |  ○   |        |          |
 | content  |   文字列 |  2000 文字 |  ○   |        |          |
 | image    | ファイル |            |      |        |          |
+| tagIds   |     配列 |            |      |        |          |
+
+<br>
+
+curl コマンド
+
+```
+curl -XPOST -b cookie.txt -b 'cookie-name='  -F "title=curlTitle" -F "content=curlContent"  -F "tagIds=[1,2,3]" -H 'Content-Type: multipart/form-data' -H 'Accept: application/json'  http://localhost:8000/api/new
+```
 
 <br>
 
@@ -84,6 +94,14 @@
 
 <br>
 
+curl コマンド
+
+```
+curl -XGET -b cookie.txt -b 'cookie-name='  -H 'Content-Type: multipart/form-data' -H 'Accept: application/json'  "http://localhost:8000/api/todos?page=1"
+```
+
+<br>
+
 ### 出力
 
 #### 返却データ(JSON)
@@ -100,6 +118,7 @@
 | &emsp; todo_imagePath  | 文字列 |            |      |       画像配信先の URL       |
 | &emsp; todo_isFinished | 真偽値 |            |      |       Todo の完了状態        |
 | &emsp; todo_created_at |  日付  |            |      |           作成日時           |
+| &emsp; todo_tags       |  配列  |            |      |           タグ情報           |
 
 <br>
 <br>
@@ -131,6 +150,14 @@
 
 <br>
 
+curl コマンド
+
+```
+curl -XGET -b cookie.txt -b 'cookie-name='  -H 'Content-Type: multipart/form-data' -H 'Accept: application/json'  http://localhost:8000/api/todos/1
+```
+
+<br>
+
 ### 出力
 
 #### 返却データ(JSON)
@@ -146,6 +173,7 @@
 | &emsp; todo_imagePath  |    文字列    |            |      |  画像配信先の URL  |
 | &emsp; todo_isFinished |    真偽値    |            |      |  Todo の完了状態   |
 | &emsp; todo_created_at |     日付     |            |      |      作成日時      |
+| &emsp; todo_tags       |     配列     |            |      |      タグ情報      |
 
 <br>
 <br>
@@ -180,6 +208,15 @@
 | title    |   文字列 |    50 文字 |  ○   |        |          |
 | content  |   文字列 |  2000 文字 |      |        |          |
 | image    | ファイル |            |      |        |          |
+| tagIds   |     配列 |            |      |        |          |
+
+<br>
+
+curl コマンド
+
+```
+curl -XPOST -b cookie.txt -b 'cookie-name='  -F "title=curlTitleUp" -F "content=curlContentUp"  -F "tagIds=[3,4]" -H 'Content-Type: multipart/form-data' -H 'Accept: application/json'  http://localhost:8000/api/todos/update/1
+```
 
 <br>
 
@@ -324,6 +361,65 @@
 | &emsp; todo_imagePath  | 文字列 |            |      |       画像配信先の URL       |
 | &emsp; todo_isFinished | 真偽値 |            |      |       Todo の完了状態        |
 | &emsp; todo_created_at |  日付  |            |      |           作成日時           |
+| &emsp; todo_tags       |  配列  |            |      |           タグ情報           |
+
+<br>
+<br>
+
+## TODO-007
+
+| API 機能 No. | TODO-007              |
+| :----------- | :-------------------- |
+| API 名       | TagSearch             |
+| 概要         | タグによる Todos 取得 |
+| URL          | /api/todos/tag/:id    |
+
+<br>
+
+### 入力
+
+| アクセス URL | /api/todos/tag/:id |
+| :----------- | :----------------- |
+
+### リクエストヘッダー　その他
+
+|  フィルード名   |        内容         |
+| :-------------: | :-----------------: |
+|     Accept      |  application/json   |
+|  Content-Type   | multipart/form-data |
+| withCredentials |        true         |
+
+#### POST データ
+
+無し
+
+<br>
+
+curl コマンド
+
+```
+curl -XGET -b cookie.txt -b 'cookie-name='  -H 'Content-Type: multipart/form-data' -H 'Accept: application/json'  "http://localhost:8000/api/todos/tag/1?page=1"
+```
+
+<br>
+
+### 出力
+
+#### 返却データ(JSON)
+
+| JSON Key               |   型   | 最大サイズ | 必須 |           値の説明           |
+| :--------------------- | :----: | ---------: | :--: | :--------------------------: |
+| status                 |  数値  |            |  ○   |      処理結果ステータス      |
+| message                | 文字列 |            |  ○   |          メッセージ          |
+| sumPage                |  数値  |            |  ○   | ページネーションの総ページ数 |
+| todos                  |  配列  |            |      |                              |
+| &emsp; todo_id         |  数値  |            |      |              id              |
+| &emsp; todo_title      | 文字列 |    20 文字 |      |           タイトル           |
+| &emsp; todo_content    | 文字列 |  2000 文字 |      |             内容             |
+| &emsp; todo_imagePath  | 文字列 |            |      |       画像配信先の URL       |
+| &emsp; todo_isFinished | 真偽値 |            |      |       Todo の完了状態        |
+| &emsp; todo_created_at |  日付  |            |      |           作成日時           |
+| &emsp; todo_tags       |  配列  |            |      |           タグ情報           |
 
 <br>
 <br>
