@@ -169,13 +169,15 @@ func (controller *TodoController) Create(w http.ResponseWriter, r *http.Request)
 
 	var tagIds []int
 	ids := r.Form["tagIds"]
-	for _, v := range ids {
-		toInt, err := strconv.Atoi(v)
-		if err != nil {
-			fmt.Println(err)
-			return
+	if len(ids) != 0 {
+		for _, v := range ids {
+			toInt, err := strconv.Atoi(v)
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+			tagIds = append(tagIds, toInt)
 		}
-		tagIds = append(tagIds, toInt)
 	}
 
 	mess, err := controller.Interactor.Add(*todoType, tagIds)

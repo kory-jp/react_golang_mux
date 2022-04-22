@@ -75,7 +75,6 @@ export const login = (email: string, password: string) => {
           }
         }
       ).then((response) => {
-        console.log(response)
         if (response.data.status == 200){
           const user: User =response.data.user
           dispatch(getUserState(user))
