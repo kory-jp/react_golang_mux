@@ -19,7 +19,6 @@ export const SearchSection: FC = () => {
   const options: Tags = useSelector((state: RootState) => state.tags)
 
   const onChangeToTagPage = useCallback((event: Tag) => {
-    console.log(event)
     const tagId: number = event.id
     dispatch(push(`/todo/tag/${tagId}`))
   },[])

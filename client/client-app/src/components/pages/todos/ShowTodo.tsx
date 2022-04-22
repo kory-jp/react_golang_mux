@@ -1,7 +1,7 @@
 import { push } from "connected-react-router";
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
-import { Box, Button, CardMedia, Checkbox, Container, Grid, Paper, Typography } from "@mui/material";
+import { Box, Button, CardMedia, Checkbox, Chip, Container, Grid, Paper, Typography } from "@mui/material";
 import { FC, useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
@@ -12,6 +12,7 @@ import { RootState } from "../../../reducks/store/store";
 import { deleteTodo, showTodo, updateIsFinished } from "../../../reducks/todos/operations";
 import useLoadingState from "../../../hooks/useLoadingState";
 import { FormControlLabel } from "@material-ui/core";
+import { Tags } from "../../../reducks/tags/types";
 
 type Params = {
   id: string | undefined
@@ -24,6 +25,7 @@ export const ShowTodo: FC = () => {
   const todo = useSelector((state: RootState) => state.todo)
   const loadingState = useLoadingState()
   const [finish, setFinish] = useState(false)
+  const tags: Tags | null = todo.tags ? todo.tags : null
 
   useEffect(() => {
     dispatch(showTodo(id))
@@ -53,6 +55,10 @@ export const ShowTodo: FC = () => {
     }
   }, [id, finish])
 
+  const onClickToSearchTagTodo = useCallback((tagId: number) => {
+    dispatch(push(`/todo/tag/${tagId}`))
+  },[])
+
 
   return(
     <>
@@ -72,6 +78,7 @@ export const ShowTodo: FC = () => {
                 },
               }}
             >
+              {/* ------ タイトル ------ */}
               <Paper
                 sx={{
                   transition: '0.7s',
@@ -100,6 +107,7 @@ export const ShowTodo: FC = () => {
                   </Box>
                 </Typography>
               </Paper>
+              {/* ----- 画像、コンテンツ ----- */}
               <Grid 
                 container 
                 justifyContent="center"
@@ -145,6 +153,7 @@ export const ShowTodo: FC = () => {
                   </Typography>
                 </Grid>
               </Grid>
+              {/* ----- 	編集セクション ----- */}
               <Paper
                 sx={{
                   paddingY: {
@@ -202,6 +211,42 @@ export const ShowTodo: FC = () => {
                   </Grid>
                 </Grid>
               </Paper>
+              {/* ----- タグセクション ----- */}
+              {
+                tags != null && (
+                  <Paper
+                  id="tag_section"
+                  sx={{
+                    paddingY: {
+                      // sx: "10px",
+                      md: "20px"
+                    },
+                    marginY: {
+                      sx: "10px",
+                      sm: "10px",
+                      md: "20px"
+                    },
+                  }}
+                >
+                  <Grid container>
+                    {
+                      tags.map(tag => (
+                        <Grid
+                          key={tag.id}
+                          marginLeft="10px"
+                          marginY="20px"
+                        >
+                          <Chip 
+                            label={tag.label}
+                            onClick={() => onClickToSearchTagTodo(tag.id)}
+                          />
+                        </Grid>
+                      ))
+                    }
+                  </Grid>
+                </Paper>
+                )
+              } 
             </Paper>
           </Container>
         )
