@@ -238,6 +238,7 @@ func (controller *TodoController) Index(w http.ResponseWriter, r *http.Request) 
 }
 
 // --- Todo詳細情報取得 ---
+// ---
 func (controller *TodoController) Show(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(path.Base(r.URL.Path))
 	if err != nil || id == 0 {
@@ -270,6 +271,8 @@ func (controller *TodoController) Show(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, resStr)
 }
 
+// --- タグ検索 ---
+// ---
 func (controller *TodoController) TagSearch(w http.ResponseWriter, r *http.Request) {
 	tagId, err := strconv.Atoi(path.Base(r.URL.Path))
 	if err != nil || tagId == 0 {
@@ -429,9 +432,25 @@ func (controller *TodoController) Update(w http.ResponseWriter, r *http.Request)
 		}
 	}
 
+	todoType.Importance, err = strconv.Atoi(r.Form.Get("importance"))
+	if err != nil {
+		fmt.Println(err)
+		log.Println(err)
+		resStr := new(Response).SetResp(400, "データ取得に失敗しました", nil, nil, 0)
+		fmt.Fprintln(w, resStr)
+		return
+	}
+	todoType.Urgency, err = strconv.Atoi(r.Form.Get("urgency"))
+	if err != nil {
+		fmt.Println(err)
+		log.Println(err)
+		resStr := new(Response).SetResp(400, "データ取得に失敗しました", nil, nil, 0)
+		fmt.Fprintln(w, resStr)
+		return
+	}
+
 	var tagIds []int
 	ids := r.Form["tagIds"]
-	fmt.Println("ids:", ids)
 	if len(ids) != 0 {
 		for _, v := range ids {
 			toInt, err := strconv.Atoi(v)
