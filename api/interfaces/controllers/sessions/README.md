@@ -40,6 +40,14 @@
 
 <br>
 
+curl
+
+```
+curl -XPOST -c cookie.txt -b 'cookie-name=' -d '{"email":"sam1@exm.com","password":"password"}' -H 'Content-Type: application/json' -H 'Accept: application/json'  http://localhost:8000/api/login
+```
+
+ <br>
+
 ### 出力
 
 #### 返却データ(JSON)
@@ -129,6 +137,12 @@
 無し
 
 <br>
+
+curl コマンド
+
+```
+curl -XDELETE -c cookie.txt -b 'cookie-name=' -H 'Content-Type: application/json' -H 'Accept: application/json'  http://localhost:8000/api/logout
+```
 
 ### 出力
 
