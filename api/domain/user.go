@@ -15,7 +15,7 @@ type User struct {
 	Name string `json:"name" validate:"required,gte=2,lt=20"`
 	// メールはユーザー識別のたユニークである必要があるが,vaildatorのuniqueは配列の中において重複するvalueをvaliationをするもの
 	// データベース上のuniqueを判断するためにMySQLにおいてエラー判断をさせ、controller上でエラー文を変換している
-	Email     string    `json:"email" validate:"required,email"`
+	Email     string    `json:"email" validate:"required,email,lt=30"`
 	Password  string    `json:"password" validate:"required,gte=5,lt=20"`
 	CreatedAt time.Time `json:"createdAt"`
 }
