@@ -54,9 +54,11 @@ var CreateTodoState = `
 			content,
 			image_path,
 			isFinished,
+			importance,
+			urgency,
 			created_at
 		)
-	value (?, ?, ?, ?, ?, ?)
+	value (?, ?, ?, ?, ?, ?, ?, ?)
 `
 
 // --- 作成されたtodoの総数 ---
@@ -214,7 +216,7 @@ var DeleteTodoState = `
 
 // --- Todo新規追加 ---
 func (repo *TodoRepository) TransStore(tx *sql.Tx, t domain.Todo) (id int64, err error) {
-	result, err := repo.TransExecute(tx, CreateTodoState, t.UserID, t.Title, t.Content, t.ImagePath, false, time.Now())
+	result, err := repo.TransExecute(tx, CreateTodoState, t.UserID, t.Title, t.Content, t.ImagePath, false, t.Importance, t.Urgency, time.Now())
 	if err != nil {
 		fmt.Println(err)
 		log.Println(err)

@@ -50,7 +50,7 @@
 curl コマンド
 
 ```
-curl -XPOST -b cookie.txt -b 'cookie-name='  -F "title=curlTitle" -F "content=curlContent"  -F "tagIds=[1,2,3]" -H 'Content-Type: multipart/form-data' -H 'Accept: application/json'  http://localhost:8000/api/new
+curl -XPOST -b cookie.txt -b 'cookie-name='  -F "title=curlTitle" -F "content=curlContent" -F "importance=1" -F "urgency=2"  -F "tagIds=1" -F "tagIds=2" -H 'Content-Type: multipart/form-data' -H 'Accept: application/json'  http://localhost:8000/api/new
 ```
 
 <br>
@@ -215,7 +215,7 @@ curl -XGET -b cookie.txt -b 'cookie-name='  -H 'Content-Type: multipart/form-dat
 curl コマンド
 
 ```
-curl -XPOST -b cookie.txt -b 'cookie-name='  -F "title=curlTitleUp" -F "content=curlContentUp"  -F "tagIds=[3,4]" -H 'Content-Type: multipart/form-data' -H 'Accept: application/json'  http://localhost:8000/api/todos/update/1
+curl -XPOST -b cookie.txt -b 'cookie-name='  -F "title=curlTitleUp" -F "content=curlContentUp" -F "importance=2" -F "urgency=3"  -F "tagIds=3" -F "tagIds=4" -H 'Content-Type: multipart/form-data' -H 'Accept: application/json'  http://localhost:8000/api/todos/update/1
 ```
 
 <br>

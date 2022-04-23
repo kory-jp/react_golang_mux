@@ -165,6 +165,22 @@ func (controller *TodoController) Create(w http.ResponseWriter, r *http.Request)
 	todoType.Title = r.Form.Get("title")
 	todoType.Content = r.Form.Get("content")
 	todoType.ImagePath = uploadFileName
+	todoType.Importance, err = strconv.Atoi(r.Form.Get("importance"))
+	if err != nil {
+		fmt.Println(err)
+		log.Println(err)
+		resStr := new(Response).SetResp(400, "データ取得に失敗しました", nil, nil, 0)
+		fmt.Fprintln(w, resStr)
+		return
+	}
+	todoType.Urgency, err = strconv.Atoi(r.Form.Get("urgency"))
+	if err != nil {
+		fmt.Println(err)
+		log.Println(err)
+		resStr := new(Response).SetResp(400, "データ取得に失敗しました", nil, nil, 0)
+		fmt.Fprintln(w, resStr)
+		return
+	}
 
 	var tagIds []int
 	ids := r.Form["tagIds"]

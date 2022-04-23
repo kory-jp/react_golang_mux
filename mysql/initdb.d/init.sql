@@ -13,6 +13,8 @@ CREATE TABLE IF NOT EXISTS todos (
 	content text NOT NULL,
 	image_path varchar(100),
 	isFinished boolean NOT NULL,
+	importance integer NOT NULL,
+	urgency integer NOT NULL,
 	created_at datetime DEFAULT CURRENT_TIMESTAMP,
 	INDEX usr_ind  (user_id),
 	FOREIGN KEY (user_id)
