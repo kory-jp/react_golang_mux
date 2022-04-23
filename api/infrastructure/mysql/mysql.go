@@ -33,7 +33,8 @@ func Query() (query []string) {
 		CREATE TABLE IF NOT EXISTS tags (
 			id integer PRIMARY KEY AUTO_INCREMENT,
 			value varchar(50) NOT NULL,
-			label varchar(50) NOT NULL
+			label varchar(50) NOT NULL,
+			created_at datetime DEFAULT CURRENT_TIMESTAMP NOT NULL
 		);	
 	`
 
@@ -42,6 +43,7 @@ func Query() (query []string) {
 			id integer PRIMARY KEY AUTO_INCREMENT,
 			todo_id integer NOT NULL,
 			tag_id integer NOT NULL,
+			created_at datetime DEFAULT CURRENT_TIMESTAMP NOT NULL,
 			INDEX tod_ind (todo_id),
 			FOREIGN KEY (todo_id)
 				REFERENCES todos(id)
