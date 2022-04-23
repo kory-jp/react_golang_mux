@@ -72,7 +72,11 @@ var SumTodoItemsState = `
 // --- Todo一覧取得 ---
 var GetTodosState = `
 	select
-		t.*,
+		t.id,
+		t.user_id,
+		t.title,
+		t.image_path,
+		t.isFinished,
 		group_concat(tg.id),
 		group_concat(tg.value),
 		group_concat(tg.label)
@@ -141,7 +145,11 @@ var FindByTagIdSumTodoItemsState = `
 
 var FindByTagIdTodosState = `
 	select
-		t.*,
+		t.id,
+		t.user_id,
+		t.title,
+		t.image_path,
+		t.isFinished,
 		group_concat(tg.id),
 		group_concat(tg.value),
 		group_concat(tg.label)
@@ -185,7 +193,9 @@ var UpdateTodoState = `
 	set
 		title = ?,
 		content = ?,
-		image_path = ?
+		image_path = ?,
+		importance = ?,
+		urgency = ?
 	where
 		id = ?
 	and
@@ -281,17 +291,14 @@ func (repo *TodoRepository) FindByUserId(identifier int, page int) (todos domain
 			&todo.ID,
 			&todo.UserID,
 			&todo.Title,
-			&todo.Content,
 			&todo.ImagePath,
 			&todo.IsFinished,
-			// &todo.Importance,
-			// &todo.Urgency,
-			&todo.CreatedAt,
 			&u8tags.U8ID,
 			&u8tags.U8Value,
 			&u8tags.U8Label,
 		)
 		if err != nil {
+			fmt.Println("ID,UserIDと一致するTodoが存在していない")
 			fmt.Println(err)
 			log.Println(err)
 			return nil, 0, err
@@ -324,6 +331,8 @@ func (repo *TodoRepository) FindByIdAndUserId(identifier int, userIdentifier int
 	var content string
 	var imagePath string
 	var isFinished bool
+	var importance int
+	var urgency int
 	var created_at time.Time
 	var u8tags U8Tags
 	row.Next()
@@ -334,11 +343,14 @@ func (repo *TodoRepository) FindByIdAndUserId(identifier int, userIdentifier int
 		&content,
 		&imagePath,
 		&isFinished,
+		&importance,
+		&urgency,
 		&created_at,
 		&u8tags.U8ID,
 		&u8tags.U8Value,
 		&u8tags.U8Label,
 	); err != nil {
+		fmt.Println("ID,UserIDと一致するTodoが存在していない")
 		fmt.Println(err)
 		log.Println(err)
 		return nil, err
@@ -352,9 +364,16 @@ func (repo *TodoRepository) FindByIdAndUserId(identifier int, userIdentifier int
 		Content:    content,
 		ImagePath:  imagePath,
 		IsFinished: isFinished,
+		Importance: importance,
+		Urgency:    urgency,
 		CreatedAt:  created_at,
 		Tags:       tags,
 	}
+	err = row.Err()
+	if err != nil {
+		fmt.Println(err)
+	}
+	row.Close()
 	return todo, nil
 }
 
@@ -406,15 +425,14 @@ func (repo *TodoRepository) FindByTagId(tagId int, userId int, page int) (todos 
 			&todo.ID,
 			&todo.UserID,
 			&todo.Title,
-			&todo.Content,
 			&todo.ImagePath,
 			&todo.IsFinished,
-			&todo.CreatedAt,
 			&u8tags.U8ID,
 			&u8tags.U8Value,
 			&u8tags.U8Label,
 		)
 		if err != nil {
+			fmt.Println("ID,UserIDと一致するTodoが存在していない")
 			fmt.Println(err)
 			log.Println(err)
 			return nil, 0, err
@@ -433,7 +451,7 @@ func (repo *TodoRepository) FindByTagId(tagId int, userId int, page int) (todos 
 
 // --- Todoの更新処理 ---
 func (repo *TodoRepository) TransOverwrite(tx *sql.Tx, t domain.Todo) (err error) {
-	_, err = repo.TransExecute(tx, UpdateTodoState, t.Title, t.Content, t.ImagePath, t.ID, t.UserID)
+	_, err = repo.TransExecute(tx, UpdateTodoState, t.Title, t.Content, t.ImagePath, t.Importance, t.Urgency, t.ID, t.UserID)
 	if err != nil {
 		fmt.Println(err)
 		log.Println(err)

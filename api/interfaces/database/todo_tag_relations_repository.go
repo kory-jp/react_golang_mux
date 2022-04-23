@@ -18,7 +18,7 @@ var CreateTodoTagRelationsState = `
 			tag_id,
 			created_at
 		)
-	value (?, ?)
+	value (?, ?, ?)
 `
 
 var DeleteTodoTagRelationsState = `
@@ -48,7 +48,7 @@ func (repo *TodoTagRelationsRepository) TransOverwrite(tx *sql.Tx, todoId int, t
 		return err
 	}
 	for _, v := range tagIds {
-		_, err = repo.TransExecute(tx, CreateTodoTagRelationsState, todoId, v)
+		_, err = repo.TransExecute(tx, CreateTodoTagRelationsState, todoId, v, time.Now())
 		if err != nil {
 			fmt.Println(err)
 			log.Println(err)
