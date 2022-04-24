@@ -10,6 +10,8 @@ export type Todo = {
   image: File | null,
   imagePath: string | undefined,
   isFinished: boolean,
+  importance: number,
+  urgency: number,
   createdAt: Date | null,
   tags: Tags
 }

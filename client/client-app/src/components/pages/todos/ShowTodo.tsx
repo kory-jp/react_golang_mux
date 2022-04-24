@@ -102,10 +102,37 @@ export const ShowTodo: FC = () => {
                       },
                     }}
                     fontWeight="bold"
+                    marginBottom="20px"
                   >
                     {todo.title}
                   </Box>
                 </Typography>
+                <Box>
+                  <Box
+                  display="flex"
+                  >
+                    <Box
+                      marginRight="30px"
+                    >
+                      重要度
+                    </Box>
+                    <Box>
+                      {todo.importance === 1 ? "重要" : "重要ではない"}
+                    </Box>
+                  </Box>
+                  <Box
+                    display="flex"
+                  >
+                    <Box
+                      marginRight="30px"
+                    >
+                      緊急度
+                    </Box>
+                    <Box>
+                      {todo.urgency === 1 ? "緊急" : "緊急ではない"}
+                    </Box>
+                  </Box>
+                </Box>
               </Paper>
               {/* ----- 画像、コンテンツ ----- */}
               <Grid 
