@@ -16,7 +16,7 @@ type Todo struct {
 	Image      image.Image `json:"image"`
 	ImagePath  string      `json:"imagePath"`
 	IsFinished bool        `json:"isFinished"`
-	Importance int         `json:"importance" validate:"required,min=1,max=3"`
+	Importance int         `json:"importance" validate:"required,min=1,max=2"`
 	Urgency    int         `json:"urgency"  validate:"required,min=1,max=2"`
 	CreatedAt  time.Time   `json:"createdAt"`
 	Tags       Tags        `json:"tags"`

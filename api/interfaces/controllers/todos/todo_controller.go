@@ -169,7 +169,7 @@ func (controller *TodoController) Create(w http.ResponseWriter, r *http.Request)
 	if err != nil {
 		fmt.Println(err)
 		log.Println(err)
-		resStr := new(Response).SetResp(400, "データ取得に失敗しました", nil, nil, 0)
+		resStr := new(Response).SetResp(400, "データ取得に失敗しました!", nil, nil, 0)
 		fmt.Fprintln(w, resStr)
 		return
 	}

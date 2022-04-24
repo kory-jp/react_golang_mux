@@ -11,7 +11,6 @@ import (
 	"net/http/httptest"
 	"os"
 	"strconv"
-	"strings"
 	"testing"
 
 	usecase "github.com/kory-jp/react_golang_mux/api/usecase/todo"
@@ -46,10 +45,12 @@ func TestCreate(t *testing.T) {
 		{
 			name: "必須項目が入力された場合(画像有り)、データ保存成功",
 			args: domain.Todo{
-				UserID:    1,
-				Title:     "test title",
-				Content:   "test content",
-				ImagePath: "test.png",
+				UserID:     1,
+				Title:      "test title",
+				Content:    "test content",
+				ImagePath:  "test.png",
+				Importance: 1,
+				Urgency:    1,
 			},
 			isImage: true,
 			prepareTrasMockFn: func(m *mock_transaction.MockSqlHandler) {
@@ -66,9 +67,11 @@ func TestCreate(t *testing.T) {
 		{
 			name: "必須項目が入力された場合(画像無し),データ保存成功",
 			args: domain.Todo{
-				UserID:  1,
-				Title:   "test title",
-				Content: "test content",
+				UserID:     1,
+				Title:      "test title",
+				Content:    "test content",
+				Importance: 1,
+				Urgency:    1,
 			},
 			isImage: false,
 			prepareTrasMockFn: func(m *mock_transaction.MockSqlHandler) {
@@ -83,11 +86,13 @@ func TestCreate(t *testing.T) {
 			},
 		},
 		{
-			name: "UserIDが0の場合,データ保存失敗",
+			name: "未ログイン(userId = 0)の場合,データ保存失敗",
 			args: domain.Todo{
-				UserID:  0,
-				Title:   "test title",
-				Content: "test content",
+				UserID:     0,
+				Title:      "test title",
+				Content:    "test content",
+				Importance: 1,
+				Urgency:    1,
 			},
 			isImage: false,
 			prepareTrasMockFn: func(m *mock_transaction.MockSqlHandler) {
@@ -101,63 +106,6 @@ func TestCreate(t *testing.T) {
 				Message: "ログインをしてください",
 			},
 		},
-		{
-			name: "タイトルが0文字の場合,データ保存失敗",
-			args: domain.Todo{
-				UserID:  1,
-				Title:   "",
-				Content: "test content",
-			},
-			isImage: false,
-			prepareTrasMockFn: func(m *mock_transaction.MockSqlHandler) {
-				m.EXPECT().DoInTx(gomock.Any()).Return(nil, nil).AnyTimes()
-			},
-			prepareRepoStoreMockFn: func(m *mock_usecase.MockTodoRepository, tx *sql.Tx, args domain.Todo) {
-				m.EXPECT().TransStore(tx, args).Return(int64(1), nil)
-			},
-			response: controllers.Response{
-				Status:  400,
-				Message: "タイトルは必須です。",
-			},
-		},
-		{
-			name: "タイトルが50文字以上の場合,データ保存失敗",
-			args: domain.Todo{
-				UserID:  1,
-				Title:   strings.Repeat("t", 51),
-				Content: "test content",
-			},
-			isImage: false,
-			prepareTrasMockFn: func(m *mock_transaction.MockSqlHandler) {
-				m.EXPECT().DoInTx(gomock.Any()).Return(nil, nil).AnyTimes()
-			},
-			prepareRepoStoreMockFn: func(m *mock_usecase.MockTodoRepository, tx *sql.Tx, args domain.Todo) {
-				m.EXPECT().TransStore(tx, args).Return(int64(1), nil)
-			},
-			response: controllers.Response{
-				Status:  400,
-				Message: "タイトルは50文字未満の入力になります。",
-			},
-		},
-		{
-			name: "メモが2001文字以上の場合,データ保存失敗",
-			args: domain.Todo{
-				UserID:  1,
-				Title:   "test title",
-				Content: strings.Repeat("t", 2001),
-			},
-			isImage: false,
-			prepareTrasMockFn: func(m *mock_transaction.MockSqlHandler) {
-				m.EXPECT().DoInTx(gomock.Any()).Return(nil, nil).AnyTimes()
-			},
-			prepareRepoStoreMockFn: func(m *mock_usecase.MockTodoRepository, tx *sql.Tx, args domain.Todo) {
-				m.EXPECT().TransStore(tx, args).Return(int64(1), nil)
-			},
-			response: controllers.Response{
-				Status:  400,
-				Message: "メモは2000文字を超えて入力はできません。",
-			},
-		},
 	}
 
 	for _, tt := range cases {
@@ -165,7 +113,7 @@ func TestCreate(t *testing.T) {
 			var buffer bytes.Buffer
 			writer := multipart.NewWriter(&buffer)
 			// -- 各種フィールドに値を設定 ---
-			setField(t, writer, tt.isImage, tt.args.ImagePath, tt.args.Title, tt.args.Content)
+			setField(t, writer, tt.isImage, tt.args.ImagePath, tt.args.Title, tt.args.Content, tt.args.Importance, tt.args.Urgency)
 			// --- フィールドの書き込みが終了後にClose ---
 			writer.Close()
 
@@ -330,24 +278,32 @@ func TestShow(t *testing.T) {
 	}
 }
 
-func TestTagSearch(t *testing.T) {
+func TestSearch(t *testing.T) {
 	ctrl, todoRepository, _ := setMock(t)
 
 	cases := []struct {
 		name                         string
 		tagId                        int
+		args                         domain.Todo
 		loginUserId                  int
 		nowPage                      int
-		prepareRepoFindByTagIdMockFn func(m *mock_usecase.MockTodoRepository, tagId int, userId int, page int)
+		apiURL                       string
+		prepareRepoFindByTagIdMockFn func(m *mock_usecase.MockTodoRepository, tagId int, importanceScore int, urfgencyScore int, userId int, page int)
 		response                     controllers.Response
 	}{
 		{
-			name:        "必須項目が入力された場合、データ取得に成功",
-			tagId:       1,
+			name:  "検索可能なURLが取得された場合、データ取得に成功",
+			tagId: 1,
+			args: domain.Todo{
+				UserID:     1,
+				Importance: 1,
+				Urgency:    1,
+			},
 			loginUserId: 1,
 			nowPage:     1,
-			prepareRepoFindByTagIdMockFn: func(m *mock_usecase.MockTodoRepository, tagId int, userId int, page int) {
-				m.EXPECT().FindByTagId(tagId, userId, page).Return([]domain.Todo{{UserID: userId, Tags: []domain.Tag{{ID: tagId}}}}, float64(1), nil)
+			apiURL:      "/api/todos/search?tagId=1&importance=1&urgency=1&page=1",
+			prepareRepoFindByTagIdMockFn: func(m *mock_usecase.MockTodoRepository, tagId int, importanceScore int, urfgencyScore int, userId int, page int) {
+				m.EXPECT().Search(tagId, importanceScore, urfgencyScore, userId, page).Return([]domain.Todo{{UserID: userId, Importance: 1, Urgency: 1, Tags: []domain.Tag{{ID: tagId}}}}, float64(1), nil)
 			},
 			response: controllers.Response{
 				Status:  200,
@@ -355,12 +311,18 @@ func TestTagSearch(t *testing.T) {
 			},
 		},
 		{
-			name:        "tagIdが0の場合、データ取得に失敗",
-			tagId:       0,
+			name:  "URLにtag情報が存在しない場合、データ取得に成功",
+			tagId: 1,
+			args: domain.Todo{
+				UserID:     1,
+				Importance: 1,
+				Urgency:    1,
+			},
 			loginUserId: 1,
 			nowPage:     1,
-			prepareRepoFindByTagIdMockFn: func(m *mock_usecase.MockTodoRepository, tagId int, userId int, page int) {
-				m.EXPECT().FindByTagId(tagId, userId, page).Return([]domain.Todo{{UserID: userId, Tags: []domain.Tag{{ID: tagId}}}}, float64(1), nil)
+			apiURL:      "/api/todos/search?importance=1&urgency=1&page=1",
+			prepareRepoFindByTagIdMockFn: func(m *mock_usecase.MockTodoRepository, tagId int, importanceScore int, urfgencyScore int, userId int, page int) {
+				m.EXPECT().Search(tagId, importanceScore, urfgencyScore, userId, page).Return([]domain.Todo{{UserID: userId, Importance: 1, Urgency: 1, Tags: []domain.Tag{{ID: tagId}}}}, float64(1), nil)
 			},
 			response: controllers.Response{
 				Status:  400,
@@ -368,25 +330,56 @@ func TestTagSearch(t *testing.T) {
 			},
 		},
 		{
-			name:        "userIdが0の場合、データ取得に失敗",
-			tagId:       1,
-			loginUserId: 0,
+			name:  "URLにimportance情報が存在しない場合、データ取得に成功",
+			tagId: 1,
+			args: domain.Todo{
+				UserID:     1,
+				Importance: 1,
+				Urgency:    1,
+			},
+			loginUserId: 1,
 			nowPage:     1,
-			prepareRepoFindByTagIdMockFn: func(m *mock_usecase.MockTodoRepository, tagId int, userId int, page int) {
-				m.EXPECT().FindByTagId(tagId, userId, page).Return([]domain.Todo{{UserID: userId, Tags: []domain.Tag{{ID: tagId}}}}, float64(1), nil)
+			apiURL:      "/api/todos/search?tagId=1&urgency=1&page=1",
+			prepareRepoFindByTagIdMockFn: func(m *mock_usecase.MockTodoRepository, tagId int, importanceScore int, urfgencyScore int, userId int, page int) {
+				m.EXPECT().Search(tagId, importanceScore, urfgencyScore, userId, page).Return([]domain.Todo{{UserID: userId, Importance: 1, Urgency: 1, Tags: []domain.Tag{{ID: tagId}}}}, float64(1), nil)
 			},
 			response: controllers.Response{
-				Status:  401,
-				Message: "ログインをしてください",
+				Status:  400,
+				Message: "データ取得に失敗しました",
 			},
 		},
 		{
-			name:        "現在ページ情報(nowPage)が0の場合、データ取得に失敗",
-			tagId:       1,
+			name:  "URLにurgency情報が存在しない場合、データ取得に成功",
+			tagId: 1,
+			args: domain.Todo{
+				UserID:     1,
+				Importance: 1,
+				Urgency:    1,
+			},
 			loginUserId: 1,
-			nowPage:     0,
-			prepareRepoFindByTagIdMockFn: func(m *mock_usecase.MockTodoRepository, tagId int, userId int, page int) {
-				m.EXPECT().FindByTagId(tagId, userId, page).Return([]domain.Todo{{UserID: userId, Tags: []domain.Tag{{ID: tagId}}}}, float64(1), nil)
+			nowPage:     1,
+			apiURL:      "/api/todos/search?importance=1&page=1",
+			prepareRepoFindByTagIdMockFn: func(m *mock_usecase.MockTodoRepository, tagId int, importanceScore int, urfgencyScore int, userId int, page int) {
+				m.EXPECT().Search(tagId, importanceScore, urfgencyScore, userId, page).Return([]domain.Todo{{UserID: userId, Importance: 1, Urgency: 1, Tags: []domain.Tag{{ID: tagId}}}}, float64(1), nil)
+			},
+			response: controllers.Response{
+				Status:  400,
+				Message: "データ取得に失敗しました",
+			},
+		},
+		{
+			name:  "URLにpage情報が存在しない場合、データ取得に成功",
+			tagId: 1,
+			args: domain.Todo{
+				UserID:     1,
+				Importance: 1,
+				Urgency:    1,
+			},
+			loginUserId: 1,
+			nowPage:     1,
+			apiURL:      "/api/todos/search?importance=1&urgency=1",
+			prepareRepoFindByTagIdMockFn: func(m *mock_usecase.MockTodoRepository, tagId int, importanceScore int, urfgencyScore int, userId int, page int) {
+				m.EXPECT().Search(tagId, importanceScore, urfgencyScore, userId, page).Return([]domain.Todo{{UserID: userId, Importance: 1, Urgency: 1, Tags: []domain.Tag{{ID: tagId}}}}, float64(1), nil)
 			},
 			response: controllers.Response{
 				Status:  400,
@@ -400,15 +393,14 @@ func TestTagSearch(t *testing.T) {
 			var buffer bytes.Buffer
 			writer := multipart.NewWriter(&buffer)
 			writer.Close()
-			apiURL := "/api/todos/tag/" + strconv.Itoa(tt.tagId) + "?page=" + strconv.Itoa(tt.nowPage)
-			req := httptest.NewRequest("GET", apiURL, &buffer)
+			req := httptest.NewRequest("GET", tt.apiURL, &buffer)
 			req.Header.Add("Content-Type", writer.FormDataContentType())
 			w := httptest.NewRecorder()
 			SetSessionUserId(t, w, req, tt.loginUserId)
 
-			tt.prepareRepoFindByTagIdMockFn(todoRepository, tt.tagId, tt.loginUserId, tt.nowPage)
+			tt.prepareRepoFindByTagIdMockFn(todoRepository, tt.tagId, tt.args.Importance, tt.args.Urgency, tt.loginUserId, tt.nowPage)
 
-			ctrl.TagSearch(w, req)
+			ctrl.Search(w, req)
 			buf, _ := ioutil.ReadAll(w.Body)
 			json.Unmarshal(buf, &response)
 			assert.Equal(t, tt.response.Status, response.Status)
@@ -433,11 +425,13 @@ func TestUpdate(t *testing.T) {
 		{
 			name: "必須項目が入力された場合(画像有り)、データ保存成功",
 			args: domain.Todo{
-				ID:        1,
-				UserID:    1,
-				Title:     "test title",
-				Content:   "test content",
-				ImagePath: "test.png",
+				ID:         1,
+				UserID:     1,
+				Title:      "test title",
+				Content:    "test content",
+				ImagePath:  "test.png",
+				Importance: 1,
+				Urgency:    1,
 			},
 			loginUserId: 1,
 			isImage:     true,
@@ -455,10 +449,13 @@ func TestUpdate(t *testing.T) {
 		{
 			name: "必須項目が入力された場合(画像無し),データ保存成功",
 			args: domain.Todo{
-				ID:      1,
-				UserID:  1,
-				Title:   "test title",
-				Content: "test content",
+				ID:         1,
+				UserID:     1,
+				Title:      "test title",
+				Content:    "test content",
+				ImagePath:  "test.png",
+				Importance: 1,
+				Urgency:    1,
 			},
 			loginUserId: 1,
 			isImage:     false,
@@ -476,10 +473,13 @@ func TestUpdate(t *testing.T) {
 		{
 			name: "ログイン状態が確認できない場合,データ保存失敗",
 			args: domain.Todo{
-				ID:      1,
-				UserID:  1,
-				Title:   "test title",
-				Content: "test content",
+				ID:         1,
+				UserID:     1,
+				Title:      "test title",
+				Content:    "test content",
+				ImagePath:  "test.png",
+				Importance: 1,
+				Urgency:    1,
 			},
 			loginUserId: 0,
 			isImage:     false,
@@ -494,69 +494,6 @@ func TestUpdate(t *testing.T) {
 				Message: "ログインをしてください",
 			},
 		},
-		{
-			name: "タイトルが0文字の場合,データ保存失敗",
-			args: domain.Todo{
-				ID:      1,
-				UserID:  1,
-				Title:   "",
-				Content: "test content",
-			},
-			loginUserId: 1,
-			isImage:     false,
-			prepareTrasMockFn: func(m *mock_transaction.MockSqlHandler) {
-				m.EXPECT().DoInTx(gomock.Any()).Return(nil, nil).AnyTimes()
-			},
-			prepareRepoOverwriteMockFn: func(m *mock_usecase.MockTodoRepository, tx *sql.Tx) {
-				m.EXPECT().TransOverwrite(tx, gomock.Any()).Return(nil)
-			},
-			response: controllers.Response{
-				Status:  400,
-				Message: "タイトルは必須です。",
-			},
-		},
-		{
-			name: "タイトルが50文字以上の場合,データ保存失敗",
-			args: domain.Todo{
-				ID:      1,
-				UserID:  1,
-				Title:   strings.Repeat("t", 51),
-				Content: "test content",
-			},
-			loginUserId: 1,
-			isImage:     false,
-			prepareTrasMockFn: func(m *mock_transaction.MockSqlHandler) {
-				m.EXPECT().DoInTx(gomock.Any()).Return(nil, nil).AnyTimes()
-			},
-			prepareRepoOverwriteMockFn: func(m *mock_usecase.MockTodoRepository, tx *sql.Tx) {
-				m.EXPECT().TransOverwrite(tx, gomock.Any()).Return(nil)
-			},
-			response: controllers.Response{
-				Status:  400,
-				Message: "タイトルは50文字未満の入力になります。",
-			},
-		},
-		{
-			name: "メモが2001文字以上の場合,データ保存失敗",
-			args: domain.Todo{
-				ID:      1,
-				UserID:  1,
-				Title:   "test title",
-				Content: strings.Repeat("t", 2001),
-			},
-			loginUserId: 1,
-			isImage:     false,
-			prepareTrasMockFn: func(m *mock_transaction.MockSqlHandler) {
-				m.EXPECT().DoInTx(gomock.Any()).Return(nil, nil).AnyTimes()
-			},
-			prepareRepoOverwriteMockFn: func(m *mock_usecase.MockTodoRepository, tx *sql.Tx) {
-				m.EXPECT().TransOverwrite(tx, gomock.Any()).Return(nil)
-			},
-			response: controllers.Response{
-				Status:  400,
-				Message: "メモは2000文字を超えて入力はできません。",
-			},
-		},
 	}
 
 	for _, tt := range cases {
@@ -564,7 +501,7 @@ func TestUpdate(t *testing.T) {
 			var buffer bytes.Buffer
 			writer := multipart.NewWriter(&buffer)
 			// -- 各種フィールドに値を設定 ---
-			setField(t, writer, tt.isImage, tt.args.ImagePath, tt.args.Title, tt.args.Content)
+			setField(t, writer, tt.isImage, tt.args.ImagePath, tt.args.Title, tt.args.Content, tt.args.Importance, tt.args.Urgency)
 			// --- フィールドの書き込みが終了後にClose ---
 			writer.Close()
 			// ---
@@ -639,7 +576,7 @@ func TestIsFinished(t *testing.T) {
 			},
 		},
 		{
-			name:   "todoIdが0の場合、エラーメッセージを取得",
+			name:   "loginUserIdが0の場合、エラーメッセージを取得",
 			todoId: 1,
 			args: domain.Todo{
 				IsFinished: true,
@@ -854,7 +791,7 @@ func setMock(t *testing.T) (ctrl *controllers.TodoController, todoRepository *mo
 }
 
 // --- todo投稿における各種にフィールドに値をセット ---
-func setField(t *testing.T, writer *multipart.Writer, isImage bool, imagePath string, title string, content string) {
+func setField(t *testing.T, writer *multipart.Writer, isImage bool, imagePath string, title string, content string, importance int, urgency int) {
 	// --- 画像データ ---
 	if isImage {
 		// fileWriter, err := writer.CreateFormFile("image", tt.args.ImagePath)
@@ -877,12 +814,27 @@ func setField(t *testing.T, writer *multipart.Writer, isImage bool, imagePath st
 		t.Fatalf("Failed to create file writer. %s", err)
 	}
 	titleWriter.Write([]byte(title))
+
 	// --- 本文データ ---
 	contentWriter, err := writer.CreateFormField("content")
 	if err != nil {
 		t.Fatalf("Failed to create file writer. %s", err)
 	}
 	contentWriter.Write([]byte(content))
+
+	// --- importance ---
+	importanceWriter, err := writer.CreateFormField("importance")
+	if err != nil {
+		t.Fatalf("Failed to create file writer. %s", err)
+	}
+	importanceWriter.Write([]byte(strconv.Itoa(importance)))
+
+	// --- importance ---
+	urgencyWriter, err := writer.CreateFormField("urgency")
+	if err != nil {
+		t.Fatalf("Failed to create file writer. %s", err)
+	}
+	urgencyWriter.Write([]byte(strconv.Itoa(urgency)))
 }
 
 // --- ユーザーのログイン情報をsessionに設定 ---
