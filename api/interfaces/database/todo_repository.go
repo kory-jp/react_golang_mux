@@ -126,6 +126,76 @@ var ShowTodoState = `
 `
 
 // --- Tag検索 ---
+var FindByAllConditionSumTodoItemsState = `
+	select count(*) from
+		todos as t
+	left join
+		todo_tag_relations as ttr
+	on
+		t.id = ttr.todo_id
+	left join
+		tags as tg
+	on
+		ttr.tag_id = tg.id
+	where
+		tg.id = ?
+	and
+		t.user_id = ?	
+	and
+		t.importance = ?
+	and
+		t.urgency = ?
+`
+
+var FindByTagIdImpScoreSumTodoItemsState = `
+	select count(*) from
+		todos as t
+	left join
+		todo_tag_relations as ttr
+	on
+		t.id = ttr.todo_id
+	left join
+		tags as tg
+	on
+		ttr.tag_id = tg.id
+	where
+		tg.id = ?
+	and
+		t.user_id = ?
+	and
+		t.importance = ?
+`
+
+var FindByTagIdUrgScoreSumTodoItemsState = `
+	select count(*) from
+		todos as t
+	left join
+		todo_tag_relations as ttr
+	on
+		t.id = ttr.todo_id
+	left join
+		tags as tg
+	on
+		ttr.tag_id = tg.id
+	where
+		tg.id = ?
+	and
+		t.user_id = ?
+	and
+		t.urgency = ?
+`
+
+var FindByImpScoreUrgScoreSumTodoItemsState = `
+	select count(*) from
+		todos as t
+	where
+		t.user_id = ?
+	and
+		t.importance = ?
+	and
+		t.urgency = ?
+`
+
 var FindByTagIdSumTodoItemsState = `
 	select count(*) from
 		todos as t
@@ -141,6 +211,197 @@ var FindByTagIdSumTodoItemsState = `
 		tg.id = ?
 	and
 		t.user_id = ?
+`
+
+var FindByImpScoreSumTodoItemsState = `
+	select count(*) from
+		todos as t
+	where
+		t.user_id = ?
+	and
+		t.importance = ?
+`
+
+var FindByUrgScoreSumTodoItemsState = `
+	select count(*) from
+		todos as t
+	where
+		t.user_id = ?
+	and
+		t.urgency = ?
+`
+
+// -----
+
+var FindByAllConditionTodosState = `
+	select
+		t.id,
+		t.user_id,
+		t.title,
+		t.image_path,
+		t.isFinished,
+		group_concat(tg.id),
+		group_concat(tg.value),
+		group_concat(tg.label)
+	from
+		todos as t
+	left join
+		todo_tag_relations as ttr
+	on
+		t.id = ttr.todo_id
+	left join
+		tags as tg
+	on
+		ttr.tag_id = tg.id
+	where
+		t.id in (
+			select
+				ttr.todo_id
+			from
+				todo_tag_relations as ttr
+			left join
+				tags as tg
+			on
+				ttr.tag_id = tg.id
+			where
+				tg.id = ?
+		)
+	and
+		t.user_id = ?
+	and
+		t.importance = ?
+	and
+		t.urgency = ?
+	group by
+		t.id
+	order by
+		id desc
+	limit 5
+	offset ?
+`
+
+var FindByTagIdImpScoreTodosState = `
+	select
+		t.id,
+		t.user_id,
+		t.title,
+		t.image_path,
+		t.isFinished,
+		group_concat(tg.id),
+		group_concat(tg.value),
+		group_concat(tg.label)
+	from
+		todos as t
+	left join
+		todo_tag_relations as ttr
+	on
+		t.id = ttr.todo_id
+	left join
+		tags as tg
+	on
+		ttr.tag_id = tg.id
+	where
+		t.id in (
+			select
+				ttr.todo_id
+			from
+				todo_tag_relations as ttr
+			left join
+				tags as tg
+			on
+				ttr.tag_id = tg.id
+			where
+				tg.id = ?
+		)
+	and
+		t.user_id = ?
+	and
+		t.importance = ?
+	group by
+		t.id
+	order by
+		id desc
+	limit 5
+	offset ?
+`
+
+var FindByTagIdUrgScoreTodosState = `
+	select
+		t.id,
+		t.user_id,
+		t.title,
+		t.image_path,
+		t.isFinished,
+		group_concat(tg.id),
+		group_concat(tg.value),
+		group_concat(tg.label)
+	from
+		todos as t
+	left join
+		todo_tag_relations as ttr
+	on
+		t.id = ttr.todo_id
+	left join
+		tags as tg
+	on
+		ttr.tag_id = tg.id
+	where
+		t.id in (
+			select
+				ttr.todo_id
+			from
+				todo_tag_relations as ttr
+			left join
+				tags as tg
+			on
+				ttr.tag_id = tg.id
+			where
+				tg.id = ?
+		)
+	and
+		t.user_id = ?
+	and
+		t.urgency = ?
+	group by
+		t.id
+	order by
+		id desc
+	limit 5
+	offset ?
+`
+
+var FindByImpScoreUrgScoreTodosState = `
+	select
+		t.id,
+		t.user_id,
+		t.title,
+		t.image_path,
+		t.isFinished,
+		group_concat(tg.id),
+		group_concat(tg.value),
+		group_concat(tg.label)
+	from
+		todos as t
+	left join
+		todo_tag_relations as ttr
+	on
+		t.id = ttr.todo_id
+	left join
+		tags as tg
+	on
+		ttr.tag_id = tg.id
+	where
+		t.user_id = ?
+	and
+		t.importance = ?
+	and
+		t.urgency = ?
+	group by
+		t.id
+	order by
+		id desc
+	limit 5
+	offset ?
 `
 
 var FindByTagIdTodosState = `
@@ -178,6 +439,70 @@ var FindByTagIdTodosState = `
 		)
 	and
 		t.user_id = ?
+	group by
+		t.id
+	order by
+		id desc
+	limit 5
+	offset ?
+`
+
+var FindByImpScoreTodosState = `
+	select
+		t.id,
+		t.user_id,
+		t.title,
+		t.image_path,
+		t.isFinished,
+		group_concat(tg.id),
+		group_concat(tg.value),
+		group_concat(tg.label)
+	from
+		todos as t
+	left join
+		todo_tag_relations as ttr
+	on
+		t.id = ttr.todo_id
+	left join
+		tags as tg
+	on
+		ttr.tag_id = tg.id
+	where
+		t.user_id = ?
+	and
+		t.importance = ?
+	group by
+		t.id
+	order by
+		id desc
+	limit 5
+	offset ?
+`
+
+var FindByUrgScoreTodosState = `
+	select
+		t.id,
+		t.user_id,
+		t.title,
+		t.image_path,
+		t.isFinished,
+		group_concat(tg.id),
+		group_concat(tg.value),
+		group_concat(tg.label)
+	from
+		todos as t
+	left join
+		todo_tag_relations as ttr
+	on
+		t.id = ttr.todo_id
+	left join
+		tags as tg
+	on
+		ttr.tag_id = tg.id
+	where
+		t.user_id = ?
+	and
+		t.urgency = ?
 	group by
 		t.id
 	order by
@@ -378,8 +703,24 @@ func (repo *TodoRepository) FindByIdAndUserId(identifier int, userIdentifier int
 }
 
 // --- Todoタグ検索 ---
-func (repo *TodoRepository) FindByTagId(tagId int, userId int, page int) (todos domain.Todos, sumPage float64, err error) {
-	row, err := repo.Query(FindByTagIdSumTodoItemsState, tagId, userId)
+func (repo *TodoRepository) Search(tagId int, importanceScore int, urgencyScore int, userId int, page int) (todos domain.Todos, sumPage float64, err error) {
+	var row Row
+	switch {
+	case tagId != 0 && importanceScore != 0 && urgencyScore != 0:
+		row, err = repo.Query(FindByAllConditionSumTodoItemsState, tagId, userId, importanceScore, urgencyScore)
+	case tagId != 0 && importanceScore != 0 && urgencyScore == 0:
+		row, err = repo.Query(FindByTagIdImpScoreSumTodoItemsState, tagId, userId, importanceScore)
+	case tagId != 0 && importanceScore == 0 && urgencyScore != 0:
+		row, err = repo.Query(FindByTagIdUrgScoreSumTodoItemsState, tagId, userId, urgencyScore)
+	case tagId == 0 && importanceScore != 0 && urgencyScore != 0:
+		row, err = repo.Query(FindByImpScoreUrgScoreSumTodoItemsState, userId, importanceScore, urgencyScore)
+	case tagId != 0 && importanceScore == 0 && urgencyScore == 0:
+		row, err = repo.Query(FindByTagIdSumTodoItemsState, tagId, userId)
+	case tagId == 0 && importanceScore != 0 && urgencyScore == 0:
+		row, err = repo.Query(FindByImpScoreSumTodoItemsState, userId, importanceScore)
+	case tagId == 0 && importanceScore == 0 && urgencyScore != 0:
+		row, err = repo.Query(FindByUrgScoreSumTodoItemsState, userId, urgencyScore)
+	}
 	if err != nil {
 		fmt.Println(err)
 		log.Println(err)
@@ -410,7 +751,23 @@ func (repo *TodoRepository) FindByTagId(tagId int, userId int, page int) (todos 
 		offsetNum = (page - 1) * 5
 	}
 
-	rows, err := repo.Query(FindByTagIdTodosState, tagId, userId, offsetNum)
+	var rows Row
+	switch {
+	case tagId != 0 && importanceScore != 0 && urgencyScore != 0:
+		rows, err = repo.Query(FindByAllConditionTodosState, tagId, userId, importanceScore, urgencyScore, offsetNum)
+	case tagId != 0 && importanceScore != 0 && urgencyScore == 0:
+		rows, err = repo.Query(FindByTagIdImpScoreTodosState, tagId, userId, importanceScore, offsetNum)
+	case tagId != 0 && importanceScore == 0 && urgencyScore != 0:
+		rows, err = repo.Query(FindByTagIdUrgScoreTodosState, tagId, userId, urgencyScore, offsetNum)
+	case tagId == 0 && importanceScore != 0 && urgencyScore != 0:
+		rows, err = repo.Query(FindByImpScoreUrgScoreTodosState, userId, importanceScore, urgencyScore, offsetNum)
+	case tagId != 0 && importanceScore == 0 && urgencyScore == 0:
+		rows, err = repo.Query(FindByTagIdTodosState, tagId, userId, offsetNum)
+	case tagId == 0 && importanceScore != 0 && urgencyScore == 0:
+		rows, err = repo.Query(FindByImpScoreTodosState, userId, importanceScore, offsetNum)
+	case tagId == 0 && importanceScore == 0 && urgencyScore != 0:
+		rows, err = repo.Query(FindByUrgScoreTodosState, userId, urgencyScore, offsetNum)
+	}
 	if err != nil {
 		fmt.Println(err)
 		log.Println(err)

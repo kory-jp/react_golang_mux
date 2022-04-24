@@ -11,7 +11,7 @@
 |   4 |     TODO-004 | API  | IsFinished  | 完了状態更新          |
 |   5 |     TODO-005 | API  | Delete      | 削除                  |
 |   6 |     TODO-006 | API  | DeleteIndex | 削除後一覧取得        |
-|   7 |     TODO-007 | API  | TagSearch   | タグによる Todos 取得 |
+|   7 |     TODO-007 | API  | Search      | タグによる Todos 取得 |
 
 ## TODO-000
 
@@ -373,18 +373,18 @@ curl -XPOST -b cookie.txt -b 'cookie-name='  -F "title=curlTitleUp" -F "content=
 
 ## TODO-007
 
-| API 機能 No. | TODO-007              |
-| :----------- | :-------------------- |
-| API 名       | TagSearch             |
-| 概要         | タグによる Todos 取得 |
-| URL          | /api/todos/tag/:id    |
+| API 機能 No. | TODO-007                  |
+| :----------- | :------------------------ |
+| API 名       | Search                    |
+| 概要         | 条件指定による Todos 取得 |
+| URL          | /api/todos/search         |
 
 <br>
 
 ### 入力
 
-| アクセス URL | /api/todos/tag/:id |
-| :----------- | :----------------- |
+| アクセス URL | /api/todos/search |
+| :----------- | :---------------- |
 
 ### リクエストヘッダー　その他
 
@@ -403,7 +403,7 @@ curl -XPOST -b cookie.txt -b 'cookie-name='  -F "title=curlTitleUp" -F "content=
 curl コマンド
 
 ```
-curl -XGET -b cookie.txt -b 'cookie-name='  -H 'Content-Type: multipart/form-data' -H 'Accept: application/json'  "http://localhost:8000/api/todos/tag/1?page=1"
+curl -XGET -b cookie.txt -b 'cookie-name='  -H 'Content-Type: multipart/form-data' -H 'Accept: application/json'  "http://localhost:8000/api/todos/search?tagId=1&importance=1&urgency=1&page=1"
 ```
 
 <br>
