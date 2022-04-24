@@ -11,10 +11,11 @@ import { PrimaryButton } from "../../atoms/button/PrimaryButton";
 import { nowLoadingState } from "../../../reducks/loading/actions";
 import { pushToast } from "../../../reducks/toasts/actions";
 import { updateTodo } from "../../../reducks/todos/operations";
-import TagSelction from "../../molecules/tag/TagSelction";
+import TagSelection from "../../molecules/tag/TagSelection";
 import { indexTags } from "../../../reducks/tags/operations";
 import { RootState } from "../../../reducks/store/store";
 import { Tags } from "../../../reducks/tags/types";
+import { makeOptions } from "../../../utils/makeOptions";
 
 
 type Params = {
@@ -31,6 +32,7 @@ export const EditTodo: FC = () => {
   const [preview, setPreview] =useState('')
   const params: Params = useParams();
   const id: number = Number(params.id)
+  const { importanceOptions, urgencyOptions } = makeOptions()
 
   const getTodoInfo = useCallback((id: number) => {
       dispatch(nowLoadingState(true))
@@ -182,13 +184,31 @@ export const EditTodo: FC = () => {
             </FormControl>
             {/* --- タグ選択 --- */}
             <FormControl fullWidth>
-              <TagSelction 
+              <TagSelection
+                placeholder={"タグを選択してください"}  
                 isMulti={true} 
                 options={options} 
                 onChange={onChangeSelectTags}
                 value={tags}
               />
             </FormControl>
+            <FormControl fullWidth>
+              <TagSelection
+                placeholder={"重要度を選択してください"} 
+                isMulti={true} 
+                options={importanceOptions} 
+                onChange={onChangeSelectTags}
+              />
+            </FormControl>
+            <FormControl fullWidth>
+              <TagSelection
+                placeholder={"緊急度を選択してください"} 
+                isMulti={true} 
+                options={urgencyOptions} 
+                onChange={onChangeSelectTags}
+              />
+            </FormControl>
+
             <InputLabel htmlFor="upImage">
               <Input 
                 id='upImage'

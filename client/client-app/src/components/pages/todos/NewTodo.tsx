@@ -7,10 +7,11 @@ import { useDispatch, useSelector } from "react-redux";
 
 import { PrimaryButton } from "../../atoms/button/PrimaryButton";
 import { createTodo } from "../../../reducks/todos/operations";
-import TagSelection from '../../molecules/tag/TagSelction';
+import TagSelection from '../../molecules/tag/TagSelection';
 import { indexTags } from '../../../reducks/tags/operations';
 import { RootState } from '../../../reducks/store/store';
 import { Tags } from '../../../reducks/tags/types';
+import { makeOptions } from '../../../utils/makeOptions';
 
 export const NewTodo: FC = () => {
   const dispatch = useDispatch()
@@ -19,6 +20,7 @@ export const NewTodo: FC = () => {
   const [image, setImage] = useState<File>()
   const [preview, setPreview] =useState('')
   const [tags, setTags] = useState<Tags>([])
+  const { importanceOptions, urgencyOptions } = makeOptions()
 
   useEffect(() => {
     dispatch(indexTags())
@@ -132,7 +134,28 @@ export const NewTodo: FC = () => {
             </FormControl>
             {/* --- タグ選択 --- */}
             <FormControl fullWidth>
-              <TagSelection isMulti={true} options={options} onChange={onChangeSelectTags}/>
+              <TagSelection
+                placeholder={"タグを選択してください"} 
+                isMulti={true} 
+                options={options} 
+                onChange={onChangeSelectTags}
+              />
+            </FormControl>
+            <FormControl fullWidth>
+              <TagSelection
+                placeholder={"重要度を選択してください"} 
+                isMulti={true} 
+                options={importanceOptions} 
+                onChange={onChangeSelectTags}
+              />
+            </FormControl>
+            <FormControl fullWidth>
+              <TagSelection
+                placeholder={"緊急度を選択してください"} 
+                isMulti={true} 
+                options={urgencyOptions} 
+                onChange={onChangeSelectTags}
+              />
             </FormControl>
             {/* <FormControl> ----削除------ */}
             <InputLabel htmlFor="upImage">
