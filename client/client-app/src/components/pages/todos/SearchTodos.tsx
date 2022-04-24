@@ -1,18 +1,18 @@
 import { Grid } from "@mui/material";
 import { Box } from "@mui/system";
-import { FC, useCallback, useEffect } from "react";
+import { FC, useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import PostCard from "../../organisms/posts/PostCard";
 import useLoadingState from "../../../hooks/useLoadingState";
 import LoadingLayout from "../../molecules/loading/LoadingLayout";
 import { RootState } from "../../../reducks/store/store";
-import { searchTag } from "../../../reducks/todos/operations";
+import { search } from "../../../reducks/todos/operations";
 import { Todos } from "../../../reducks/todos/types";
 import DefaultPagination from "../../molecules/pagination/DefaultPagination";
 import usePagination from "../../../hooks/usePagination";
 import { push } from "connected-react-router";
-import { useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 
 type Params = {
   id: string | undefined
@@ -21,19 +21,22 @@ type Params = {
 export const SearchByTagTodos: FC = () => {
   const dispatch = useDispatch()
   const loadingState = useLoadingState()
-  const params: Params = useParams();
-  const id: number = Number(params.id)
   const {sumPage, setSumPage, queryPage} = usePagination()
-  
-  useEffect(() => {
-    dispatch(searchTag(id, queryPage, setSumPage))
-  }, [id, setSumPage, queryPage])
+
+  const query =  new URLSearchParams(useLocation().search)
+  const tagId = Number(query.get("tagId"))
+  const importance = Number(query.get("importance"))
+  const urgency = Number(query.get("urgency"))
+
+  useEffect(()=> {
+    dispatch(search(tagId, importance, urgency, queryPage, setSumPage))
+  },[tagId, importance, urgency, queryPage])
 
   const todos: Todos = useSelector((state: RootState) => state.todos)
   
   const onChangeCurrentPage = useCallback((event: React.ChangeEvent<unknown>, page: number) => {
-    dispatch(push(`/todo/tag/${id}?page=${page}`))
-  }, [])
+    dispatch(push(`/todo/search?tagId=${tagId}&importance=${importance}&urgency=${urgency}&page=${page}`))
+  }, [tagId, importance, urgency])
 
   return(
     <>

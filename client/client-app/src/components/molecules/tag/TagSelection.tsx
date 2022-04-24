@@ -8,30 +8,32 @@ interface Tag {
 }
 
 type Props = {
+  placeholder: string
   isMulti: boolean
   options: Tag[]
   onChange: (event:any) => void
-  value?: Tag[]
+  values?: Tag[]
+  value?: Tag
 }
 
 
-export const TagSelction: VFC<Props> = (props) => {
-  const {isMulti, onChange, options, value} = props
+export const TagSelection: VFC<Props> = (props) => {
+  const {placeholder, isMulti, onChange, options, values, value} = props
 
   if (isMulti) {
     return(
       <Select 
-        placeholder="分野を選択してください"
+        placeholder={placeholder}
         isMulti
         options={options}
         onChange={onChange}
-        value={value}
+        value={values}
       />
     )
   } else {
     return(
       <Select 
-      placeholder="分野を選択してください"
+      placeholder={placeholder}
       options={options}
       onChange={onChange}
       value={value}
@@ -40,4 +42,4 @@ export const TagSelction: VFC<Props> = (props) => {
   }
 }
 
-export default TagSelction; 
+export default TagSelection; 

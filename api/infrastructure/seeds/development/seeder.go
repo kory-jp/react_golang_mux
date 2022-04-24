@@ -9,15 +9,27 @@ import (
 
 func main() {
 	con := infrastructure.NewSqlHandler()
+	// if err := seed.UsersSeed(con); err != nil {
+	// 	fmt.Println(err)
+	// } else {
+	// 	if err := seed.TodosSeed(con); err != nil {
+	// 		fmt.Println(err)
+	// 	} else {
+	// 		if err := seed.TagsSeed(con); err != nil {
+	// 			fmt.Println(err)
+	// 		}
+	// 	}
+	// }
 	if err := seed.UsersSeed(con); err != nil {
 		fmt.Println(err)
-	} else {
-		if err := seed.TodosSeed(con); err != nil {
-			fmt.Println(err)
-		} else {
-			if err := seed.TagsSeed(con); err != nil {
-				fmt.Println(err)
-			}
-		}
+		return
+	}
+	if err := seed.TodosSeed(con); err != nil {
+		fmt.Println(err)
+		return
+	}
+	if err := seed.TagsSeed(con); err != nil {
+		fmt.Println(err)
+		return
 	}
 }

@@ -86,22 +86,28 @@ func (interactor *TodoInteractor) TodoByIdAndUserId(id int, userId int) (todo *d
 }
 
 // --- タグ検索 ---
-func (interactor *TodoInteractor) SearchTag(tagId int, userId int, page int) (todos domain.Todos, sumPage float64, err error) {
-	if tagId == 0 || userId == 0 || page == 0 {
+func (interactor *TodoInteractor) Search(tagId int, importanceScore int, urgencyScore int, userId int, page int) (todos domain.Todos, sumPage float64, err error) {
+	if userId == 0 || page == 0 || importanceScore > 2 || urgencyScore > 2 {
 		err = errors.New("データ取得に失敗しました")
 		fmt.Println(err)
 		log.Println(err)
 		return nil, 0, err
 	}
 
-	todos, sumPage, err = interactor.TodoRepository.FindByTagId(tagId, userId, page)
+	if tagId == 0 && importanceScore == 0 && urgencyScore == 0 {
+		err = errors.New("データ取得に失敗しました")
+		fmt.Println(err)
+		log.Println(err)
+		return nil, 0, err
+	}
+
+	todos, sumPage, err = interactor.TodoRepository.Search(tagId, importanceScore, urgencyScore, userId, page)
 	if err != nil {
 		fmt.Println(err)
 		log.Println(err)
 		err = errors.New("データ取得に失敗しました")
 		return nil, 0, err
 	}
-
 	return todos, sumPage, nil
 }
 

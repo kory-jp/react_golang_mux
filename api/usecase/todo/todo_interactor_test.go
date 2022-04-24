@@ -41,6 +41,8 @@ func TestAdd(t *testing.T) {
 				Content:    "test content",
 				ImagePath:  "testImg",
 				IsFinished: false,
+				Importance: 1,
+				Urgency:    1,
 			},
 			tags: []int{1, 2, 3},
 			prepareTrasMockFn: func(m *mock_transaction.MockSqlHandler) {
@@ -60,6 +62,8 @@ func TestAdd(t *testing.T) {
 				Content:    "test content",
 				ImagePath:  "testImg",
 				IsFinished: false,
+				Importance: 1,
+				Urgency:    1,
 			},
 			prepareTrasMockFn: func(m *mock_transaction.MockSqlHandler) {
 				m.EXPECT().DoInTx(gomock.Any()).Return(nil, nil).AnyTimes()
@@ -76,6 +80,8 @@ func TestAdd(t *testing.T) {
 				Content:    "test content",
 				ImagePath:  "testImg",
 				IsFinished: false,
+				Importance: 1,
+				Urgency:    1,
 			},
 			prepareTrasMockFn: func(m *mock_transaction.MockSqlHandler) {
 				m.EXPECT().DoInTx(gomock.Any()).Return(nil, nil).AnyTimes()
@@ -93,6 +99,8 @@ func TestAdd(t *testing.T) {
 				Content:    "test Content",
 				ImagePath:  "testImg",
 				IsFinished: false,
+				Importance: 1,
+				Urgency:    1,
 			},
 			prepareTrasMockFn: func(m *mock_transaction.MockSqlHandler) {
 				m.EXPECT().DoInTx(gomock.Any()).Return(nil, nil).AnyTimes()
@@ -103,13 +111,15 @@ func TestAdd(t *testing.T) {
 			wantErr: errors.New("タイトルは50文字未満の入力になります。"),
 		},
 		{
-			name: "メモが2001文字以上の場合、エラー返却",
+			name: "メモが2000文字以上の場合、エラー返却",
 			args: domain.Todo{
 				UserID:     1,
 				Title:      "test title",
-				Content:    strings.Repeat("c", 2001),
+				Content:    strings.Repeat("c", 2000),
 				ImagePath:  "testImg",
 				IsFinished: false,
+				Importance: 1,
+				Urgency:    1,
 			},
 			prepareTrasMockFn: func(m *mock_transaction.MockSqlHandler) {
 				m.EXPECT().DoInTx(gomock.Any()).Return(nil, nil).AnyTimes()
@@ -117,7 +127,83 @@ func TestAdd(t *testing.T) {
 			prepareStoreMockFn: func(m *mock_usecase.MockTodoRepository, tx *sql.Tx, args domain.Todo) {
 				m.EXPECT().TransStore(tx, args).Return(int64(0), nil).AnyTimes()
 			},
-			wantErr: errors.New("メモは2000文字を超えて入力はできません。"),
+			wantErr: errors.New("メモは2000文字未満の入力になります。"),
+		},
+		{
+			name: "Importanceがnilの場合、エラー返却",
+			args: domain.Todo{
+				UserID:     1,
+				Title:      "test title",
+				Content:    "test content",
+				ImagePath:  "testImg",
+				IsFinished: false,
+				Importance: 0,
+				Urgency:    1,
+			},
+			prepareTrasMockFn: func(m *mock_transaction.MockSqlHandler) {
+				m.EXPECT().DoInTx(gomock.Any()).Return(nil, nil).AnyTimes()
+			},
+			prepareStoreMockFn: func(m *mock_usecase.MockTodoRepository, tx *sql.Tx, args domain.Todo) {
+				m.EXPECT().TransStore(tx, args).Return(int64(0), nil).AnyTimes()
+			},
+			wantErr: errors.New("重要度は必須です。"),
+		},
+		{
+			name: "Importanceに3以上の値が入力されたの場合、エラー返却",
+			args: domain.Todo{
+				UserID:     1,
+				Title:      "test title",
+				Content:    "test content",
+				ImagePath:  "testImg",
+				IsFinished: false,
+				Importance: 3,
+				Urgency:    1,
+			},
+			prepareTrasMockFn: func(m *mock_transaction.MockSqlHandler) {
+				m.EXPECT().DoInTx(gomock.Any()).Return(nil, nil).AnyTimes()
+			},
+			prepareStoreMockFn: func(m *mock_usecase.MockTodoRepository, tx *sql.Tx, args domain.Todo) {
+				m.EXPECT().TransStore(tx, args).Return(int64(0), nil).AnyTimes()
+			},
+			wantErr: errors.New("重要度に異常な値が入力されました"),
+		},
+		{
+			name: "Urgencyがnilの場合、エラー返却",
+			args: domain.Todo{
+				UserID:     1,
+				Title:      "test title",
+				Content:    "test content",
+				ImagePath:  "testImg",
+				IsFinished: false,
+				Importance: 1,
+				Urgency:    0,
+			},
+			prepareTrasMockFn: func(m *mock_transaction.MockSqlHandler) {
+				m.EXPECT().DoInTx(gomock.Any()).Return(nil, nil).AnyTimes()
+			},
+			prepareStoreMockFn: func(m *mock_usecase.MockTodoRepository, tx *sql.Tx, args domain.Todo) {
+				m.EXPECT().TransStore(tx, args).Return(int64(0), nil).AnyTimes()
+			},
+			wantErr: errors.New("緊急度は必須です。"),
+		},
+		{
+			name: "Urgencyに3以上の値が入力されたの場合、エラー返却",
+			args: domain.Todo{
+				UserID:     1,
+				Title:      "test title",
+				Content:    "test content",
+				ImagePath:  "testImg",
+				IsFinished: false,
+				Importance: 1,
+				Urgency:    3,
+			},
+			prepareTrasMockFn: func(m *mock_transaction.MockSqlHandler) {
+				m.EXPECT().DoInTx(gomock.Any()).Return(nil, nil).AnyTimes()
+			},
+			prepareStoreMockFn: func(m *mock_usecase.MockTodoRepository, tx *sql.Tx, args domain.Todo) {
+				m.EXPECT().TransStore(tx, args).Return(int64(0), nil).AnyTimes()
+			},
+			wantErr: errors.New("緊急度に異常な値が入力されました"),
 		},
 	}
 
@@ -248,15 +334,16 @@ func TestTodoByIdAndUserId(t *testing.T) {
 	}
 }
 
-func TestSearchTag(t *testing.T) {
+func TestSearch(t *testing.T) {
 	inter, TodoRepository, _ := setMock(t)
 
 	cases := []struct {
 		name          string
 		tagId         int
 		userId        int
+		args          domain.Todo
 		page          int
-		prepareMockFn func(m *mock_usecase.MockTodoRepository, tagId int, userId int, page int)
+		prepareMockFn func(m *mock_usecase.MockTodoRepository, tagId int, importanceScore int, urfgencyScore int, userId int, page int)
 		wantTodos     domain.Todos
 		wantErr       error
 	}{
@@ -264,19 +351,59 @@ func TestSearchTag(t *testing.T) {
 			name:   "必須項目が入力された場合、データ取得成功",
 			tagId:  1,
 			userId: 1,
-			page:   1,
-			prepareMockFn: func(m *mock_usecase.MockTodoRepository, tagId int, userId int, page int) {
-				m.EXPECT().FindByTagId(tagId, userId, page).Return([]domain.Todo{{UserID: userId, Tags: []domain.Tag{{ID: tagId}}}}, float64(1), nil)
+			args: domain.Todo{
+				UserID:     1,
+				Importance: 1,
+				Urgency:    1,
 			},
-			wantTodos: []domain.Todo{{UserID: 1, Tags: []domain.Tag{{ID: 1}}}},
+			page: 1,
+			prepareMockFn: func(m *mock_usecase.MockTodoRepository, tagId int, importanceScore int, urfgencyScore int, userId int, page int) {
+				m.EXPECT().Search(tagId, importanceScore, urfgencyScore, userId, page).Return([]domain.Todo{{UserID: userId, Importance: 1, Urgency: 1, Tags: []domain.Tag{{ID: tagId}}}}, float64(1), nil)
+			},
+			wantTodos: []domain.Todo{{UserID: 1, Importance: 1, Urgency: 1, Tags: []domain.Tag{{ID: 1}}}},
 		},
 		{
-			name:   "tagIdがnilの場合、データ取得失敗",
+			name:   "検索条件(importance)に不適切な値(3以上の値)が入力された場合、データ取得失敗",
+			tagId:  1,
+			userId: 1,
+			args: domain.Todo{
+				UserID:     1,
+				Importance: 3,
+				Urgency:    1,
+			},
+			page: 1,
+			prepareMockFn: func(m *mock_usecase.MockTodoRepository, tagId int, importanceScore int, urfgencyScore int, userId int, page int) {
+				m.EXPECT().Search(tagId, importanceScore, urfgencyScore, userId, page).Return([]domain.Todo{{UserID: userId, Importance: 1, Urgency: 1, Tags: []domain.Tag{{ID: tagId}}}}, float64(1), nil)
+			},
+			wantErr: errors.New("データ取得に失敗しました"),
+		},
+		{
+			name:   "検索条件(urgency)に不適切な値(3以上の値)が入力された場合、データ取得失敗",
+			tagId:  1,
+			userId: 1,
+			args: domain.Todo{
+				UserID:     1,
+				Importance: 1,
+				Urgency:    3,
+			},
+			page: 1,
+			prepareMockFn: func(m *mock_usecase.MockTodoRepository, tagId int, importanceScore int, urfgencyScore int, userId int, page int) {
+				m.EXPECT().Search(tagId, importanceScore, urfgencyScore, userId, page).Return([]domain.Todo{{UserID: userId, Importance: 1, Urgency: 1, Tags: []domain.Tag{{ID: tagId}}}}, float64(1), nil)
+			},
+			wantErr: errors.New("データ取得に失敗しました"),
+		},
+		{
+			name:   "検索条件(tagId,importance,urgency)に値が入力されていない場合、データ取得失敗",
 			tagId:  0,
 			userId: 1,
-			page:   1,
-			prepareMockFn: func(m *mock_usecase.MockTodoRepository, tagId int, userId int, page int) {
-				m.EXPECT().FindByTagId(tagId, userId, page).Return([]domain.Todo{{UserID: userId, Tags: []domain.Tag{{ID: tagId}}}}, float64(1), nil)
+			args: domain.Todo{
+				UserID:     1,
+				Importance: 0,
+				Urgency:    0,
+			},
+			page: 1,
+			prepareMockFn: func(m *mock_usecase.MockTodoRepository, tagId int, importanceScore int, urfgencyScore int, userId int, page int) {
+				m.EXPECT().Search(tagId, importanceScore, urfgencyScore, userId, page).Return([]domain.Todo{{UserID: userId, Importance: 1, Urgency: 1, Tags: []domain.Tag{{ID: tagId}}}}, float64(1), nil)
 			},
 			wantErr: errors.New("データ取得に失敗しました"),
 		},
@@ -284,9 +411,14 @@ func TestSearchTag(t *testing.T) {
 			name:   "userIdがnilの場合、データ取得失敗",
 			tagId:  1,
 			userId: 0,
-			page:   1,
-			prepareMockFn: func(m *mock_usecase.MockTodoRepository, tagId int, userId int, page int) {
-				m.EXPECT().FindByTagId(tagId, userId, page).Return([]domain.Todo{{UserID: userId, Tags: []domain.Tag{{ID: tagId}}}}, float64(1), nil)
+			args: domain.Todo{
+				UserID:     1,
+				Importance: 1,
+				Urgency:    1,
+			},
+			page: 1,
+			prepareMockFn: func(m *mock_usecase.MockTodoRepository, tagId int, importanceScore int, urfgencyScore int, userId int, page int) {
+				m.EXPECT().Search(tagId, importanceScore, urfgencyScore, userId, page).Return([]domain.Todo{{UserID: userId, Importance: 1, Urgency: 1, Tags: []domain.Tag{{ID: tagId}}}}, float64(1), nil)
 			},
 			wantErr: errors.New("データ取得に失敗しました"),
 		},
@@ -295,8 +427,8 @@ func TestSearchTag(t *testing.T) {
 			tagId:  1,
 			userId: 1,
 			page:   0,
-			prepareMockFn: func(m *mock_usecase.MockTodoRepository, tagId int, userId int, page int) {
-				m.EXPECT().FindByTagId(tagId, userId, page).Return([]domain.Todo{{UserID: userId, Tags: []domain.Tag{{ID: tagId}}}}, float64(1), nil)
+			prepareMockFn: func(m *mock_usecase.MockTodoRepository, tagId int, importanceScore int, urfgencyScore int, userId int, page int) {
+				m.EXPECT().Search(tagId, importanceScore, urfgencyScore, userId, page).Return([]domain.Todo{{UserID: userId, Importance: 1, Urgency: 1, Tags: []domain.Tag{{ID: tagId}}}}, float64(1), nil)
 			},
 			wantErr: errors.New("データ取得に失敗しました"),
 		},
@@ -304,8 +436,8 @@ func TestSearchTag(t *testing.T) {
 
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
-			tt.prepareMockFn(TodoRepository, tt.tagId, tt.userId, tt.page)
-			todos, _, err := inter.SearchTag(tt.tagId, tt.userId, tt.page)
+			tt.prepareMockFn(TodoRepository, tt.tagId, tt.args.Importance, tt.args.Urgency, tt.userId, tt.page)
+			todos, _, err := inter.Search(tt.tagId, tt.args.Importance, tt.args.Urgency, tt.userId, tt.page)
 			if err != nil {
 				if err.Error() != tt.wantErr.Error() {
 					t.Error("actual:", err, "want:", tt.wantErr)
@@ -341,6 +473,8 @@ func TestUpdateTodo(t *testing.T) {
 				Content:    "test update content",
 				ImagePath:  "testUpdateImage",
 				IsFinished: false,
+				Importance: 1,
+				Urgency:    1,
 			},
 			tags: []int{1, 2},
 			prepareTrasMockFn: func(m *mock_transaction.MockSqlHandler) {
@@ -360,6 +494,8 @@ func TestUpdateTodo(t *testing.T) {
 				Content:    "test content",
 				ImagePath:  "testImg",
 				IsFinished: false,
+				Importance: 1,
+				Urgency:    1,
 			},
 			tags: []int{1, 2},
 			prepareTrasMockFn: func(m *mock_transaction.MockSqlHandler) {

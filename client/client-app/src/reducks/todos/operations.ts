@@ -97,10 +97,10 @@ export const showTodo = (id: number) => {
   }
 }
 
-export const searchTag = (tagId: number, queryPage: number, setSumPage: React.Dispatch<React.SetStateAction<number>>) => {
+export const search = (tagId: number, importance: number, urgency: number, queryPage: number, setSumPage: React.Dispatch<React.SetStateAction<number>>) => {
   return async(dispatch: Dispatch<{}>) => {
     dispatch(nowLoadingState(true))
-    const apiURL = process.env.REACT_APP_API_URL + `todos/tag/${tagId}?page=${queryPage}`
+    const apiURL = process.env.REACT_APP_API_URL + `todos/search?tagId=${tagId}&importance=${importance}&urgency=${urgency}&page=${queryPage}`
     axios
       .get(apiURL,
       {

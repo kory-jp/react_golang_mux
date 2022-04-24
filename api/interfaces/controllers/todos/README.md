@@ -11,7 +11,7 @@
 |   4 |     TODO-004 | API  | IsFinished  | 完了状態更新          |
 |   5 |     TODO-005 | API  | Delete      | 削除                  |
 |   6 |     TODO-006 | API  | DeleteIndex | 削除後一覧取得        |
-|   7 |     TODO-007 | API  | TagSearch   | タグによる Todos 取得 |
+|   7 |     TODO-007 | API  | Search      | タグによる Todos 取得 |
 
 ## TODO-000
 
@@ -38,19 +38,21 @@
 
 #### POST データ
 
-| JSON Key |       型 | 最大サイズ | 必須 | 暗号化 | 検索条件 |
-| :------- | -------: | ---------: | :--: | :----: | :------- |
-| title    |   文字列 |    50 文字 |  ○   |        |          |
-| content  |   文字列 |  2000 文字 |  ○   |        |          |
-| image    | ファイル |            |      |        |          |
-| tagIds   |     配列 |            |      |        |          |
+| JSON Key   |       型 |         最大サイズ | 必須 | 暗号化 | 検索条件 |
+| :--------- | -------: | -----------------: | :--: | :----: | :------- |
+| title      |   文字列 |            50 文字 |  ○   |        |          |
+| content    |   文字列 |          2000 文字 |  ○   |        |          |
+| image      | ファイル |                    |      |        |          |
+| importance |   数値型 | 1 文字(1~3 の範囲) |  ○   |        |          |
+| urgency    |   数値型 | 1 文字(1~3 の範囲) |  ○   |        |          |
+| tagIds     |     配列 |                    |      |        |          |
 
 <br>
 
 curl コマンド
 
 ```
-curl -XPOST -b cookie.txt -b 'cookie-name='  -F "title=curlTitle" -F "content=curlContent"  -F "tagIds=[1,2,3]" -H 'Content-Type: multipart/form-data' -H 'Accept: application/json'  http://localhost:8000/api/new
+curl -XPOST -b cookie.txt -b 'cookie-name='  -F "title=curlTitle" -F "content=curlContent" -F "importance=1" -F "urgency=2"  -F "tagIds=1" -F "tagIds=2" -H 'Content-Type: multipart/form-data' -H 'Accept: application/json'  http://localhost:8000/api/new
 ```
 
 <br>
@@ -111,13 +113,12 @@ curl -XGET -b cookie.txt -b 'cookie-name='  -H 'Content-Type: multipart/form-dat
 | status                 |  数値  |            |  ○   |      処理結果ステータス      |
 | message                | 文字列 |            |  ○   |          メッセージ          |
 | sumPage                |  数値  |            |  ○   | ページネーションの総ページ数 |
-| todos                  |  配列  |            |      |                              |
+| todos                  |  配列  |            |  ○   |                              |
 | &emsp; todo_id         |  数値  |            |      |              id              |
+| &emsp; todo_user_id    |  数値  |            |      |         ユーザー id          |
 | &emsp; todo_title      | 文字列 |    20 文字 |      |           タイトル           |
-| &emsp; todo_content    | 文字列 |  2000 文字 |      |             内容             |
-| &emsp; todo_imagePath  | 文字列 |            |      |       画像配信先の URL       |
-| &emsp; todo_isFinished | 真偽値 |            |      |       Todo の完了状態        |
-| &emsp; todo_created_at |  日付  |            |      |           作成日時           |
+| &emsp; todo_imagePath  | 文字列 |     1 文字 |      |       画像配信先の URL       |
+| &emsp; todo_isFinished | 真偽値 |     1 文字 |      |       Todo の完了状態        |
 | &emsp; todo_tags       |  配列  |            |      |           タグ情報           |
 
 <br>
@@ -172,6 +173,8 @@ curl -XGET -b cookie.txt -b 'cookie-name='  -H 'Content-Type: multipart/form-dat
 | &emsp; todo_content    |    文字列    |  2000 文字 |      |        内容        |
 | &emsp; todo_imagePath  |    文字列    |            |      |  画像配信先の URL  |
 | &emsp; todo_isFinished |    真偽値    |            |      |  Todo の完了状態   |
+| &emsp; todo_importance |    数値型    |     1 文字 |      |  重要性を示す指標  |
+| &emsp; todo_urgency    |    数値型    |     1 文字 |      |  緊急性を示す指標  |
 | &emsp; todo_created_at |     日付     |            |      |      作成日時      |
 | &emsp; todo_tags       |     配列     |            |      |      タグ情報      |
 
@@ -203,19 +206,21 @@ curl -XGET -b cookie.txt -b 'cookie-name='  -H 'Content-Type: multipart/form-dat
 
 #### POST データ
 
-| JSON Key |       型 | 最大サイズ | 必須 | 暗号化 | 検索条件 |
-| :------- | -------: | ---------: | :--: | :----: | :------- |
-| title    |   文字列 |    50 文字 |  ○   |        |          |
-| content  |   文字列 |  2000 文字 |      |        |          |
-| image    | ファイル |            |      |        |          |
-| tagIds   |     配列 |            |      |        |          |
+| JSON Key   |       型 |         最大サイズ | 必須 | 暗号化 | 検索条件 |
+| :--------- | -------: | -----------------: | :--: | :----: | :------- |
+| title      |   文字列 |            50 文字 |  ○   |        |          |
+| content    |   文字列 |          2000 文字 |      |        |          |
+| image      | ファイル |                    |      |        |          |
+| importance |   数値型 | 1 文字(1~3 の範囲) |  ○   |        |          |
+| urgency    |   数値型 | 1 文字(1~3 の範囲) |  ○   |        |          |
+| tagIds     |     配列 |                    |      |        |          |
 
 <br>
 
 curl コマンド
 
 ```
-curl -XPOST -b cookie.txt -b 'cookie-name='  -F "title=curlTitleUp" -F "content=curlContentUp"  -F "tagIds=[3,4]" -H 'Content-Type: multipart/form-data' -H 'Accept: application/json'  http://localhost:8000/api/todos/update/1
+curl -XPOST -b cookie.txt -b 'cookie-name='  -F "title=curlTitleUp" -F "content=curlContentUp" -F "importance=2" -F "urgency=3"  -F "tagIds=3" -F "tagIds=4" -H 'Content-Type: multipart/form-data' -H 'Accept: application/json'  http://localhost:8000/api/todos/update/1
 ```
 
 <br>
@@ -368,18 +373,18 @@ curl -XPOST -b cookie.txt -b 'cookie-name='  -F "title=curlTitleUp" -F "content=
 
 ## TODO-007
 
-| API 機能 No. | TODO-007              |
-| :----------- | :-------------------- |
-| API 名       | TagSearch             |
-| 概要         | タグによる Todos 取得 |
-| URL          | /api/todos/tag/:id    |
+| API 機能 No. | TODO-007                  |
+| :----------- | :------------------------ |
+| API 名       | Search                    |
+| 概要         | 条件指定による Todos 取得 |
+| URL          | /api/todos/search         |
 
 <br>
 
 ### 入力
 
-| アクセス URL | /api/todos/tag/:id |
-| :----------- | :----------------- |
+| アクセス URL | /api/todos/search |
+| :----------- | :---------------- |
 
 ### リクエストヘッダー　その他
 
@@ -398,7 +403,7 @@ curl -XPOST -b cookie.txt -b 'cookie-name='  -F "title=curlTitleUp" -F "content=
 curl コマンド
 
 ```
-curl -XGET -b cookie.txt -b 'cookie-name='  -H 'Content-Type: multipart/form-data' -H 'Accept: application/json'  "http://localhost:8000/api/todos/tag/1?page=1"
+curl -XGET -b cookie.txt -b 'cookie-name='  -H 'Content-Type: multipart/form-data' -H 'Accept: application/json'  "http://localhost:8000/api/todos/search?tagId=1&importance=1&urgency=1&page=1"
 ```
 
 <br>
@@ -415,10 +420,8 @@ curl -XGET -b cookie.txt -b 'cookie-name='  -H 'Content-Type: multipart/form-dat
 | todos                  |  配列  |            |      |                              |
 | &emsp; todo_id         |  数値  |            |      |              id              |
 | &emsp; todo_title      | 文字列 |    20 文字 |      |           タイトル           |
-| &emsp; todo_content    | 文字列 |  2000 文字 |      |             内容             |
 | &emsp; todo_imagePath  | 文字列 |            |      |       画像配信先の URL       |
 | &emsp; todo_isFinished | 真偽値 |            |      |       Todo の完了状態        |
-| &emsp; todo_created_at |  日付  |            |      |           作成日時           |
 | &emsp; todo_tags       |  配列  |            |      |           タグ情報           |
 
 <br>

@@ -7,10 +7,11 @@ import { useDispatch, useSelector } from "react-redux";
 
 import { PrimaryButton } from "../../atoms/button/PrimaryButton";
 import { createTodo } from "../../../reducks/todos/operations";
-import TagSelection from '../../molecules/tag/TagSelction';
+import TagSelection from '../../molecules/tag/TagSelection';
 import { indexTags } from '../../../reducks/tags/operations';
 import { RootState } from '../../../reducks/store/store';
 import { Tags } from '../../../reducks/tags/types';
+import { makeOptions } from '../../../utils/makeOptions';
 
 export const NewTodo: FC = () => {
   const dispatch = useDispatch()
@@ -19,6 +20,9 @@ export const NewTodo: FC = () => {
   const [image, setImage] = useState<File>()
   const [preview, setPreview] =useState('')
   const [tags, setTags] = useState<Tags>([])
+  const [importance, setImportance] = useState(0)
+  const [urgency, setUrgency] = useState(0)
+  const { importanceOptions, urgencyOptions } = makeOptions()
 
   useEffect(() => {
     dispatch(indexTags())
@@ -37,7 +41,15 @@ export const NewTodo: FC = () => {
   const onChangeSelectTags = useCallback((event: React.SetStateAction<Tags>) => {
     setTags(event)
   }, [setTags])
-  
+
+  const onChangeImportance = useCallback((event) => {
+    setImportance(event.id)
+  }, [setImportance])
+
+  const onChangeUrgency = useCallback((event) => {
+    setUrgency(event.id)
+  }, [setUrgency])
+
   const previewImage = useCallback((event) => {
     const imageFile = event.target.files[0];
     setPreview(window.URL.createObjectURL(imageFile))
@@ -59,13 +71,15 @@ export const NewTodo: FC = () => {
     const formData = new FormData()
     formData.append('title', title)
     formData.append('content', content)
+    formData.append('importance', String(importance))
+    formData.append('urgency', String(urgency))
     if (image) formData.append('image', image)
     for(let i in tags) {
       let tagId = String(tags[i].id)
       formData.append('tagIds', tagId)
     }
     return formData
-  }, [title, content, image, tags])
+  }, [title, content, importance, urgency, image, tags])
 
 
   const formData = createFormData()
@@ -132,7 +146,28 @@ export const NewTodo: FC = () => {
             </FormControl>
             {/* --- タグ選択 --- */}
             <FormControl fullWidth>
-              <TagSelection isMulti={true} options={options} onChange={onChangeSelectTags}/>
+              <TagSelection
+                placeholder={"タグを選択してください"} 
+                isMulti={true} 
+                options={options} 
+                onChange={onChangeSelectTags}
+              />
+            </FormControl>
+            <FormControl fullWidth>
+              <TagSelection
+                placeholder={"重要度を選択してください"} 
+                isMulti={false} 
+                options={importanceOptions} 
+                onChange={onChangeImportance}
+              />
+            </FormControl>
+            <FormControl fullWidth>
+              <TagSelection
+                placeholder={"緊急度を選択してください"} 
+                isMulti={false} 
+                options={urgencyOptions} 
+                onChange={onChangeUrgency}
+              />
             </FormControl>
             {/* <FormControl> ----削除------ */}
             <InputLabel htmlFor="upImage">
@@ -166,7 +201,7 @@ export const NewTodo: FC = () => {
               </Box> : null
             }
             <PrimaryButton
-              disabled={title === ''}
+              disabled={title === '' || importance === 0 || urgency === 0}
               onClick={onClickNewTodo}
             >
               追加

@@ -11,10 +11,11 @@ import { PrimaryButton } from "../../atoms/button/PrimaryButton";
 import { nowLoadingState } from "../../../reducks/loading/actions";
 import { pushToast } from "../../../reducks/toasts/actions";
 import { updateTodo } from "../../../reducks/todos/operations";
-import TagSelction from "../../molecules/tag/TagSelction";
+import TagSelection from "../../molecules/tag/TagSelection";
 import { indexTags } from "../../../reducks/tags/operations";
 import { RootState } from "../../../reducks/store/store";
 import { Tags } from "../../../reducks/tags/types";
+import { makeOptions } from "../../../utils/makeOptions";
 
 
 type Params = {
@@ -26,11 +27,14 @@ export const EditTodo: FC = () => {
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
   const [tags, setTags] = useState<Tags>([])
+  const [importance, setImportance] = useState(0)
+  const [urgency, setUrgency] = useState(0)
   const [imagePath, setImagePath] = useState('')
   const [image, setImage] = useState<File>()
   const [preview, setPreview] =useState('')
   const params: Params = useParams();
   const id: number = Number(params.id)
+  const { importanceOptions, urgencyOptions } = makeOptions()
 
   const getTodoInfo = useCallback((id: number) => {
       dispatch(nowLoadingState(true))
@@ -49,6 +53,8 @@ export const EditTodo: FC = () => {
             const todo = response.data.todo
             setTitle(todo.title)
             setContent(todo.content)
+            setImportance(todo.importance)
+            setUrgency(todo.urgency)
             setTags(todo.tags)
             setImagePath(todo.imagePath)
             const imagePath = todo.imagePath? process.env.REACT_APP_API_URL + `img/${todo.imagePath}` : ''            
@@ -85,6 +91,14 @@ export const EditTodo: FC = () => {
   const onChangeSelectTags = useCallback((event: React.SetStateAction<Tags>) => {
     setTags(event)
   }, [setTags])
+
+  const onChangeImportance = useCallback((event) => {
+    setImportance(event.id)
+  }, [setImportance])
+
+  const onChangeUrgency = useCallback((event) => {
+    setUrgency(event.id)
+  }, [setUrgency])
   
   const previewImage = useCallback((event) => {
     const imageFile = event.target.files[0];
@@ -103,11 +117,15 @@ export const EditTodo: FC = () => {
     setPreview('')
   }, [])
 
+
+
   const createFormData = useCallback(() => {
     const formData = new FormData()
     formData.append('id', String(id))
     formData.append('title', title)
     formData.append('content', content)
+    formData.append('importance', String(importance))
+    formData.append('urgency', String(urgency))
     if (image) formData.append('image', image)
     formData.append('imagePath', imagePath)
     for(let i in tags) {
@@ -115,7 +133,7 @@ export const EditTodo: FC = () => {
       formData.append('tagIds', tagId)
     }
     return formData
-  }, [title, content, tags, image, imagePath])
+  }, [title, content, importance, urgency, tags, image, imagePath])
 
 
   const formData = createFormData()
@@ -182,13 +200,33 @@ export const EditTodo: FC = () => {
             </FormControl>
             {/* --- タグ選択 --- */}
             <FormControl fullWidth>
-              <TagSelction 
+              <TagSelection
+                placeholder={"タグを選択してください"}  
                 isMulti={true} 
                 options={options} 
                 onChange={onChangeSelectTags}
-                value={tags}
+                values={tags}
               />
             </FormControl>
+            <FormControl fullWidth>
+              <TagSelection
+                placeholder={"重要度を選択してください"} 
+                isMulti={false} 
+                options={importanceOptions} 
+                onChange={onChangeImportance}
+                value={importance === 1 ? importanceOptions[0] : importanceOptions[1]}
+              />
+            </FormControl>
+            <FormControl fullWidth>
+              <TagSelection
+                placeholder={"緊急度を選択してください"} 
+                isMulti={false} 
+                options={urgencyOptions} 
+                onChange={onChangeUrgency}
+                value={urgency === 1 ? urgencyOptions[0] : urgencyOptions[1]}
+              />
+            </FormControl>
+
             <InputLabel htmlFor="upImage">
               <Input 
                 id='upImage'

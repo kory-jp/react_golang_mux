@@ -13,7 +13,9 @@ type TagRepository struct {
 
 var GetTagsState = `
 	select
-		*
+		id,
+		value,
+		label
 	from
 		tags
 `
