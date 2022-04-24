@@ -12,12 +12,13 @@ type Props = {
   isMulti: boolean
   options: Tag[]
   onChange: (event:any) => void
-  value?: Tag[]
+  values?: Tag[]
+  value?: Tag
 }
 
 
 export const TagSelection: VFC<Props> = (props) => {
-  const {placeholder, isMulti, onChange, options, value} = props
+  const {placeholder, isMulti, onChange, options, values, value} = props
 
   if (isMulti) {
     return(
@@ -26,7 +27,7 @@ export const TagSelection: VFC<Props> = (props) => {
         isMulti
         options={options}
         onChange={onChange}
-        value={value}
+        value={values}
       />
     )
   } else {

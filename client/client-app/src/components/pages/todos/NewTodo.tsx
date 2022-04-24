@@ -20,6 +20,8 @@ export const NewTodo: FC = () => {
   const [image, setImage] = useState<File>()
   const [preview, setPreview] =useState('')
   const [tags, setTags] = useState<Tags>([])
+  const [importance, setImportance] = useState(0)
+  const [urgency, setUrgency] = useState(0)
   const { importanceOptions, urgencyOptions } = makeOptions()
 
   useEffect(() => {
@@ -39,7 +41,15 @@ export const NewTodo: FC = () => {
   const onChangeSelectTags = useCallback((event: React.SetStateAction<Tags>) => {
     setTags(event)
   }, [setTags])
-  
+
+  const onChangeImportance = useCallback((event) => {
+    setImportance(event.id)
+  }, [setImportance])
+
+  const onChangeUrgency = useCallback((event) => {
+    setUrgency(event.id)
+  }, [setUrgency])
+
   const previewImage = useCallback((event) => {
     const imageFile = event.target.files[0];
     setPreview(window.URL.createObjectURL(imageFile))
@@ -61,13 +71,15 @@ export const NewTodo: FC = () => {
     const formData = new FormData()
     formData.append('title', title)
     formData.append('content', content)
+    formData.append('importance', String(importance))
+    formData.append('urgency', String(urgency))
     if (image) formData.append('image', image)
     for(let i in tags) {
       let tagId = String(tags[i].id)
       formData.append('tagIds', tagId)
     }
     return formData
-  }, [title, content, image, tags])
+  }, [title, content, importance, urgency, image, tags])
 
 
   const formData = createFormData()
@@ -144,17 +156,17 @@ export const NewTodo: FC = () => {
             <FormControl fullWidth>
               <TagSelection
                 placeholder={"重要度を選択してください"} 
-                isMulti={true} 
+                isMulti={false} 
                 options={importanceOptions} 
-                onChange={onChangeSelectTags}
+                onChange={onChangeImportance}
               />
             </FormControl>
             <FormControl fullWidth>
               <TagSelection
                 placeholder={"緊急度を選択してください"} 
-                isMulti={true} 
+                isMulti={false} 
                 options={urgencyOptions} 
-                onChange={onChangeSelectTags}
+                onChange={onChangeUrgency}
               />
             </FormControl>
             {/* <FormControl> ----削除------ */}
@@ -189,7 +201,7 @@ export const NewTodo: FC = () => {
               </Box> : null
             }
             <PrimaryButton
-              disabled={title === ''}
+              disabled={title === '' || importance === 0 || urgency === 0}
               onClick={onClickNewTodo}
             >
               追加
