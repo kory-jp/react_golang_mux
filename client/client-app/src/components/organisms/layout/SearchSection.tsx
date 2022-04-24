@@ -1,28 +1,43 @@
 import { Grid, Paper } from "@mui/material";
 import { Box } from "@mui/system";
 import { push } from "connected-react-router";
-import { FC, useCallback, useEffect } from "react";
+import { FC, useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../reducks/store/store";
 import { indexTags } from "../../../reducks/tags/operations";
-import { Tag, Tags } from "../../../reducks/tags/types";
+import { Tags } from "../../../reducks/tags/types";
 import { makeOptions } from "../../../utils/makeOptions";
+import { PrimaryButton } from "../../atoms/button/PrimaryButton";
 import TagSelction from "../../molecules/tag/TagSelection";
 
 
 export const SearchSection: FC = () => {
   const dispatch = useDispatch()
+  const [tag, setTag] = useState(0)
+  const [importance, setImportance] = useState(0)
+  const [urgency, setUrgency] = useState(0)
 
   useEffect(() => {
     dispatch(indexTags())
   }, [])
-
   const options: Tags = useSelector((state: RootState) => state.tags)
   const { importanceOptions, urgencyOptions } = makeOptions()
-  const onChangeToTagPage = useCallback((event: Tag) => {
-    const tagId: number = event.id
-    dispatch(push(`/todo/tag/${tagId}`))
-  },[])
+
+  const onChangeSelectTags = useCallback((event) => {
+    setTag(event.id)
+  }, [setTag])
+
+  const onChangeImportance = useCallback((event) => {
+    setImportance(event.id)
+  }, [setImportance])
+
+  const onChangeUrgency = useCallback((event) => {
+    setUrgency(event.id)
+  }, [setUrgency])
+
+  const onClickToSearchPage = useCallback(() => {
+    dispatch(push(`/todo/search?tagId=${tag}&importance=${importance}&urgency=${urgency}`))
+  },[tag, importance, urgency])
 
   return (
     <Box
@@ -53,7 +68,7 @@ export const SearchSection: FC = () => {
               placeholder={"タグを選択してください"}
               isMulti={false} 
               options={options} 
-              onChange={onChangeToTagPage}
+              onChange={onChangeSelectTags}
             />
           </Grid>
           <Grid
@@ -66,7 +81,7 @@ export const SearchSection: FC = () => {
               placeholder={"重要度を選択してください"}
               isMulti={false} 
               options={importanceOptions} 
-              onChange={onChangeToTagPage}
+              onChange={onChangeImportance}
             />
           </Grid>
           <Grid
@@ -79,8 +94,20 @@ export const SearchSection: FC = () => {
               placeholder={"緊急度を選択してください"} 
               isMulti={false} 
               options={urgencyOptions} 
-              onChange={onChangeToTagPage}
+              onChange={onChangeUrgency}
             />
+          </Grid>
+          <Grid
+            item
+            minWidth="300px"
+            marginRight="20px"
+            marginBottom="20px"
+          >
+            <PrimaryButton
+              onClick={onClickToSearchPage}
+            >
+              検索
+            </PrimaryButton>
           </Grid>
         </Grid>
       </Paper>
