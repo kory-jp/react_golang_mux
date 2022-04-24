@@ -87,7 +87,7 @@ func (interactor *TodoInteractor) TodoByIdAndUserId(id int, userId int) (todo *d
 
 // --- タグ検索 ---
 func (interactor *TodoInteractor) Search(tagId int, importanceScore int, urgencyScore int, userId int, page int) (todos domain.Todos, sumPage float64, err error) {
-	if userId == 0 || page == 0 || importanceScore > 3 || urgencyScore > 3 {
+	if userId == 0 || page == 0 || importanceScore > 2 || urgencyScore > 2 {
 		err = errors.New("データ取得に失敗しました")
 		fmt.Println(err)
 		log.Println(err)
