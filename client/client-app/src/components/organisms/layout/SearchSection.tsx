@@ -6,7 +6,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../reducks/store/store";
 import { indexTags } from "../../../reducks/tags/operations";
 import { Tag, Tags } from "../../../reducks/tags/types";
-import TagSelction from "../../molecules/tag/TagSelction";
+import { makeOptions } from "../../../utils/makeOptions";
+import TagSelction from "../../molecules/tag/TagSelection";
 
 
 export const SearchSection: FC = () => {
@@ -17,7 +18,7 @@ export const SearchSection: FC = () => {
   }, [])
 
   const options: Tags = useSelector((state: RootState) => state.tags)
-
+  const { importanceOptions, urgencyOptions } = makeOptions()
   const onChangeToTagPage = useCallback((event: Tag) => {
     const tagId: number = event.id
     dispatch(push(`/todo/tag/${tagId}`))
@@ -45,10 +46,39 @@ export const SearchSection: FC = () => {
           <Grid
             item
             minWidth="300px"
+            marginRight="20px"
+            marginBottom="20px"
           >
-            <TagSelction 
+            <TagSelction
+              placeholder={"タグを選択してください"}
               isMulti={false} 
               options={options} 
+              onChange={onChangeToTagPage}
+            />
+          </Grid>
+          <Grid
+            item
+            minWidth="300px"
+            marginRight="20px"
+            marginBottom="20px"
+          >
+            <TagSelction
+              placeholder={"重要度を選択してください"}
+              isMulti={false} 
+              options={importanceOptions} 
+              onChange={onChangeToTagPage}
+            />
+          </Grid>
+          <Grid
+            item
+            minWidth="300px"
+            marginRight="20px"
+            marginBottom="20px"
+          >
+            <TagSelction
+              placeholder={"緊急度を選択してください"} 
+              isMulti={false} 
+              options={urgencyOptions} 
               onChange={onChangeToTagPage}
             />
           </Grid>
