@@ -3,9 +3,11 @@ import { Box } from "@mui/system";
 import { push } from "connected-react-router";
 import { FC, useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+
 import { RootState } from "../../../reducks/store/store";
 import { indexTags } from "../../../reducks/tags/operations";
-import { Tags } from "../../../reducks/tags/types";
+import { Tag, Tags } from "../../../reducks/tags/types";
+import { Todo} from "../../../reducks/todos/types";
 import { makeOptions } from "../../../utils/makeOptions";
 import { PrimaryButton } from "../../atoms/button/PrimaryButton";
 import TagSelction from "../../molecules/tag/TagSelection";
@@ -23,15 +25,16 @@ export const SearchSection: FC = () => {
   const options: Tags = useSelector((state: RootState) => state.tags)
   const { importanceOptions, urgencyOptions } = makeOptions()
 
-  const onChangeSelectTags = useCallback((event) => {
+  const onChangeSelectTags = useCallback((event: Tag) => {
     setTag(event.id)
   }, [setTag])
 
-  const onChangeImportance = useCallback((event) => {
+  const onChangeImportance = useCallback((event: Todo) => {
+    console.log(typeof(event))
     setImportance(event.id)
   }, [setImportance])
 
-  const onChangeUrgency = useCallback((event) => {
+  const onChangeUrgency = useCallback((event: Todo) => {
     setUrgency(event.id)
   }, [setUrgency])
 

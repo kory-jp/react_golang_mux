@@ -17,9 +17,12 @@ const initialState: Todos = [
   }
 ]
 
+
 export const TodoReducer = (state = initialState, action: TodosActionTypes): Todos => {
   switch(action.type) {
     case ActionTypes.indexTodos:
+      return action.payload
+    case ActionTypes.showTodo:
       return action.payload
   }
   return state;

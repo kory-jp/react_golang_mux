@@ -3,7 +3,16 @@ import { push } from "connected-react-router";
 import { Dispatch } from "react";
 import { nowLoadingState } from "../loading/actions";
 import { pushToast } from "../toasts/actions";
-import { indexTodosAction } from "./actions";
+import { indexTodosAction, showTodoAction } from "./actions";
+import { Todo, Todos } from "./types";
+
+type Response = {
+  status: number,
+  message: string,
+  sumPage: number,
+  todos: Todos,
+  todo: Todo,
+}
 
 export const createTodo = (formdata: FormData) => {
   return async(dispatch: Dispatch<{}>) => {
@@ -20,11 +29,12 @@ export const createTodo = (formdata: FormData) => {
       }
       )
       .then((response) => {
-        if (response.data.status == 200) {
+        const resp: Response = response.data
+        if (resp.status == 200) {
           dispatch(push("/todo"))
-          dispatch(pushToast({title: response.data.message, severity: "success"}))
+          dispatch(pushToast({title: resp.message, severity: "success"}))
         } else {
-          dispatch(pushToast({title: response.data.message, severity: "error"}))
+          dispatch(pushToast({title: resp.message, severity: "error"}))
         }
       })
       .catch((error)=> {
@@ -48,11 +58,12 @@ export const indexTodos = (setSumPage: React.Dispatch<React.SetStateAction<numbe
         }
       }
       ).then((response) => {
-        if (response.data.status == 200) {
-          dispatch(indexTodosAction(response.data.todos))
-          setSumPage(Number(response.data.sumPage))
+        const resp: Response = response.data
+        if (resp.status == 200) {
+          dispatch(indexTodosAction(resp.todos))
+          setSumPage(Number(resp.sumPage))
         } else {
-          dispatch(pushToast({title: response.data.message, severity: "error"}))
+          dispatch(pushToast({title: resp.message, severity: "error"}))
         }
       })
       .catch((error) => {
@@ -80,10 +91,11 @@ export const showTodo = (id: number) => {
         }
       }
       ).then((response) => {
-        if (response.data.status == 200) {
-          dispatch(indexTodosAction(response.data.todo))
+        const resp: Response = response.data
+        if (resp.status == 200) {
+          dispatch(showTodoAction(resp.todo))
         } else {
-          dispatch(pushToast({title: response.data.message, severity: "error"}))
+          dispatch(pushToast({title: resp.message, severity: "error"}))
         }
       })
       .catch((error) => {
@@ -111,11 +123,12 @@ export const search = (tagId: number, importance: number, urgency: number, query
         }
       }
       ).then((response) => {
-        if (response.data.status == 200) {
-          dispatch(indexTodosAction(response.data.todos))
-          setSumPage(Number(response.data.sumPage))
+        const resp: Response = response.data
+        if (resp.status == 200) {
+          dispatch(indexTodosAction(resp.todos))
+          setSumPage(Number(resp.sumPage))
         } else {
-          dispatch(pushToast({title: response.data.message, severity: "error"}))
+          dispatch(pushToast({title: resp.message, severity: "error"}))
         }
       })
       .catch((error) => {
@@ -144,11 +157,12 @@ export const updateTodo = (id: number, formdata: FormData) => {
       }
       )
       .then((response) => {
-        if (response.data.status == 200) {
+        const resp: Response = response.data
+        if (resp.status == 200) {
           dispatch(push("/todo"))
-          dispatch(pushToast({title: response.data.message, severity: "success"}))          
+          dispatch(pushToast({title: resp.message, severity: "success"}))          
         } else {
-          dispatch(pushToast({title: response.data.message, severity: "error"}))          
+          dispatch(pushToast({title: resp.message, severity: "error"}))          
         }
       })
       .catch((error)=> {
@@ -171,10 +185,11 @@ export const updateIsFinished = (id: number, isFinished: boolean) => {
             'Content-Type': 'multipart/form-data'
           } 
         }).then((response) => {
-          if (response.data.status == 200) {
-            dispatch(pushToast({title: response.data.message, severity: "success"}))            
+          const resp: Response = response.data
+          if (resp.status == 200) {
+            dispatch(pushToast({title: resp.message, severity: "success"}))            
           } else {
-            dispatch(pushToast({title: response.data.message, severity: "error"}))
+            dispatch(pushToast({title: resp.message, severity: "error"}))
           }
         }).catch((error) => {
         console.log(error)
@@ -196,11 +211,12 @@ export const deleteTodo = (id: number) => {
           }
         }
       ).then((response) => {
-        if (response.data.status == 200) {
+        const resp: Response = response.data
+        if (resp.status == 200) {
           dispatch(push("/todo"))
-          dispatch(pushToast({title: response.data.message, severity: "success"}))          
+          dispatch(pushToast({title: resp.message, severity: "success"}))          
         } else {
-          dispatch(pushToast({title: response.data.message, severity: "error"}))          
+          dispatch(pushToast({title: resp.message, severity: "error"}))          
         }
       })
       .catch((error)=> {
@@ -228,15 +244,16 @@ export const deleteTodoInIndex = (
                                          }
                                       }
                                      ).then((response) => {
-                                      if (response.data.status == 200) {
-                                        dispatch(pushToast({title: response.data.message, severity: "success"}))
-                                        dispatch(indexTodosAction(response.data.todos))
-                                        setSumPage(Number(response.data.sumPage))
-                                        if (queryPage > Number(response.data.sumPage)) {
+                                       const resp: Response = response.data
+                                      if (resp.status == 200) {
+                                        dispatch(pushToast({title: resp.message, severity: "success"}))
+                                        dispatch(indexTodosAction(resp.todos))
+                                        setSumPage(Number(resp.sumPage))
+                                        if (queryPage > Number(resp.sumPage)) {
                                           dispatch(push(`todo?page=${queryPage - 1 }`))
                                         }                                       
                                       } else {
-                                        dispatch(pushToast({title: response.data.message, severity: "error"}))                                          
+                                        dispatch(pushToast({title: resp.message, severity: "error"}))                                          
                                       }
                                      })
                                      .catch((error)=> {

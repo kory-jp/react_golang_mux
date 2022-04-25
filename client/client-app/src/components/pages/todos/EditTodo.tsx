@@ -3,7 +3,7 @@ import ClearIcon from '@mui/icons-material/Clear';
 import CameraAltIcon from '@mui/icons-material/CameraAlt';
 import { Button, Divider, FormControl, Input, InputLabel, Paper, Stack, TextField} from "@mui/material";
 import { Box } from "@mui/system";
-import React, { FC, useCallback, useEffect, useState } from "react";
+import React, { ChangeEvent, FC, useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 
@@ -16,6 +16,7 @@ import { indexTags } from "../../../reducks/tags/operations";
 import { RootState } from "../../../reducks/store/store";
 import { Tags } from "../../../reducks/tags/types";
 import { makeOptions } from "../../../utils/makeOptions";
+import { Todo } from "../../../reducks/todos/types"
 
 
 type Params = {
@@ -92,20 +93,26 @@ export const EditTodo: FC = () => {
     setTags(event)
   }, [setTags])
 
-  const onChangeImportance = useCallback((event) => {
+  const onChangeImportance = useCallback((event: Todo) => {
     setImportance(event.id)
   }, [setImportance])
 
-  const onChangeUrgency = useCallback((event) => {
+  const onChangeUrgency = useCallback((event: Todo) => {
     setUrgency(event.id)
   }, [setUrgency])
   
-  const previewImage = useCallback((event) => {
+  const previewImage = useCallback((event: ChangeEvent<HTMLInputElement> ) => {
+    if (event.target.files === null) {
+      return;
+    }
     const imageFile = event.target.files[0];
     setPreview(window.URL.createObjectURL(imageFile))
   },[])
   
-  const inputImage = useCallback((event)=> {
+  const inputImage = useCallback((event: ChangeEvent<HTMLInputElement>  )=> {
+    if (event.target.files === null) {
+      return;
+    }
     const file = event.target.files[0]
     setImage(file)
     previewImage(event)

@@ -45,15 +45,14 @@ curl -XGET -b cookie.txt -b 'cookie-name='  -H 'Content-Type: application/json' 
 
 #### 返却データ(JSON)
 
-| JSON Key         |   型   | 最大サイズ | 必須 |           値の説明           |
-| :--------------- | :----: | ---------: | :--: | :--------------------------: |
-| status           |  数値  |            |  ○   |      処理結果ステータス      |
-| message          | 文字列 |            |  ○   |          メッセージ          |
-| sumPage          |  数値  |            |  ○   | ページネーションの総ページ数 |
-| tags             |  配列  |            |      |                              |
-| &emsp; tag_id    |  数値  |            |      |              id              |
-| &emsp; tag_value | 文字列 |            |      |           バリュー           |
-| &emsp; tag_label | 文字列 |            |      |            ラベル            |
+| JSON Key         |   型   | 最大サイズ | 必須 |      値の説明      |
+| :--------------- | :----: | ---------: | :--: | :----------------: |
+| status           |  数値  |            |  ○   | 処理結果ステータス |
+| message          | 文字列 |            |  ○   |     メッセージ     |
+| tags             |  配列  |            |      |                    |
+| &emsp; tag_id    |  数値  |            |      |         id         |
+| &emsp; tag_value | 文字列 |            |      |      バリュー      |
+| &emsp; tag_label | 文字列 |            |      |       ラベル       |
 
 <br>
 <br>
