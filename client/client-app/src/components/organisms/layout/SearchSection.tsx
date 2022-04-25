@@ -30,7 +30,6 @@ export const SearchSection: FC = () => {
   }, [setTag])
 
   const onChangeImportance = useCallback((event: Todo) => {
-    console.log(typeof(event))
     setImportance(event.id)
   }, [setImportance])
 

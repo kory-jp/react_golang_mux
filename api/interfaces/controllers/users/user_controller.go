@@ -10,6 +10,7 @@ import (
 
 	"github.com/kory-jp/react_golang_mux/api/domain"
 	"github.com/kory-jp/react_golang_mux/api/interfaces/database"
+	users "github.com/kory-jp/react_golang_mux/api/interfaces/database/users"
 	usecase "github.com/kory-jp/react_golang_mux/api/usecase/user"
 )
 
@@ -33,7 +34,8 @@ func (res *Response) SetResp(status int, mess string, user *domain.User) (resStr
 func NewUserController(sqlHandler database.SqlHandler) *UserController {
 	return &UserController{
 		Interactor: usecase.UserInteractor{
-			UserRepository: &database.UserRepository{
+			// UserRepository: &database.UserRepository{
+			UserRepository: &users.UserRepository{
 				SqlHandler: sqlHandler,
 			},
 		},

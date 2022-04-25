@@ -8,11 +8,12 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	usecase "github.com/kory-jp/react_golang_mux/api/usecase/user"
+	mock_usecase "github.com/kory-jp/react_golang_mux/api/usecase/user/mock"
+
 	"github.com/stretchr/testify/assert"
 
 	"github.com/kory-jp/react_golang_mux/api/domain"
-
-	"github.com/kory-jp/react_golang_mux/api/interfaces/database"
 
 	"github.com/golang/mock/gomock"
 	controllers "github.com/kory-jp/react_golang_mux/api/interfaces/controllers/users"
@@ -27,13 +28,10 @@ func TestCreate(t *testing.T) {
 	defer c.Finish()
 	sqlhandler := mock_database.NewMockSqlHandler(c)
 	ctrl := controllers.NewUserController(sqlhandler)
-	result := mock_database.NewMockResult(c)
-	row := mock_database.NewMockRow(c)
-	var user domain.User
-	// var pUser *domain.User
-	// --- databaseMockの引数へ渡すSQLクエリ ---
-	createUserQuery := database.CreateUserState
-	findUserQuery := database.FindUserState
+	UserRepository := mock_usecase.NewMockUserRepository(c)
+	inter := &usecase.UserInteractor{}
+	inter.UserRepository = UserRepository
+	ctrl.Interactor = *inter
 
 	// --- テストケース ---
 	cases := []struct {
@@ -41,8 +39,8 @@ func TestCreate(t *testing.T) {
 		args               domain.User
 		userId             int
 		requestBody        bool
-		prepareStoreMockFn func(m *mock_database.MockSqlHandler, r *mock_database.MockResult, statement string, user *domain.User)
-		prepareFindMockFn  func(m *mock_database.MockSqlHandler, r *mock_database.MockRow, statement string, userId int, user domain.User)
+		prepareStoreMockFn func(m *mock_usecase.MockUserRepository, args domain.User)
+		prepareFindMockFn  func(m *mock_usecase.MockUserRepository, id int)
 		response           controllers.Response
 	}{
 		{
@@ -54,15 +52,11 @@ func TestCreate(t *testing.T) {
 			},
 			userId:      1,
 			requestBody: true,
-			prepareStoreMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockResult, statement string, user *domain.User) {
-				r.EXPECT().LastInsertId().Return(int64(0), nil)
-				m.EXPECT().Execute(statement, gomock.Any()).Return(r, nil)
+			prepareStoreMockFn: func(m *mock_usecase.MockUserRepository, args domain.User) {
+				m.EXPECT().Store(gomock.Any()).Return(1, nil)
 			},
-			prepareFindMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockRow, statement string, userId int, user domain.User) {
-				r.EXPECT().Next().Return(false)
-				r.EXPECT().Scan(&user.ID, &user.Name, &user.Email, &user.Password, &user.CreatedAt).Return(nil)
-				r.EXPECT().Close().Return(nil)
-				m.EXPECT().Query(statement, user.ID).Return(r, nil)
+			prepareFindMockFn: func(m *mock_usecase.MockUserRepository, id int) {
+				m.EXPECT().FindById(id).Return(nil, nil)
 			},
 			response: controllers.Response{
 				Status:  200,
@@ -78,15 +72,11 @@ func TestCreate(t *testing.T) {
 			},
 			userId:      1,
 			requestBody: false,
-			prepareStoreMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockResult, statement string, user *domain.User) {
-				r.EXPECT().LastInsertId().Return(int64(0), nil).AnyTimes()
-				m.EXPECT().Execute(statement, gomock.Any()).Return(r, nil).AnyTimes()
+			prepareStoreMockFn: func(m *mock_usecase.MockUserRepository, args domain.User) {
+				m.EXPECT().Store(gomock.Any()).Return(1, nil).AnyTimes()
 			},
-			prepareFindMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockRow, statement string, userId int, user domain.User) {
-				r.EXPECT().Next().Return(false).AnyTimes()
-				r.EXPECT().Scan(&user.ID, &user.Name, &user.Email, &user.Password, &user.CreatedAt).Return(nil).AnyTimes()
-				r.EXPECT().Close().Return(nil).AnyTimes()
-				m.EXPECT().Query(statement, user.ID).Return(r, nil).AnyTimes()
+			prepareFindMockFn: func(m *mock_usecase.MockUserRepository, id int) {
+				m.EXPECT().FindById(id).Return(nil, nil).AnyTimes()
 			},
 			response: controllers.Response{
 				Status:  400,
@@ -107,11 +97,10 @@ func TestCreate(t *testing.T) {
 				req = httptest.NewRequest("POST", apiURL, nil)
 			}
 			w := httptest.NewRecorder()
-			pointerUser := &tt.args
 
 			// --- mockインスタンス ---
-			tt.prepareStoreMockFn(sqlhandler, result, createUserQuery, pointerUser)
-			tt.prepareFindMockFn(sqlhandler, row, findUserQuery, tt.userId, user)
+			tt.prepareStoreMockFn(UserRepository, tt.args)
+			tt.prepareFindMockFn(UserRepository, tt.userId)
 
 			// --- 通信実行 ---
 			ctrl.Create(w, req)

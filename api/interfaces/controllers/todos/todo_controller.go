@@ -18,7 +18,9 @@ import (
 	controllers "github.com/kory-jp/react_golang_mux/api/interfaces/controllers/sessions"
 
 	"github.com/kory-jp/react_golang_mux/api/domain"
-	"github.com/kory-jp/react_golang_mux/api/interfaces/database"
+	database "github.com/kory-jp/react_golang_mux/api/interfaces/database"
+	todoTagRelations "github.com/kory-jp/react_golang_mux/api/interfaces/database/todo_tag_relations"
+	todos "github.com/kory-jp/react_golang_mux/api/interfaces/database/todos"
 	usecase "github.com/kory-jp/react_golang_mux/api/usecase/todo"
 )
 
@@ -44,10 +46,10 @@ func (res *Response) SetResp(status int, mess string, todos domain.Todos, todo *
 func NewTodoController(sqlHandler database.SqlHandler) *TodoController {
 	return &TodoController{
 		Interactor: usecase.TodoInteractor{
-			TodoRepository: &database.TodoRepository{
+			TodoRepository: &todos.TodoRepository{
 				SqlHandler: sqlHandler,
 			},
-			TodoTagRelationsRepository: &database.TodoTagRelationsRepository{
+			TodoTagRelationsRepository: &todoTagRelations.TodoTagRelationsRepository{
 				SqlHandler: sqlHandler,
 			},
 			Transaction: transaction.SqlHandler(sqlHandler),

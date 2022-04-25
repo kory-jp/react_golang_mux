@@ -5,33 +5,19 @@ import (
 	"log"
 	"time"
 
+	"github.com/kory-jp/react_golang_mux/api/interfaces/database/sessions/mysql"
+
+	"github.com/kory-jp/react_golang_mux/api/interfaces/database"
+
 	"github.com/kory-jp/react_golang_mux/api/domain"
 )
 
 type SessionRepository struct {
-	SqlHandler
+	database.SqlHandler
 }
 
-var FindByEmailState = `
-	select
-		*
-	from
-		users
-	where
-	 email = ?
-`
-
-var FindByIdState = `
-	select
-		*
-	from
-		users
-	where
-	 id = ?
-`
-
 func (repo *SessionRepository) FindByEmail(u domain.User) (user *domain.User, err error) {
-	row, err := repo.Query(FindByEmailState, u.Email)
+	row, err := repo.Query(mysql.FindByEmailState, u.Email)
 	if err != nil {
 		fmt.Println(err)
 		log.Println(err)
@@ -61,7 +47,7 @@ func (repo *SessionRepository) FindByEmail(u domain.User) (user *domain.User, er
 }
 
 func (repo *SessionRepository) FindById(uid int) (user *domain.User, err error) {
-	row, err := repo.Query(FindByIdState, uid)
+	row, err := repo.Query(mysql.FindByIdState, uid)
 	if err != nil {
 		fmt.Println(err)
 		log.Println(err)

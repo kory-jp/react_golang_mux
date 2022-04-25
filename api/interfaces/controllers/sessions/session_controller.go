@@ -12,6 +12,7 @@ import (
 	"github.com/gorilla/sessions"
 	"github.com/kory-jp/react_golang_mux/api/domain"
 	"github.com/kory-jp/react_golang_mux/api/interfaces/database"
+	sessionRepo "github.com/kory-jp/react_golang_mux/api/interfaces/database/sessions"
 	usecase "github.com/kory-jp/react_golang_mux/api/usecase/session"
 )
 
@@ -35,7 +36,7 @@ func (res *Response) SetResp(status int, mess string, user *domain.User) (resStr
 func NewSessionController(sqlHandler database.SqlHandler) *SessionController {
 	return &SessionController{
 		Interactor: usecase.SessionInteractor{
-			SessionRepository: &database.SessionRepository{
+			SessionRepository: &sessionRepo.SessionRepository{
 				SqlHandler: sqlHandler,
 			},
 		},
