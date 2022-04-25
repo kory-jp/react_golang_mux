@@ -28,7 +28,7 @@ func (u User) Encrypt(plaintext string) (hash string) {
 	return hash
 }
 
-func traslateUsersField(field string) (value string) {
+func translateUsersField(field string) (value string) {
 	switch field {
 	case "Name":
 		value = "名前"
@@ -46,7 +46,7 @@ func (user *User) UserValidate() (err error) {
 
 	if err != nil {
 		for _, err := range err.(validator.ValidationErrors) {
-			value := traslateUsersField(err.Field())
+			value := translateUsersField(err.Field())
 			switch err.ActualTag() {
 			case "required":
 				return fmt.Errorf("%sは必須です。", value)

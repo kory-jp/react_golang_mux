@@ -43,7 +43,7 @@
 curl
 
 ```
-curl -XPOST -c cookie.txt -b 'cookie-name=' -d '{"email":"sam1@exm.com","password":"password"}' -H 'Content-Type: application/json' -H 'Accept: application/json'  http://localhost:8000/api/login
+curl -XPOST -c cookie.txt -b 'cookie-name=' -d '{"email":"sam@exm.com","password":"password"}' -H 'Content-Type: application/json' -H 'Accept: application/json'  http://localhost:8000/api/login
 ```
 
  <br>
