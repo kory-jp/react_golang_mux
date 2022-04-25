@@ -1,6 +1,8 @@
 import { Action } from "redux";
 import { ActionTypes } from "../store/actionTypes";
 import { Tags } from "../tags/types";
+import { showTodoAction } from "./actions";
+import { showTodo } from "./operations";
 
 export type Todo = {
   id: number,
@@ -24,4 +26,9 @@ interface indexTodosAction extends Action {
   payload: Todos;
 }
 
-export type TodosActionTypes = indexTodosAction;
+interface showTodoAction extends Action {
+  type: typeof ActionTypes.showTodo;
+  payload: Todos;
+}
+
+export type TodosActionTypes = indexTodosAction | showTodoAction;

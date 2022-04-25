@@ -2,6 +2,13 @@ import axios from "axios"
 import { Dispatch } from "react"
 import { pushToast } from "../toasts/actions"
 import { indexTagsAction } from "./actions"
+import { Tags } from "./types"
+
+type Response = {
+  status: number,
+  message: string,
+  tags: Tags
+}
 
 export const indexTags = () => {
   return async(dispatch: Dispatch<{}>) => {
@@ -16,10 +23,11 @@ export const indexTags = () => {
           }
         }
       ).then((response) => {
-        if (response.data.status == 200) {
-          dispatch(indexTagsAction(response.data.tags))
+        const resp: Response = response.data
+        if (resp.status == 200) {
+          dispatch(indexTagsAction(resp.tags))
         } else {
-          dispatch(pushToast({title: response.data.message, severity: "error"}))
+          dispatch(pushToast({title: resp.message, severity: "error"}))
         }
       })
       .catch((error) => {

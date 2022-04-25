@@ -22,7 +22,7 @@ export const ShowTodo: FC = () => {
   const dispatch = useDispatch()
   const params: Params = useParams();
   const id: number = Number(params.id)
-  const todo = useSelector((state: RootState) => state.todo)
+  const todo = useSelector((state: RootState) => state.todos[0])
   const loadingState = useLoadingState()
   const [finish, setFinish] = useState(false)
   const tags: Tags | null = todo.tags ? todo.tags : null

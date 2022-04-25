@@ -5,6 +5,12 @@ import { pushToast } from "../toasts/actions"
 import { deleteUserState, getUserState } from "./actions"
 import { User } from "./types"
 
+type Response = {
+  status: number,
+  message: string,
+  user: User,
+}
+
 export const saveUserInfo = (name: string, email: string, password: string, passwordConfirmation: string) => {
   return async (dispatch: Dispatch<{}>) => {
     if (
@@ -36,13 +42,14 @@ export const saveUserInfo = (name: string, email: string, password: string, pass
           }
         }
       ).then((response) => {
-        if (response.data.status == 200){
+        const resp: Response = response.data
+        if (resp.status == 200){
           const user: User =response.data.user
           dispatch(getUserState(user))
-          dispatch(pushToast({title: response.data.message, severity: "success"}))
+          dispatch(pushToast({title: resp.message, severity: "success"}))
           dispatch(login(email, password))
         } else {
-          dispatch(pushToast({title: response.data.message, severity: "error"}))
+          dispatch(pushToast({title: resp.message, severity: "error"}))
         }
       }).catch((error) => {
         console.log(error)
@@ -75,13 +82,14 @@ export const login = (email: string, password: string) => {
           }
         }
       ).then((response) => {
-        if (response.data.status == 200){
-          const user: User =response.data.user
+        const resp: Response = response.data
+        if (resp.status == 200){
+          const user: User =resp.user
           dispatch(getUserState(user))
           dispatch(push("/todo"))
-          dispatch(pushToast({title: response.data.message, severity: "success"}))
+          dispatch(pushToast({title: resp.message, severity: "success"}))
         } else {
-          dispatch(pushToast({title: response.data.message, severity: "error"}))
+          dispatch(pushToast({title: resp.message, severity: "error"}))
         }
       }).catch((error) => {
         console.log(error)
@@ -103,12 +111,13 @@ export const isLoggedIn = () => {
           }
         }
       ).then((response) => {
-        if (response.data.status == 200) {
-          const user: User = response.data.user
+        const resp: Response = response.data
+        if (resp.status == 200) {
+          const user: User = resp.user
           dispatch(getUserState(user))
         } else {
           dispatch(push("/"))
-          dispatch(pushToast({title: response.data.message, severity: "error"}))
+          dispatch(pushToast({title: resp.message, severity: "error"}))
           return
         }
       }).catch((error) => {
@@ -132,7 +141,8 @@ export const isLoggedOut = () => {
         }
       }
       ).then((response) => {
-        if (response.data.id) {
+        const resp: Response = response.data
+        if (resp.status == 200) {
           dispatch(push("/todo"))
         }
       }).catch((error) => {
@@ -154,7 +164,8 @@ export const logout = () => {
           }
         }
       ).then((response) => {
-        if (response.data.status == 200) {
+        const resp: Response = response.data
+        if (resp.status == 200) {
           dispatch(deleteUserState({
             id: 0,
             name: "",
@@ -163,10 +174,10 @@ export const logout = () => {
             created_at: null
           }))
           dispatch(push("/"))
-          dispatch(pushToast({title: response.data.message, severity: "success"}))
+          dispatch(pushToast({title: resp.message, severity: "success"}))
         } else {
           dispatch(push("/"))
-          dispatch(pushToast({title: response.data.message, severity: "error"}))
+          dispatch(pushToast({title: resp.message, severity: "error"}))
         }
       }).catch((error) => {
         console.log(error)
