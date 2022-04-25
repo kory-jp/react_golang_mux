@@ -342,7 +342,7 @@ func TestSearch(t *testing.T) {
 			},
 		},
 		{
-			name:  "URLにtag情報が存在しない場合、データ取得に成功",
+			name:  "URLにtag情報が存在しない場合、データ取得に失敗",
 			tagId: 1,
 			args: domain.Todo{
 				UserID:     1,
@@ -361,7 +361,7 @@ func TestSearch(t *testing.T) {
 			},
 		},
 		{
-			name:  "URLにimportance情報が存在しない場合、データ取得に成功",
+			name:  "URLにimportance情報が存在しない場合、データ取得に失敗",
 			tagId: 1,
 			args: domain.Todo{
 				UserID:     1,
@@ -380,7 +380,7 @@ func TestSearch(t *testing.T) {
 			},
 		},
 		{
-			name:  "URLにurgency情報が存在しない場合、データ取得に成功",
+			name:  "URLにurgency情報が存在しない場合、データ取得に失敗",
 			tagId: 1,
 			args: domain.Todo{
 				UserID:     1,
@@ -399,7 +399,7 @@ func TestSearch(t *testing.T) {
 			},
 		},
 		{
-			name:  "URLにpage情報が存在しない場合、データ取得に成功",
+			name:  "URLにpage情報が存在しない場合、データ取得に失敗",
 			tagId: 1,
 			args: domain.Todo{
 				UserID:     1,
