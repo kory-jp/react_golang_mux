@@ -324,7 +324,7 @@ TEST ALL COMPLETED
 
 ## モデルデザイン
 
-![ER](https://user-images.githubusercontent.com/66899822/164626589-301b288a-3c30-4e55-bbb7-d851143432fc.png)
+![ER](https://user-images.githubusercontent.com/66899822/165004467-2e4eb863-3025-49f5-8bfe-a32f3544ea75.png)
 
 <br>
 <br>
