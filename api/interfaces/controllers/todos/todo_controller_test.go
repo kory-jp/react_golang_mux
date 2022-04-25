@@ -38,6 +38,7 @@ func TestCreate(t *testing.T) {
 		name                   string
 		args                   domain.Todo
 		isImage                bool
+		requestBody            bool
 		prepareTrasMockFn      func(m *mock_transaction.MockSqlHandler)
 		prepareRepoStoreMockFn func(m *mock_usecase.MockTodoRepository, tx *sql.Tx, args domain.Todo)
 		response               controllers.Response
@@ -52,7 +53,8 @@ func TestCreate(t *testing.T) {
 				Importance: 1,
 				Urgency:    1,
 			},
-			isImage: true,
+			isImage:     true,
+			requestBody: true,
 			prepareTrasMockFn: func(m *mock_transaction.MockSqlHandler) {
 				m.EXPECT().DoInTx(gomock.Any()).Return(nil, nil).AnyTimes()
 			},
@@ -73,7 +75,8 @@ func TestCreate(t *testing.T) {
 				Importance: 1,
 				Urgency:    1,
 			},
-			isImage: false,
+			isImage:     false,
+			requestBody: true,
 			prepareTrasMockFn: func(m *mock_transaction.MockSqlHandler) {
 				m.EXPECT().DoInTx(gomock.Any()).Return(nil, nil).AnyTimes()
 			},
@@ -94,7 +97,8 @@ func TestCreate(t *testing.T) {
 				Importance: 1,
 				Urgency:    1,
 			},
-			isImage: false,
+			isImage:     false,
+			requestBody: true,
 			prepareTrasMockFn: func(m *mock_transaction.MockSqlHandler) {
 				m.EXPECT().DoInTx(gomock.Any()).Return(nil, nil).AnyTimes()
 			},
@@ -106,18 +110,45 @@ func TestCreate(t *testing.T) {
 				Message: "ログインをしてください",
 			},
 		},
+		{
+			name: "requestBodyがnilの場合、データ保存失敗",
+			args: domain.Todo{
+				UserID:     1,
+				Title:      "test title",
+				Content:    "test content",
+				Importance: 1,
+				Urgency:    1,
+			},
+			isImage:     false,
+			requestBody: false,
+			prepareTrasMockFn: func(m *mock_transaction.MockSqlHandler) {
+				m.EXPECT().DoInTx(gomock.Any()).Return(nil, nil).AnyTimes()
+			},
+			prepareRepoStoreMockFn: func(m *mock_usecase.MockTodoRepository, tx *sql.Tx, args domain.Todo) {
+				m.EXPECT().TransStore(tx, args).Return(int64(1), nil)
+			},
+			response: controllers.Response{
+				Status:  400,
+				Message: "データ取得に失敗しました",
+			},
+		},
 	}
 
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
 			var buffer bytes.Buffer
+			var req *http.Request
 			writer := multipart.NewWriter(&buffer)
 			// -- 各種フィールドに値を設定 ---
 			setField(t, writer, tt.isImage, tt.args.ImagePath, tt.args.Title, tt.args.Content, tt.args.Importance, tt.args.Urgency)
 			// --- フィールドの書き込みが終了後にClose ---
 			writer.Close()
 
-			req := httptest.NewRequest("POST", "/api/new", &buffer)
+			if tt.requestBody {
+				req = httptest.NewRequest("POST", "/api/new", &buffer)
+			} else {
+				req = httptest.NewRequest("POST", "/api/new", nil)
+			}
 			req.Header.Add("Content-Type", writer.FormDataContentType())
 			w := httptest.NewRecorder()
 
@@ -418,6 +449,7 @@ func TestUpdate(t *testing.T) {
 		args                       domain.Todo
 		loginUserId                int
 		isImage                    bool
+		requestBody                bool
 		prepareTrasMockFn          func(m *mock_transaction.MockSqlHandler)
 		prepareRepoOverwriteMockFn func(m *mock_usecase.MockTodoRepository, tx *sql.Tx)
 		response                   controllers.Response
@@ -435,6 +467,7 @@ func TestUpdate(t *testing.T) {
 			},
 			loginUserId: 1,
 			isImage:     true,
+			requestBody: true,
 			prepareTrasMockFn: func(m *mock_transaction.MockSqlHandler) {
 				m.EXPECT().DoInTx(gomock.Any()).Return(nil, nil).AnyTimes()
 			},
@@ -459,6 +492,7 @@ func TestUpdate(t *testing.T) {
 			},
 			loginUserId: 1,
 			isImage:     false,
+			requestBody: true,
 			prepareTrasMockFn: func(m *mock_transaction.MockSqlHandler) {
 				m.EXPECT().DoInTx(gomock.Any()).Return(nil, nil).AnyTimes()
 			},
@@ -483,6 +517,7 @@ func TestUpdate(t *testing.T) {
 			},
 			loginUserId: 0,
 			isImage:     false,
+			requestBody: true,
 			prepareTrasMockFn: func(m *mock_transaction.MockSqlHandler) {
 				m.EXPECT().DoInTx(gomock.Any()).Return(nil, nil).AnyTimes()
 			},
@@ -494,11 +529,34 @@ func TestUpdate(t *testing.T) {
 				Message: "ログインをしてください",
 			},
 		},
+		{
+			name: "requestBodyがnilの場合、データ保存失敗",
+			args: domain.Todo{
+				UserID:     1,
+				Title:      "test title",
+				Content:    "test content",
+				Importance: 1,
+				Urgency:    1,
+			},
+			isImage:     false,
+			requestBody: false,
+			prepareTrasMockFn: func(m *mock_transaction.MockSqlHandler) {
+				m.EXPECT().DoInTx(gomock.Any()).Return(nil, nil).AnyTimes()
+			},
+			prepareRepoOverwriteMockFn: func(m *mock_usecase.MockTodoRepository, tx *sql.Tx) {
+				m.EXPECT().TransOverwrite(tx, gomock.Any()).Return(nil)
+			},
+			response: controllers.Response{
+				Status:  400,
+				Message: "データ取得に失敗しました",
+			},
+		},
 	}
 
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
 			var buffer bytes.Buffer
+			var req *http.Request
 			writer := multipart.NewWriter(&buffer)
 			// -- 各種フィールドに値を設定 ---
 			setField(t, writer, tt.isImage, tt.args.ImagePath, tt.args.Title, tt.args.Content, tt.args.Importance, tt.args.Urgency)
@@ -506,7 +564,12 @@ func TestUpdate(t *testing.T) {
 			writer.Close()
 			// ---
 			apiURL := "/api/todos/update/" + strconv.Itoa(tt.args.ID)
-			req := httptest.NewRequest("POST", apiURL, &buffer)
+			// req := httptest.NewRequest("POST", apiURL, &buffer)
+			if tt.requestBody {
+				req = httptest.NewRequest("POST", apiURL, &buffer)
+			} else {
+				req = httptest.NewRequest("POST", apiURL, nil)
+			}
 			req.Header.Add("Content-Type", writer.FormDataContentType())
 			w := httptest.NewRecorder()
 

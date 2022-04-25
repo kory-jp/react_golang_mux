@@ -72,6 +72,13 @@ func GetUserId(r *http.Request) (userId int, err error) {
 
 // --- Todo新規追加 ----
 func (controller *TodoController) Create(w http.ResponseWriter, r *http.Request) {
+	if r.ContentLength == 0 {
+		fmt.Println("NO DATA BODY")
+		log.Println("NO DATA BODY")
+		resStr := new(Response).SetResp(400, "データ取得に失敗しました", nil, nil, 0)
+		fmt.Fprintln(w, resStr)
+		return
+	}
 	var file multipart.File
 	var fileHeader *multipart.FileHeader
 	var err error
@@ -332,6 +339,13 @@ func (controller *TodoController) Search(w http.ResponseWriter, r *http.Request)
 // ----- Todo更新 -----
 // -----
 func (controller *TodoController) Update(w http.ResponseWriter, r *http.Request) {
+	if r.ContentLength == 0 {
+		fmt.Println("NO DATA BODY")
+		log.Println("NO DATA BODY")
+		resStr := new(Response).SetResp(400, "データ取得に失敗しました", nil, nil, 0)
+		fmt.Fprintln(w, resStr)
+		return
+	}
 	var file multipart.File
 	var fileHeader *multipart.FileHeader
 	var err error
