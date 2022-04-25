@@ -5,41 +5,18 @@ import (
 	"log"
 	"time"
 
+	"github.com/kory-jp/react_golang_mux/api/interfaces/database"
+	"github.com/kory-jp/react_golang_mux/api/interfaces/database/users/mysql"
+
 	"github.com/kory-jp/react_golang_mux/api/domain"
 )
 
 type UserRepository struct {
-	SqlHandler
+	database.SqlHandler
 }
 
-// --- userの新規作成 ---
-var CreateUserState = `
-	insert into
-		users(
-			name,
-			email,
-			password,
-			created_at
-		)
-	values (?, ?, ?, ?)
-`
-
-// --- userの取得 ---
-var FindUserState = `
-	select
-		id,
-		name,
-		email,
-		password,
-		created_at
-	from
-		users
-	where
-		id = ?
-`
-
 func (repo *UserRepository) Store(u domain.User) (id int, err error) {
-	result, err := repo.Execute(CreateUserState, u.Name, u.Email, u.Password, time.Now())
+	result, err := repo.Execute(mysql.CreateUserState, u.Name, u.Email, u.Password, time.Now())
 	if err != nil {
 		fmt.Println(err)
 		log.Println(err)
@@ -56,7 +33,7 @@ func (repo *UserRepository) Store(u domain.User) (id int, err error) {
 }
 
 func (repo *UserRepository) FindById(identifier int) (user *domain.User, err error) {
-	row, err := repo.Query(FindUserState, identifier)
+	row, err := repo.Query(mysql.FindUserState, identifier)
 	if err != nil {
 		fmt.Println(err)
 		log.Println(err)

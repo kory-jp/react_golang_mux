@@ -4,24 +4,19 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/kory-jp/react_golang_mux/api/interfaces/database/tags/mysql"
+
+	"github.com/kory-jp/react_golang_mux/api/interfaces/database"
+
 	"github.com/kory-jp/react_golang_mux/api/domain"
 )
 
 type TagRepository struct {
-	SqlHandler
+	database.SqlHandler
 }
 
-var GetTagsState = `
-	select
-		id,
-		value,
-		label
-	from
-		tags
-`
-
 func (repo *TagRepository) FindAll() (tags domain.Tags, err error) {
-	rows, err := repo.Query(GetTagsState)
+	rows, err := repo.Query(mysql.GetTagsState)
 	if err != nil {
 		fmt.Println(err)
 		log.Println(err)
