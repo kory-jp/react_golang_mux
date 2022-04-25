@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"encoding/json"
 	"io/ioutil"
+	"net/http"
 	"net/http/httptest"
-	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -40,6 +40,7 @@ func TestCreate(t *testing.T) {
 		name               string
 		args               domain.User
 		userId             int
+		requestBody        bool
 		prepareStoreMockFn func(m *mock_database.MockSqlHandler, r *mock_database.MockResult, statement string, user *domain.User)
 		prepareFindMockFn  func(m *mock_database.MockSqlHandler, r *mock_database.MockRow, statement string, userId int, user domain.User)
 		response           controllers.Response
@@ -51,7 +52,8 @@ func TestCreate(t *testing.T) {
 				Email:    "test@exm.com",
 				Password: "testPassword",
 			},
-			userId: 1,
+			userId:      1,
+			requestBody: true,
 			prepareStoreMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockResult, statement string, user *domain.User) {
 				r.EXPECT().LastInsertId().Return(int64(0), nil)
 				m.EXPECT().Execute(statement, gomock.Any()).Return(r, nil)
@@ -68,13 +70,14 @@ func TestCreate(t *testing.T) {
 			},
 		},
 		{
-			name: "Nameがnilの場合、データ保存失敗",
+			name: "リクエストボディがnilの場合、データ保存失敗",
 			args: domain.User{
-				Name:     "",
+				Name:     "testUser",
 				Email:    "test@exm.com",
 				Password: "testPassword",
 			},
-			userId: 1,
+			userId:      1,
+			requestBody: false,
 			prepareStoreMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockResult, statement string, user *domain.User) {
 				r.EXPECT().LastInsertId().Return(int64(0), nil).AnyTimes()
 				m.EXPECT().Execute(statement, gomock.Any()).Return(r, nil).AnyTimes()
@@ -87,191 +90,7 @@ func TestCreate(t *testing.T) {
 			},
 			response: controllers.Response{
 				Status:  400,
-				Message: "名前は必須です。",
-			},
-		},
-		{
-			name: "Nameが2文字未満の場合、データ保存失敗",
-			args: domain.User{
-				Name:     "t",
-				Email:    "test@exm.com",
-				Password: "testPassword",
-			},
-			userId: 1,
-			prepareStoreMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockResult, statement string, user *domain.User) {
-				r.EXPECT().LastInsertId().Return(int64(0), nil).AnyTimes()
-				m.EXPECT().Execute(statement, gomock.Any()).Return(r, nil).AnyTimes()
-			},
-			prepareFindMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockRow, statement string, userId int, user domain.User) {
-				r.EXPECT().Next().Return(false).AnyTimes()
-				r.EXPECT().Scan(&user.ID, &user.Name, &user.Email, &user.Password, &user.CreatedAt).Return(nil).AnyTimes()
-				r.EXPECT().Close().Return(nil).AnyTimes()
-				m.EXPECT().Query(statement, user.ID).Return(r, nil).AnyTimes()
-			},
-			response: controllers.Response{
-				Status:  400,
-				Message: "名前は2文字以上が必須です。",
-			},
-		},
-		{
-			name: "Nameが21文字以上の場合、データ保存失敗",
-			args: domain.User{
-				Name:     strings.Repeat("t", 21),
-				Email:    "test@exm.com",
-				Password: "testPassword",
-			},
-			userId: 1,
-			prepareStoreMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockResult, statement string, user *domain.User) {
-				r.EXPECT().LastInsertId().Return(int64(0), nil).AnyTimes()
-				m.EXPECT().Execute(statement, gomock.Any()).Return(r, nil).AnyTimes()
-			},
-			prepareFindMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockRow, statement string, userId int, user domain.User) {
-				r.EXPECT().Next().Return(false).AnyTimes()
-				r.EXPECT().Scan(&user.ID, &user.Name, &user.Email, &user.Password, &user.CreatedAt).Return(nil).AnyTimes()
-				r.EXPECT().Close().Return(nil).AnyTimes()
-				m.EXPECT().Query(statement, user.ID).Return(r, nil).AnyTimes()
-			},
-			response: controllers.Response{
-				Status:  400,
-				Message: "名前は20文字以内の入力になります。",
-			},
-		},
-		{
-			name: "Emailがnilの場合、データ保存失敗",
-			args: domain.User{
-				Name:     "test",
-				Email:    "",
-				Password: "testPassword",
-			},
-			userId: 1,
-			prepareStoreMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockResult, statement string, user *domain.User) {
-				r.EXPECT().LastInsertId().Return(int64(0), nil).AnyTimes()
-				m.EXPECT().Execute(statement, gomock.Any()).Return(r, nil).AnyTimes()
-			},
-			prepareFindMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockRow, statement string, userId int, user domain.User) {
-				r.EXPECT().Next().Return(false).AnyTimes()
-				r.EXPECT().Scan(&user.ID, &user.Name, &user.Email, &user.Password, &user.CreatedAt).Return(nil).AnyTimes()
-				r.EXPECT().Close().Return(nil).AnyTimes()
-				m.EXPECT().Query(statement, user.ID).Return(r, nil).AnyTimes()
-			},
-			response: controllers.Response{
-				Status:  400,
-				Message: "メールアドレスは必須です。",
-			},
-		},
-		{
-			name: "Emailが30文字以上の場合、データ保存失敗",
-			args: domain.User{
-				Name:     "test",
-				Email:    "12345abcde12345abcde12345abcde@exm.com",
-				Password: "testPassword",
-			},
-			userId: 1,
-			prepareStoreMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockResult, statement string, user *domain.User) {
-				r.EXPECT().LastInsertId().Return(int64(0), nil).AnyTimes()
-				m.EXPECT().Execute(statement, gomock.Any()).Return(r, nil).AnyTimes()
-			},
-			prepareFindMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockRow, statement string, userId int, user domain.User) {
-				r.EXPECT().Next().Return(false).AnyTimes()
-				r.EXPECT().Scan(&user.ID, &user.Name, &user.Email, &user.Password, &user.CreatedAt).Return(nil).AnyTimes()
-				r.EXPECT().Close().Return(nil).AnyTimes()
-				m.EXPECT().Query(statement, user.ID).Return(r, nil).AnyTimes()
-			},
-			response: controllers.Response{
-				Status:  400,
-				Message: "メールアドレスは30文字以内の入力になります。",
-			},
-		},
-		{
-			name: "Emailのフォーマットに誤りがある場合、データ保存失敗",
-			args: domain.User{
-				Name:     "test",
-				Email:    "testcom",
-				Password: "testPassword",
-			},
-			userId: 1,
-			prepareStoreMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockResult, statement string, user *domain.User) {
-				r.EXPECT().LastInsertId().Return(int64(0), nil).AnyTimes()
-				m.EXPECT().Execute(statement, gomock.Any()).Return(r, nil).AnyTimes()
-			},
-			prepareFindMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockRow, statement string, userId int, user domain.User) {
-				r.EXPECT().Next().Return(false).AnyTimes()
-				r.EXPECT().Scan(&user.ID, &user.Name, &user.Email, &user.Password, &user.CreatedAt).Return(nil).AnyTimes()
-				r.EXPECT().Close().Return(nil).AnyTimes()
-				m.EXPECT().Query(statement, user.ID).Return(r, nil).AnyTimes()
-			},
-			response: controllers.Response{
-				Status:  400,
-				Message: "メールアドレスのフォーマットに誤りがあります",
-			},
-		},
-		{
-			name: "Passwordがnilの場合、データ保存失敗",
-			args: domain.User{
-				Name:     "test",
-				Email:    "test@exm.com",
-				Password: "",
-			},
-			userId: 1,
-			prepareStoreMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockResult, statement string, user *domain.User) {
-				r.EXPECT().LastInsertId().Return(int64(0), nil).AnyTimes()
-				m.EXPECT().Execute(statement, gomock.Any()).Return(r, nil).AnyTimes()
-			},
-			prepareFindMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockRow, statement string, userId int, user domain.User) {
-				r.EXPECT().Next().Return(false).AnyTimes()
-				r.EXPECT().Scan(&user.ID, &user.Name, &user.Email, &user.Password, &user.CreatedAt).Return(nil).AnyTimes()
-				r.EXPECT().Close().Return(nil).AnyTimes()
-				m.EXPECT().Query(statement, user.ID).Return(r, nil).AnyTimes()
-			},
-			response: controllers.Response{
-				Status:  400,
-				Message: "パスワードは必須です。",
-			},
-		},
-		{
-			name: "Passwordが5文字未満の場合、データ保存失敗",
-			args: domain.User{
-				Name:     "test",
-				Email:    "test@exm.com",
-				Password: strings.Repeat("t", 4),
-			},
-			userId: 1,
-			prepareStoreMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockResult, statement string, user *domain.User) {
-				r.EXPECT().LastInsertId().Return(int64(0), nil).AnyTimes()
-				m.EXPECT().Execute(statement, gomock.Any()).Return(r, nil).AnyTimes()
-			},
-			prepareFindMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockRow, statement string, userId int, user domain.User) {
-				r.EXPECT().Next().Return(false).AnyTimes()
-				r.EXPECT().Scan(&user.ID, &user.Name, &user.Email, &user.Password, &user.CreatedAt).Return(nil).AnyTimes()
-				r.EXPECT().Close().Return(nil).AnyTimes()
-				m.EXPECT().Query(statement, user.ID).Return(r, nil).AnyTimes()
-			},
-			response: controllers.Response{
-				Status:  400,
-				Message: "パスワードは5文字以上が必須です。",
-			},
-		},
-		{
-			name: "Passwordが21文字以上の場合、データ保存失敗",
-			args: domain.User{
-				Name:     "test",
-				Email:    "test@exm.com",
-				Password: strings.Repeat("t", 21),
-			},
-			userId: 1,
-			prepareStoreMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockResult, statement string, user *domain.User) {
-				r.EXPECT().LastInsertId().Return(int64(0), nil).AnyTimes()
-				m.EXPECT().Execute(statement, gomock.Any()).Return(r, nil).AnyTimes()
-			},
-			prepareFindMockFn: func(m *mock_database.MockSqlHandler, r *mock_database.MockRow, statement string, userId int, user domain.User) {
-				r.EXPECT().Next().Return(false).AnyTimes()
-				r.EXPECT().Scan(&user.ID, &user.Name, &user.Email, &user.Password, &user.CreatedAt).Return(nil).AnyTimes()
-				r.EXPECT().Close().Return(nil).AnyTimes()
-				m.EXPECT().Query(statement, user.ID).Return(r, nil).AnyTimes()
-			},
-			response: controllers.Response{
-				Status:  400,
-				Message: "パスワードは20文字以内の入力になります。",
+				Message: "データ取得に失敗しました",
 			},
 		},
 	}
@@ -279,9 +98,14 @@ func TestCreate(t *testing.T) {
 	// --- テスト実行 ---
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
+			var req *http.Request
 			jsonArgs, _ := json.Marshal(tt.args)
 			apiURL := "/api/registration"
-			req := httptest.NewRequest("POST", apiURL, bytes.NewBuffer(jsonArgs))
+			if tt.requestBody {
+				req = httptest.NewRequest("POST", apiURL, bytes.NewBuffer(jsonArgs))
+			} else {
+				req = httptest.NewRequest("POST", apiURL, nil)
+			}
 			w := httptest.NewRecorder()
 			pointerUser := &tt.args
 

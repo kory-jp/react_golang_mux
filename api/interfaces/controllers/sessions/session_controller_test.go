@@ -66,6 +66,7 @@ func TestLogin(t *testing.T) {
 		name            string
 		args            domain.User
 		withCredentials bool
+		requestBody     bool
 		prepareMockFn   func(m *mock_usecase.MockSessionRepository, args domain.User)
 		response        controllers.Response
 		haveCookie      bool
@@ -77,6 +78,7 @@ func TestLogin(t *testing.T) {
 				Password: "testPassword",
 			},
 			withCredentials: true,
+			requestBody:     true,
 			prepareMockFn: func(m *mock_usecase.MockSessionRepository, args domain.User) {
 				pUser := &domain.User{
 					Email: args.Email,
@@ -100,6 +102,7 @@ func TestLogin(t *testing.T) {
 				Password: "testPassword",
 			},
 			withCredentials: false,
+			requestBody:     true,
 			prepareMockFn: func(m *mock_usecase.MockSessionRepository, args domain.User) {
 				pUser := &domain.User{
 					Email:    args.Email,
@@ -114,12 +117,13 @@ func TestLogin(t *testing.T) {
 			haveCookie: true,
 		},
 		{
-			name: "Emailがnilの場合、ログイン失敗",
+			name: "リクエストボディがnilの場合、ログイン失敗",
 			args: domain.User{
-				Email:    "",
+				Email:    "test@exm.com",
 				Password: "testPassword",
 			},
 			withCredentials: true,
+			requestBody:     false,
 			prepareMockFn: func(m *mock_usecase.MockSessionRepository, args domain.User) {
 				pUser := &domain.User{
 					Email:    args.Email,
@@ -129,38 +133,23 @@ func TestLogin(t *testing.T) {
 			},
 			response: controllers.Response{
 				Status:  400,
-				Message: "認証に失敗しました",
+				Message: "データ取得に失敗しました",
 			},
-			haveCookie: false,
-		},
-		{
-			name: "Passwordがnilの場合、ログイン失敗",
-			args: domain.User{
-				Email:    "test@exm.com",
-				Password: "",
-			},
-			withCredentials: true,
-			prepareMockFn: func(m *mock_usecase.MockSessionRepository, args domain.User) {
-				pUser := &domain.User{
-					Email:    args.Email,
-					Password: args.Encrypt(args.Password),
-				}
-				m.EXPECT().FindByEmail(args).Return(pUser, nil).AnyTimes()
-			},
-			response: controllers.Response{
-				Status:  400,
-				Message: "認証に失敗しました",
-			},
-			haveCookie: false,
+			haveCookie: true,
 		},
 	}
 
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
+			var req *http.Request
 			tt.prepareMockFn(SessionRepository, tt.args)
 			jsonArgs, _ := json.Marshal(tt.args)
 			apiURL := "/api/login"
-			req := httptest.NewRequest("POST", apiURL, bytes.NewBuffer(jsonArgs))
+			if tt.requestBody {
+				req = httptest.NewRequest("POST", apiURL, bytes.NewBuffer(jsonArgs))
+			} else {
+				req = httptest.NewRequest("POST", apiURL, nil)
+			}
 			w := httptest.NewRecorder()
 			if tt.withCredentials {
 				req.AddCookie(&http.Cookie{

@@ -41,6 +41,13 @@ func NewUserController(sqlHandler database.SqlHandler) *UserController {
 }
 
 func (controller *UserController) Create(w http.ResponseWriter, r *http.Request) {
+	if r.ContentLength == 0 {
+		fmt.Println("NO DATA BODY")
+		log.Println("NO DATA BODY")
+		resStr := new(Response).SetResp(400, "データ取得に失敗しました", nil)
+		fmt.Fprintln(w, resStr)
+		return
+	}
 	bytesUser, err := io.ReadAll(r.Body)
 	if err != nil {
 		fmt.Println(err)

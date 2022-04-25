@@ -127,6 +127,22 @@ func TestAdd(t *testing.T) {
 			wantErr: errors.New("メールアドレスのフォーマットに誤りがあります"),
 		},
 		{
+			name: "Emailの文字数が30文字以上ある場合、データ保存失敗",
+			args: domain.User{
+				Name:     "testName",
+				Email:    "12345abcde12345abcde12345abcde@exm.com",
+				Password: "testPassword",
+			},
+			id: 1,
+			prepareStoreMockFn: func(m *mock_usecase.MockUserRepository, args domain.User) {
+				m.EXPECT().Store(gomock.Any()).Return(1, nil).AnyTimes()
+			},
+			prepareFindMockFn: func(m *mock_usecase.MockUserRepository, id int) {
+				m.EXPECT().FindById(id).Return(nil, nil).AnyTimes()
+			},
+			wantErr: errors.New("メールアドレスは30文字以内の入力になります。"),
+		},
+		{
 			name: "Passwordがnilの場合、データ保存失敗",
 			args: domain.User{
 				Name:     "testName",

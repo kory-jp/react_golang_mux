@@ -47,7 +47,16 @@ var Store = sessions.NewCookieStore([]byte(os.Getenv("SESSION_KEY")))
 func (controller *SessionController) Login(w http.ResponseWriter, r *http.Request) {
 	_, err := r.Cookie("cookie-name")
 	if err != nil {
+		fmt.Println(err)
+		log.Println(err)
 		resStr := new(Response).SetResp(401, "認証に失敗しました", nil)
+		fmt.Fprintln(w, resStr)
+		return
+	}
+	if r.ContentLength == 0 {
+		fmt.Println("NO DATA BODY")
+		log.Println("NO DATA BODY")
+		resStr := new(Response).SetResp(400, "データ取得に失敗しました", nil)
 		fmt.Fprintln(w, resStr)
 		return
 	}
@@ -69,6 +78,8 @@ func (controller *SessionController) Login(w http.ResponseWriter, r *http.Reques
 	}
 	user, err := controller.Interactor.Login(*userType)
 	if err != nil {
+		fmt.Println(err)
+		log.Println(err)
 		resStr := new(Response).SetResp(400, err.Error(), nil)
 		fmt.Fprintln(w, resStr)
 		return
