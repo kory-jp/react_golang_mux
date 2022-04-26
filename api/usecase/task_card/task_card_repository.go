@@ -6,4 +6,5 @@ import (
 
 type TaskCardRepository interface {
 	Store(domain.TaskCard) error
+	FindByTodoIdAndUserId(int, int, int) (domain.TaskCards, float64, error)
 }

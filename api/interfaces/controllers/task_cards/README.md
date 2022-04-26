@@ -5,6 +5,7 @@
 | No. | API 機能 No. | 種類 | API 名 | 機能概要             |
 | --: | -----------: | :--- | :----- | :------------------- |
 |   0 | TASKCARD-000 | API  | Create | タスクカード新規作成 |
+|   1 | TASKCARD-001 | API  | Index  | タスクカード一覧取得 |
 
 ## USER-000
 
@@ -45,7 +46,7 @@
 curl コマンド
 
 ```
-curl -XPOST -b cookie.txt -b 'cookie-name=' -d '{"todo_id":"1","title":"test_title","purpose":"test_purpose","content":"test_content","memo":"test_memo"}' -H 'Content-Type: application/json' -H 'Accept: application/json'  http://localhost:8000/api/taskcard/new
+curl -XPOST -b cookie.txt -b 'cookie-name=' -d '{"todoId":"1","title":"test_title","purpose":"test_purpose","content":"test_content","memo":"test_memo"}' -H 'Content-Type: application/json' -H 'Accept: application/json'  http://localhost:8000/api/taskcard/new
 ```
 
 <br>
@@ -58,6 +59,66 @@ curl -XPOST -b cookie.txt -b 'cookie-name=' -d '{"todo_id":"1","title":"test_tit
 | :------- | :----: | ---------: | :--: | :----------------: |
 | status   |  数値  |            |  ○   | 処理結果ステータス |
 | message  | 文字列 |            |  ○   |     メッセージ     |
+
+<br>
+<br>
+
+## USER-001
+
+| API 機能 No. | TASKCARD-001           |
+| :----------- | :--------------------- |
+| API 名       | Index                  |
+| 概要         | タスクカード一覧取得   |
+| URL          | /api/todo/:id/taskcard |
+
+<br>
+
+### 入力
+
+| アクセス URL | /api/todo/:id/taskcard |
+| :----------- | :--------------------- |
+
+### リクエストヘッダーその他
+
+|  フィルード名   |       内容       |
+| :-------------: | :--------------: |
+|     Accept      | application/json |
+|  Content-Type   | application/json |
+| withCredentials |       true       |
+
+#### POST データ
+
+無し
+
+<br>
+
+curl コマンド
+
+```
+curl -XGET -b cookie.txt -b 'cookie-name='  -H 'Content-Type: application/json' -H 'Accept: application/json'  "http://localhost:8000/api/todo/1/taskcard?page=1"
+```
+
+<br>
+
+### 出力
+
+#### 返却データ(JSON)
+
+| JSON Key                    |   型   | 最大サイズ | 必須 |           値の説明           |
+| :-------------------------- | :----: | ---------: | :--: | :--------------------------: |
+| status                      |  数値  |            |  ○   |      処理結果ステータス      |
+| message                     | 文字列 |            |  ○   |          メッセージ          |
+| sumPage                     |  数値  |            |  ○   | ページネーションの総ページ数 |
+| taskCards                   |  配列  |            |  ○   |                              |
+| &emsp; taskCards_id         |  数値  |            |      |              id              |
+| &emsp; taskCards_userId     |  数値  |            |      |           user_id            |
+| &emsp; taskCards_postId     |  数値  |            |      |           post_id            |
+| &emsp; taskCards_title      | 文字列 |            |      |           タイトル           |
+| &emsp; taskCards_purpose    | 文字列 |            |      |             目的             |
+| &emsp; taskCards_content    | 文字列 |            |      |             内容             |
+| &emsp; taskCards_memo       | 文字列 |            |      |             メモ             |
+| &emsp; taskCards_isFinished | 真偽値 |            |      |        完了未完了状態        |
+| &emsp; taskCards_createdAt  |  日付  |            |      |             日付             |
 
 <br>
 <br>

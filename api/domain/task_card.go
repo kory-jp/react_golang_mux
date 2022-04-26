@@ -1,7 +1,6 @@
 package domain
 
 import (
-	"encoding/json"
 	"fmt"
 	"time"
 
@@ -9,15 +8,15 @@ import (
 )
 
 type TaskCard struct {
-	ID         int         `json:"id"`
-	UserID     int         `json:"userId" validate:"required"`
-	TodoID     json.Number `json:"todoId" validate:"required"`
-	Title      string      `json:"title" validate:"required,gte=1,lt=50"`
-	Purpose    string      `json:"purpose" validate:"lt=2000"`
-	Content    string      `json:"content" validate:"lt=2000"`
-	Memo       string      `json:"memo" validate:"lt=2000"`
-	IsFinished bool        `json:"isFinished"`
-	CreatedAt  time.Time   `json:"createdAt"`
+	ID         int       `json:"id"`
+	UserID     int       `json:"userId" validate:"required"`
+	TodoID     int       `json:"todoId" validate:"required"`
+	Title      string    `json:"title" validate:"required,gte=1,lt=50"`
+	Purpose    string    `json:"purpose" validate:"lt=2000"`
+	Content    string    `json:"content" validate:"lt=2000"`
+	Memo       string    `json:"memo" validate:"lt=2000"`
+	IsFinished bool      `json:"isFinished"`
+	CreatedAt  time.Time `json:"createdAt"`
 }
 
 type TaskCards []TaskCard
