@@ -16,36 +16,50 @@ var CreateTaskCardState = `
 `
 
 var SumTaskCardItemsState = `
-		select count(*) from
-			task_cards
-		where
-			user_id = ?
-		and
-			todo_id = ?
+	select count(*) from
+		task_cards
+	where
+		user_id = ?
+	and
+		todo_id = ?
 `
 
 var GetTaskCardsState = `
-		select
-			*
-		from
-			task_cards
-		where
-			user_id = ?
-		and
-			todo_id = ?
-		order by
-			id desc
-		limit 5
-		offset ?
+	select
+		*
+	from
+		task_cards
+	where
+		user_id = ?
+	and
+		todo_id = ?
+	order by
+		id desc
+	limit 5
+	offset ?
 `
 
 var ShowTaskCardState = `
-		select
-			*
-		from
-			task_cards
-		where
-			id = ?
-		and
-			user_id = ?
+	select
+		*
+	from
+		task_cards
+	where
+		id = ?
+	and
+		user_id = ?
+`
+
+var UpdateTaskCardState = `
+	update
+		task_cards
+	set
+		title = ?,
+		purpose = ?,
+		content = ?,
+		memo = ?
+	where
+		id = ?
+	and
+		user_id = ?
 `
