@@ -6,7 +6,9 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"strconv"
 
+	"github.com/gorilla/mux"
 	controllers "github.com/kory-jp/react_golang_mux/api/interfaces/controllers/sessions"
 	"github.com/kory-jp/react_golang_mux/api/interfaces/database"
 	taskCards "github.com/kory-jp/react_golang_mux/api/interfaces/database/task_cards"
@@ -22,12 +24,13 @@ type TaskCardController struct {
 type Response struct {
 	Status    int              `json:"status"`
 	Message   string           `json:"message"`
+	SumPage   float64          `json:"sumPage"`
 	TaskCard  *domain.TaskCard `json:"taskCard"`
 	TaskCards domain.TaskCards `json:"taskCards"`
 }
 
-func (res *Response) SetResp(status int, mess string, taskCard *domain.TaskCard, taskCards domain.TaskCards) (resStr string) {
-	response := &Response{status, mess, taskCard, taskCards}
+func (res *Response) SetResp(status int, mess string, sumPage float64, taskCard *domain.TaskCard, taskCards domain.TaskCards) (resStr string) {
+	response := &Response{status, mess, sumPage, taskCard, taskCards}
 	r, _ := json.Marshal(response)
 	resStr = string(r)
 	return
@@ -58,11 +61,13 @@ func GetUserId(r *http.Request) (userId int, err error) {
 	return userId, nil
 }
 
+// --- 新規作成 ---
+// ---
 func (controller *TaskCardController) Create(w http.ResponseWriter, r *http.Request) {
 	if r.ContentLength == 0 {
 		fmt.Println("NO DATA BODY")
 		log.Println("NO DATA BODY")
-		resStr := new(Response).SetResp(400, "データ取得に失敗しました", nil, nil)
+		resStr := new(Response).SetResp(400, "データ取得に失敗しました", 0, nil, nil)
 		fmt.Fprintln(w, resStr)
 		return
 	}
@@ -71,7 +76,7 @@ func (controller *TaskCardController) Create(w http.ResponseWriter, r *http.Requ
 	if err != nil || userId == 0 {
 		fmt.Println(err)
 		log.Println(err)
-		resStr := new(Response).SetResp(401, "ログインをしてください", nil, nil)
+		resStr := new(Response).SetResp(401, "ログインをしてください", 0, nil, nil)
 		fmt.Fprintln(w, resStr)
 		return
 	}
@@ -82,7 +87,7 @@ func (controller *TaskCardController) Create(w http.ResponseWriter, r *http.Requ
 	if err != nil {
 		fmt.Println(err)
 		log.Println(err)
-		resStr := new(Response).SetResp(400, "データ取得に失敗しました", nil, nil)
+		resStr := new(Response).SetResp(400, "データ取得に失敗しました", 0, nil, nil)
 		fmt.Fprintln(w, resStr)
 		return
 	}
@@ -90,7 +95,7 @@ func (controller *TaskCardController) Create(w http.ResponseWriter, r *http.Requ
 	if err := json.Unmarshal(bytesTaskCard, taskCardType); err != nil {
 		fmt.Println(err)
 		log.Println(err)
-		resStr := new(Response).SetResp(400, "データ取得に失敗しました", nil, nil)
+		resStr := new(Response).SetResp(400, "データ取得に失敗しました", 0, nil, nil)
 		fmt.Fprintln(w, resStr)
 		return
 	}
@@ -101,10 +106,56 @@ func (controller *TaskCardController) Create(w http.ResponseWriter, r *http.Requ
 	if err != nil {
 		fmt.Println(err)
 		log.Println(err)
-		resStr := new(Response).SetResp(400, "データ取得に失敗しました", nil, nil)
+		resStr := new(Response).SetResp(400, "データ取得に失敗しました", 0, nil, nil)
 		fmt.Fprintln(w, resStr)
 		return
 	}
-	resStr := new(Response).SetResp(200, mess.Message, nil, nil)
+	resStr := new(Response).SetResp(200, mess.Message, 0, nil, nil)
+	fmt.Fprintln(w, resStr)
+}
+
+// --- 一覧取得 ---
+// ---
+
+func (controller *TaskCardController) Index(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	strTodoId, ok := vars["id"]
+	todoId, err := strconv.Atoi(strTodoId)
+	if !ok || err != nil || todoId == 0 {
+		fmt.Println(err)
+		log.Println(err)
+		resStr := new(Response).SetResp(400, "データ取得に失敗しました", 0, nil, nil)
+		fmt.Fprintln(w, resStr)
+		return
+	}
+
+	page, err := strconv.Atoi(r.FormValue("page"))
+	if err != nil || page == 0 {
+		fmt.Println(err)
+		log.Println(err)
+		resStr := new(Response).SetResp(400, "データ取得に失敗しました", 0, nil, nil)
+		fmt.Fprintln(w, resStr)
+		return
+	}
+
+	userId, err := GetUserId(r)
+	if err != nil || userId == 0 {
+		fmt.Println(err)
+		log.Println(err)
+		resStr := new(Response).SetResp(401, "ログインをしてください", 0, nil, nil)
+		fmt.Fprintln(w, resStr)
+		return
+	}
+
+	taskCards, sumPage, err := controller.Interactor.TaskCards(todoId, userId, page)
+	if err != nil {
+		fmt.Println(err)
+		log.Println(err)
+		resStr := new(Response).SetResp(400, "データ取得に失敗しました", 0, nil, nil)
+		fmt.Fprintln(w, resStr)
+		return
+	}
+
+	resStr := new(Response).SetResp(200, "タスクカード一覧取得", sumPage, nil, taskCards)
 	fmt.Fprintln(w, resStr)
 }

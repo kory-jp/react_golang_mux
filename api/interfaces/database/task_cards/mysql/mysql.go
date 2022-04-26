@@ -14,3 +14,27 @@ var CreateTaskCardState = `
 		)
 	value (?, ?, ?, ?, ?, ?, ?, ?)
 `
+
+var SumTaskCardItemsState = `
+		select count(*) from
+			task_cards
+		where
+			user_id = ?
+		and
+			todo_id = ?
+`
+
+var GetTaskCardsState = `
+		select
+			*
+		from
+			task_cards
+		where
+			user_id = ?
+		and
+			todo_id = ?
+		order by
+			id desc
+		limit 5
+		offset ?
+`

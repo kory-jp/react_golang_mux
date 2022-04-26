@@ -16,6 +16,7 @@ type TaskCardMessage struct {
 	Message string
 }
 
+// --- 新規登録 ---
 func (interactor *TaskCardInteractor) Add(t domain.TaskCard) (mess *TaskCardMessage, err error) {
 	if err = t.TaskCardValidate(); err == nil {
 		err = interactor.TaskCardRepository.Store(t)
@@ -31,4 +32,24 @@ func (interactor *TaskCardInteractor) Add(t domain.TaskCard) (mess *TaskCardMess
 		return mess, nil
 	}
 	return nil, err
+}
+
+// --- 一覧取得 ---
+func (interactor *TaskCardInteractor) TaskCards(todoId int, userId int, page int) (taskCards domain.TaskCards, sumPage float64, err error) {
+	if todoId == 0 || userId == 0 || page == 0 {
+		err = errors.New("データ取得に失敗しました")
+		fmt.Println(err)
+		log.Println(err)
+		return nil, 0, err
+	}
+
+	taskCards, sumPage, err = interactor.TaskCardRepository.FindByTodoIdAndUserId(todoId, userId, page)
+	if err != nil {
+		err = errors.New("データ取得に失敗しました")
+		fmt.Println(err)
+		log.Println(err)
+		return nil, 0, err
+	}
+
+	return taskCards, sumPage, nil
 }

@@ -43,6 +43,7 @@ func Init() {
 	r.Methods("DELETE").Path("/api/todos/deleteinindex/{id:[0-9]+}").HandlerFunc(todoController.DeleteInIndex)
 	r.Methods("GET").Path("/api/tag").HandlerFunc(tagController.Index)
 	r.Methods("POST").Path("/api/taskcard/new").HandlerFunc(taskCardController.Create)
+	r.Methods("GET").Path("/api/todo/{id:[0-9]+}/taskcard").HandlerFunc(taskCardController.Index)
 	// ----- 画像配信URL ---------
 	r.PathPrefix("/api/img/").Handler(http.StripPrefix("/api/img/", http.FileServer(http.Dir("./assets/dev/img"))))
 	// -----
