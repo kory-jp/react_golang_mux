@@ -38,3 +38,14 @@ var GetTaskCardsState = `
 		limit 5
 		offset ?
 `
+
+var ShowTaskCardState = `
+		select
+			*
+		from
+			task_cards
+		where
+			id = ?
+		and
+			user_id = ?
+`

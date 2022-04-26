@@ -53,3 +53,23 @@ func (interactor *TaskCardInteractor) TaskCards(todoId int, userId int, page int
 
 	return taskCards, sumPage, nil
 }
+
+// --- 詳細取得 ---
+func (interactor *TaskCardInteractor) TaskCardByIdAndUserId(taskCardId int, userId int) (taskCard *domain.TaskCard, err error) {
+	if taskCardId == 0 || userId == 0 {
+		err = errors.New("データ取得に失敗しました")
+		fmt.Println(err)
+		log.Println(err)
+		return nil, err
+	}
+
+	taskCard, err = interactor.TaskCardRepository.FindByIdAndUserId(taskCardId, userId)
+	if err != nil {
+		err = errors.New("データ取得に失敗しました")
+		fmt.Println(err)
+		log.Println(err)
+		return nil, err
+	}
+
+	return taskCard, nil
+}
