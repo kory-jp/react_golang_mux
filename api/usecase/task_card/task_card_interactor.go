@@ -91,3 +91,24 @@ func (interactor *TaskCardInteractor) UpdateTaskCard(t domain.TaskCard) (mess *T
 	}
 	return nil, err
 }
+
+func (interactor *TaskCardInteractor) DeleteTaskCard(taskCardId int, userId int) (mess *TaskCardMessage, err error) {
+	if taskCardId == 0 || userId == 0 {
+		err = errors.New("データ取得に失敗しました")
+		fmt.Println(err)
+		log.Println(err)
+		return nil, err
+	}
+
+	err = interactor.TaskCardRepository.Erasure(taskCardId, userId)
+	if err != nil {
+		fmt.Println(err)
+		log.Println(err)
+		err = errors.New("削除に失敗しました")
+		return nil, err
+	}
+	mess = &TaskCardMessage{
+		Message: "削除しました",
+	}
+	return mess, nil
+}
