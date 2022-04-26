@@ -13,6 +13,8 @@ import { deleteTodo, showTodo, updateIsFinished } from "../../../reducks/todos/o
 import useLoadingState from "../../../hooks/useLoadingState";
 import { FormControlLabel } from "@material-ui/core";
 import { Tags } from "../../../reducks/tags/types";
+import { PrimaryButton } from "../../atoms/button/PrimaryButton";
+import InputTaskCardForm from "../../organisms/taskCards/InputTaskCardForm";
 
 type Params = {
   id: string | undefined
@@ -26,6 +28,10 @@ export const ShowTodo: FC = () => {
   const loadingState = useLoadingState()
   const [finish, setFinish] = useState(false)
   const tags: Tags | null = todo.tags ? todo.tags : null
+  const [title, setTitle] = useState("")
+  const [purpose, setPurpose] = useState("")
+  const [content, setContent] = useState("")
+  const [memo, setMemo] = useState("")
 
   useEffect(() => {
     dispatch(showTodo(id))
@@ -58,6 +64,36 @@ export const ShowTodo: FC = () => {
   const onClickToSearchTagTodo = useCallback((tagId: number) => {
     dispatch(push(`/todo/tag/${tagId}`))
   },[])
+
+  // --- モーダル操作 ---
+  const [open, setOpen] = useState(false);
+  const onClickModalOpen = useCallback(() => {
+    setOpen(true)
+  }, [])
+
+  const onClickModalClose = useCallback(() => {
+    setOpen(false)
+  }, [])
+
+  const onChangeTitle = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    setTitle(event.target.value)
+  },[setTitle])
+
+  const onChangePurpose = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    setPurpose(event.target.value)
+  },[setPurpose])
+
+  const onChangeContent = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    setContent(event.target.value)
+  },[setContent])
+
+  const onChangeMemo = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    setMemo(event.target.value)
+  },[setMemo])
+
+  const onClickNewTaskCard = useCallback(() => {
+    console.log("Save!")
+  }, [])
 
 
   return(
@@ -274,7 +310,46 @@ export const ShowTodo: FC = () => {
                 </Paper>
                 )
               } 
+
+              {/* --- タスクカード新規作成 --- */}
+              <Paper
+                id="taskCard"
+                sx={{
+                  paddingY: {
+                    // sx: "10px",
+                    md: "20px"
+                  },
+                  marginY: {
+                    sx: "10px",
+                    sm: "10px",
+                    md: "20px"
+                  },
+                }}
+              >
+                <Box
+                  margin="20px"
+                >
+                  <PrimaryButton
+                    onClick={onClickModalOpen}
+                  >
+                    タスクカード新規作成
+                  </PrimaryButton>
+                </Box>
+              </Paper>
             </Paper>
+            <InputTaskCardForm 
+              open={open}
+              onClose={onClickModalClose}
+              title={title}
+              purpose={purpose}
+              content={content}
+              memo={memo}
+              onChangeTitle={onChangeTitle}
+              onChangePurpose={onChangePurpose}
+              onChangeContent={onChangeContent}
+              onChangeMemo={onChangeMemo}
+              onClickNewTaskCard={onClickNewTaskCard}
+            />
           </Container>
         )
       }
