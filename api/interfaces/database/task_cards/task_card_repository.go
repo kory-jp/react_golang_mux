@@ -171,3 +171,13 @@ func (repo *TaskCardRepository) Overwrite(t domain.TaskCard) (err error) {
 	}
 	return nil
 }
+
+func (repo *TaskCardRepository) Erasure(taskCardId int, userId int) (err error) {
+	_, err = repo.Execute(mysql.DeleteTaskCardState, taskCardId, userId)
+	if err != nil {
+		fmt.Println(err)
+		log.Println(err)
+		return err
+	}
+	return err
+}

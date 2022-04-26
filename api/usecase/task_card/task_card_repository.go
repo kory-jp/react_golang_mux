@@ -9,4 +9,5 @@ type TaskCardRepository interface {
 	FindByTodoIdAndUserId(int, int, int) (domain.TaskCards, float64, error)
 	FindByIdAndUserId(int, int) (*domain.TaskCard, error)
 	Overwrite(domain.TaskCard) error
+	Erasure(int, int) error
 }

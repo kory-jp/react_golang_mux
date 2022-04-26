@@ -8,6 +8,7 @@
 |   1 |  TASKCARD-001 | API  | Index  | タスクカード一覧取得 |
 |   2 | TASKCARD-0002 | API  | Show   | タスクカード詳細取得 |
 |   3 | TASKCARD-0003 | API  | Update | タスクカード更新     |
+|   4 | TASKCARD-0004 | API  | Delete | タスクカード削除     |
 
 ## USER-000
 
@@ -223,6 +224,55 @@ curl コマンド
 
 ```
 curl -XPOST -b cookie.txt -b 'cookie-name=' -d '{"todoId":1,"title":"update_test_title","purpose":"update_test_purpose","content":"update_test_content","memo":"update_test_memo"}' -H 'Content-Type: application/json' -H 'Accept: application/json'  http://localhost:8000/api/taskcard/1
+```
+
+<br>
+
+### 出力
+
+#### 返却データ(JSON)
+
+| JSON Key |   型   | 最大サイズ | 必須 |      値の説明      |
+| :------- | :----: | ---------: | :--: | :----------------: |
+| status   |  数値  |            |  ○   | 処理結果ステータス |
+| message  | 文字列 |            |  ○   |     メッセージ     |
+
+<br>
+<br>
+
+## USER-004
+
+| API 機能 No. | TASKCARD-004      |
+| :----------- | :---------------- |
+| API 名       | Delete            |
+| 概要         | タスクカード削除  |
+| URL          | /api/taskcard/:id |
+
+<br>
+
+### 入力
+
+| アクセス URL | /api/taskcard/:id |
+| :----------- | :---------------- |
+
+### リクエストヘッダーその他
+
+|  フィルード名   |       内容       |
+| :-------------: | :--------------: |
+|     Accept      | application/json |
+|  Content-Type   | application/json |
+| withCredentials |       true       |
+
+#### POST データ
+
+無し
+
+<br>
+
+curl コマンド
+
+```
+curl -XDELETE -b cookie.txt -b 'cookie-name='  -H 'Content-Type: application/json' -H 'Accept: application/json'  "http://localhost:8000/api/taskcard/1"
 ```
 
 <br>

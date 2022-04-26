@@ -257,3 +257,36 @@ func (controller *TaskCardController) Update(w http.ResponseWriter, r *http.Requ
 	resStr := new(Response).SetResp(200, mess.Message, 0, nil, nil)
 	fmt.Fprintln(w, resStr)
 }
+
+func (controller *TaskCardController) Delete(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	strTodoId, ok := vars["id"]
+	taskCardId, err := strconv.Atoi(strTodoId)
+	if !ok || err != nil || taskCardId == 0 {
+		fmt.Println(err)
+		log.Println(err)
+		resStr := new(Response).SetResp(400, "データ取得に失敗しました", 0, nil, nil)
+		fmt.Fprintln(w, resStr)
+		return
+	}
+
+	userId, err := GetUserId(r)
+	if err != nil || userId == 0 {
+		fmt.Println(err)
+		log.Println(err)
+		resStr := new(Response).SetResp(401, "ログインをしてください", 0, nil, nil)
+		fmt.Fprintln(w, resStr)
+		return
+	}
+
+	mess, err := controller.Interactor.DeleteTaskCard(taskCardId, userId)
+	if err != nil {
+		fmt.Println(err)
+		log.Println(err)
+		resStr := new(Response).SetResp(400, err.Error(), 0, nil, nil)
+		fmt.Fprintln(w, resStr)
+		return
+	}
+	resStr := new(Response).SetResp(200, mess.Message, 0, nil, nil)
+	fmt.Fprintln(w, resStr)
+}

@@ -63,3 +63,11 @@ var UpdateTaskCardState = `
 	and
 		user_id = ?
 `
+var DeleteTaskCardState = `
+		delete from
+			task_cards
+		where
+			id = ?
+		and
+			user_id = ?
+`
