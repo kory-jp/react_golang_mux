@@ -159,3 +159,40 @@ func (controller *TaskCardController) Index(w http.ResponseWriter, r *http.Reque
 	resStr := new(Response).SetResp(200, "タスクカード一覧取得", sumPage, nil, taskCards)
 	fmt.Fprintln(w, resStr)
 }
+
+// --- 詳細表示 ---
+// ---
+
+func (controller *TaskCardController) Show(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	strTodoId, ok := vars["id"]
+	taskCardId, err := strconv.Atoi(strTodoId)
+	if !ok || err != nil || taskCardId == 0 {
+		fmt.Println(err)
+		log.Println(err)
+		resStr := new(Response).SetResp(400, "データ取得に失敗しました", 0, nil, nil)
+		fmt.Fprintln(w, resStr)
+		return
+	}
+
+	userId, err := GetUserId(r)
+	if err != nil || userId == 0 {
+		fmt.Println(err)
+		log.Println(err)
+		resStr := new(Response).SetResp(401, "ログインをしてください", 0, nil, nil)
+		fmt.Fprintln(w, resStr)
+		return
+	}
+
+	taskCard, err := controller.Interactor.TaskCardByIdAndUserId(taskCardId, userId)
+	if err != nil {
+		fmt.Println(err)
+		log.Println(err)
+		resStr := new(Response).SetResp(400, "データ取得に失敗しました", 0, nil, nil)
+		fmt.Fprintln(w, resStr)
+		return
+	}
+
+	resStr := new(Response).SetResp(200, "タスクカード詳細取得", 0, taskCard, nil)
+	fmt.Fprintln(w, resStr)
+}
