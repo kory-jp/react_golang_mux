@@ -313,11 +313,6 @@ func (repo *TodoRepository) TransOverwrite(tx *sql.Tx, t domain.Todo) (err error
 		log.Println(err)
 		return err
 	}
-	if err != nil {
-		fmt.Println(err)
-		log.Println(err)
-		return err
-	}
 	return nil
 }
 

@@ -73,3 +73,21 @@ func (interactor *TaskCardInteractor) TaskCardByIdAndUserId(taskCardId int, user
 
 	return taskCard, nil
 }
+
+// --- 新規登録 ---
+func (interactor *TaskCardInteractor) UpdateTaskCard(t domain.TaskCard) (mess *TaskCardMessage, err error) {
+	if err = t.TaskCardValidate(); err == nil {
+		err = interactor.TaskCardRepository.Overwrite(t)
+		if err != nil {
+			fmt.Println(err)
+			log.Println(err)
+			err = errors.New("更新に失敗しました")
+			return nil, err
+		}
+		mess = &TaskCardMessage{
+			Message: "更新しました",
+		}
+		return mess, nil
+	}
+	return nil, err
+}

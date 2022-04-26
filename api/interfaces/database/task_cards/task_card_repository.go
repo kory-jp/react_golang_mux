@@ -161,3 +161,13 @@ func (repo *TaskCardRepository) FindByIdAndUserId(taskCardId int, userId int) (t
 	row.Close()
 	return taskCard, nil
 }
+
+func (repo *TaskCardRepository) Overwrite(t domain.TaskCard) (err error) {
+	_, err = repo.Execute(mysql.UpdateTaskCardState, t.Title, t.Purpose, t.Content, t.Memo, t.ID, t.UserID)
+	if err != nil {
+		fmt.Println(err)
+		log.Println(err)
+		return err
+	}
+	return nil
+}

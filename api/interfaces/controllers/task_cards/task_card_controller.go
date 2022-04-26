@@ -81,8 +81,6 @@ func (controller *TaskCardController) Create(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	fmt.Println("ctrl:", userId)
-
 	bytesTaskCard, err := io.ReadAll(r.Body)
 	if err != nil {
 		fmt.Println(err)
@@ -101,12 +99,11 @@ func (controller *TaskCardController) Create(w http.ResponseWriter, r *http.Requ
 	}
 	taskCardType.UserID = userId
 
-	fmt.Println(taskCardType)
 	mess, err := controller.Interactor.Add(*taskCardType)
 	if err != nil {
 		fmt.Println(err)
 		log.Println(err)
-		resStr := new(Response).SetResp(400, "データ取得に失敗しました", 0, nil, nil)
+		resStr := new(Response).SetResp(400, err.Error(), 0, nil, nil)
 		fmt.Fprintln(w, resStr)
 		return
 	}
@@ -194,5 +191,69 @@ func (controller *TaskCardController) Show(w http.ResponseWriter, r *http.Reques
 	}
 
 	resStr := new(Response).SetResp(200, "タスクカード詳細取得", 0, taskCard, nil)
+	fmt.Fprintln(w, resStr)
+}
+
+// --- 更新 ---
+// ---
+
+func (controller *TaskCardController) Update(w http.ResponseWriter, r *http.Request) {
+	if r.ContentLength == 0 {
+		fmt.Println("NO DATA BODY")
+		log.Println("NO DATA BODY")
+		resStr := new(Response).SetResp(400, "データ取得に失敗しました", 0, nil, nil)
+		fmt.Fprintln(w, resStr)
+		return
+	}
+
+	vars := mux.Vars(r)
+	strTodoId, ok := vars["id"]
+	taskCardId, err := strconv.Atoi(strTodoId)
+	if !ok || err != nil || taskCardId == 0 {
+		fmt.Println(err)
+		log.Println(err)
+		resStr := new(Response).SetResp(400, "データ取得に失敗しました", 0, nil, nil)
+		fmt.Fprintln(w, resStr)
+		return
+	}
+
+	userId, err := GetUserId(r)
+	if err != nil || userId == 0 {
+		fmt.Println(err)
+		log.Println(err)
+		resStr := new(Response).SetResp(401, "ログインをしてください", 0, nil, nil)
+		fmt.Fprintln(w, resStr)
+		return
+	}
+
+	bytesTaskCard, err := io.ReadAll(r.Body)
+	if err != nil {
+		fmt.Println(err)
+		log.Println(err)
+		resStr := new(Response).SetResp(400, "データ取得に失敗しました", 0, nil, nil)
+		fmt.Fprintln(w, resStr)
+		return
+	}
+
+	taskCardType := new(domain.TaskCard)
+	if err := json.Unmarshal(bytesTaskCard, taskCardType); err != nil {
+		fmt.Println(err)
+		log.Println(err)
+		resStr := new(Response).SetResp(400, "データ取得に失敗しました", 0, nil, nil)
+		fmt.Fprintln(w, resStr)
+		return
+	}
+	taskCardType.ID = taskCardId
+	taskCardType.UserID = userId
+
+	mess, err := controller.Interactor.UpdateTaskCard(*taskCardType)
+	if err != nil {
+		fmt.Println(err)
+		log.Println(err)
+		resStr := new(Response).SetResp(400, err.Error(), 0, nil, nil)
+		fmt.Fprintln(w, resStr)
+		return
+	}
+	resStr := new(Response).SetResp(200, mess.Message, 0, nil, nil)
 	fmt.Fprintln(w, resStr)
 }

@@ -45,6 +45,7 @@ func Init() {
 	r.Methods("POST").Path("/api/taskcard/new").HandlerFunc(taskCardController.Create)
 	r.Methods("GET").Path("/api/todo/{id:[0-9]+}/taskcard").HandlerFunc(taskCardController.Index)
 	r.Methods("GET").Path("/api/taskcard/{id:[0-9]+}").HandlerFunc(taskCardController.Show)
+	r.Methods("POST").Path("/api/taskcard/{id:[0-9]+}").HandlerFunc(taskCardController.Update)
 	// ----- 画像配信URL ---------
 	r.PathPrefix("/api/img/").Handler(http.StripPrefix("/api/img/", http.FileServer(http.Dir("./assets/dev/img"))))
 	// -----
