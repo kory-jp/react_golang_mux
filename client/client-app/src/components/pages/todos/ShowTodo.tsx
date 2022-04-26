@@ -15,6 +15,7 @@ import { FormControlLabel } from "@material-ui/core";
 import { Tags } from "../../../reducks/tags/types";
 import { PrimaryButton } from "../../atoms/button/PrimaryButton";
 import InputTaskCardForm from "../../organisms/taskCards/InputTaskCardForm";
+import { createTaskCard } from "../../../reducks/taskCards/operations";
 
 type Params = {
   id: string | undefined
@@ -92,8 +93,9 @@ export const ShowTodo: FC = () => {
   },[setMemo])
 
   const onClickNewTaskCard = useCallback(() => {
-    console.log("Save!")
-  }, [])
+    dispatch(createTaskCard(id, title, purpose, content, memo))
+    setOpen(false)
+  }, [id, title, purpose, content, memo])
 
 
   return(
