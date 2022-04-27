@@ -1,11 +1,11 @@
 import { Button, CardActions, Checkbox, FormControlLabel, Grid, Modal, Typography } from "@mui/material";
 import { Box } from "@mui/system";
-import { useCallback, useState, VFC } from "react";
+import { useCallback, useEffect, useState, VFC } from "react";
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import { TaskCard } from "../../../reducks/taskCards/types";
 import EditTaskCardForm from "./EditTaskCardForm";
-import { deleteTaskCard } from "../../../reducks/taskCards/operations";
+import { deleteTaskCard, updateIsFinished } from "../../../reducks/taskCards/operations";
 import { useDispatch } from "react-redux";
 
 type Props = {
@@ -20,13 +20,17 @@ export const ShowTaskCardModal: VFC<Props> = (props) => {
   const [isFinished, setIsFinished] = useState(false)
   const [editModalOpen, setEditModalOpen] = useState(false)
 
+  useEffect(() => {
+    setIsFinished(taskCard.isFinished)
+  }, [])
+
   const onChangeIsFinished = useCallback(() => {
     if (isFinished) {
       setIsFinished(false)
-      // dispatch(updateIsFinished(id, false))
+      dispatch(updateIsFinished(taskCard.id, false))
     } else {
       setIsFinished(true)
-      // dispatch(updateIsFinished(id, true))
+      dispatch(updateIsFinished(taskCard.id, true))
     }
   }, [isFinished])
 
@@ -54,7 +58,7 @@ export const ShowTaskCardModal: VFC<Props> = (props) => {
         <Box
           id="showTCModalContainer"
           sx={{
-            backgroundColor: "white",
+            backgroundColor: isFinished ? 'gray' : 'white',
             width: {
               xs: "80%",
               md: "60%",
