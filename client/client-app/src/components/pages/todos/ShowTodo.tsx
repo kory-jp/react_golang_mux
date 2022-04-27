@@ -15,7 +15,10 @@ import { FormControlLabel } from "@material-ui/core";
 import { Tags } from "../../../reducks/tags/types";
 import { PrimaryButton } from "../../atoms/button/PrimaryButton";
 import InputTaskCardForm from "../../organisms/taskCards/InputTaskCardForm";
-import { createTaskCard } from "../../../reducks/taskCards/operations";
+import { createTaskCard, indexTaskCards } from "../../../reducks/taskCards/operations";
+import usePagination from "../../../hooks/usePagination";
+import { TaskCards } from "../../../reducks/taskCards/types";
+import IndexTaskCard from "../../organisms/taskCards/IndexTaskCard";
 
 type Params = {
   id: string | undefined
@@ -33,10 +36,14 @@ export const ShowTodo: FC = () => {
   const [purpose, setPurpose] = useState("")
   const [content, setContent] = useState("")
   const [memo, setMemo] = useState("")
+  const {sumPage, setSumPage, queryPage} = usePagination()
 
   useEffect(() => {
     dispatch(showTodo(id))
+    dispatch(indexTaskCards(id, setSumPage, queryPage))
   }, [id])
+
+  const taskCards: TaskCards = useSelector((state: RootState) => state.taskCards)
 
   useEffect(()=> {
     setFinish(todo.isFinished)
@@ -52,6 +59,7 @@ export const ShowTodo: FC = () => {
     dispatch(deleteTodo(id))
   }, [id])
 
+  // --- todo isFinished ----
   const onChangeIsFinished = useCallback(() => {
     if (finish) {
       setFinish(false)
@@ -104,12 +112,13 @@ export const ShowTodo: FC = () => {
         loadingState? (
           <LoadingLayout />
         ) : (
+          <>
           <Container maxWidth='lg'>
             <Paper
               sx={{
                 transition: '0.7s',
                 bgcolor: finish? 'text.disabled' : 'white',
-                marginTop: '30px',
+                marginY: '30px',
                 padding: {
                   xs: '5px',
                   md: '20px'
@@ -339,20 +348,43 @@ export const ShowTodo: FC = () => {
                 </Box>
               </Paper>
             </Paper>
-            <InputTaskCardForm 
-              open={open}
-              onClose={onClickModalClose}
-              title={title}
-              purpose={purpose}
-              content={content}
-              memo={memo}
-              onChangeTitle={onChangeTitle}
-              onChangePurpose={onChangePurpose}
-              onChangeContent={onChangeContent}
-              onChangeMemo={onChangeMemo}
-              onClickNewTaskCard={onClickNewTaskCard}
-            />
+
+            {/* --- taskCards index --- */}
+            {
+              taskCards.length > 0 && (
+                <Box
+                sx={{
+                  marginBottom: "80px",
+                }}
+                >
+                   {
+                     taskCards.map(taskCard =>(
+                       <IndexTaskCard 
+                       key={taskCard.id}
+                       taskCard={taskCard}
+                       />
+                       ))
+                      }
+                </Box>
+              )
+            }
+
           </Container>
+          {/* --- モーダル --- */}
+          <InputTaskCardForm 
+            open={open}
+            onClose={onClickModalClose}
+            title={title}
+            purpose={purpose}
+            content={content}
+            memo={memo}
+            onChangeTitle={onChangeTitle}
+            onChangePurpose={onChangePurpose}
+            onChangeContent={onChangeContent}
+            onChangeMemo={onChangeMemo}
+            onClickNewTaskCard={onClickNewTaskCard}
+          />
+          </>
         )
       }
     </>
