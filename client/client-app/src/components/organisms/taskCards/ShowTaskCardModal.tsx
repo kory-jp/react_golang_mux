@@ -5,6 +5,8 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import { TaskCard } from "../../../reducks/taskCards/types";
 import EditTaskCardForm from "./EditTaskCardForm";
+import { deleteTaskCard } from "../../../reducks/taskCards/operations";
+import { useDispatch } from "react-redux";
 
 type Props = {
   open: boolean
@@ -13,6 +15,7 @@ type Props = {
 }
 
 export const ShowTaskCardModal: VFC<Props> = (props) => {
+  const dispatch = useDispatch()
   const {open, onClose, taskCard} = props;
   const [isFinished, setIsFinished] = useState(false)
   const [editModalOpen, setEditModalOpen] = useState(false)
@@ -28,7 +31,8 @@ export const ShowTaskCardModal: VFC<Props> = (props) => {
   }, [isFinished])
 
   const onClickDelete = useCallback(() => {
-    console.log("delete!")
+    dispatch(deleteTaskCard(taskCard.id))
+    onClose()
   }, [])
 
 

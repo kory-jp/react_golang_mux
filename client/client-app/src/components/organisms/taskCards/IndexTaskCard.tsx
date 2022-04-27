@@ -4,12 +4,15 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import StickyNote2Icon from '@mui/icons-material/StickyNote2';
 import { TaskCard } from "../../../reducks/taskCards/types";
 import ShowTaskCardModal from "./ShowTaskCardModal";
+import { useDispatch } from "react-redux";
+import { deleteTaskCard } from "../../../reducks/taskCards/operations";
 
 type Props ={
   taskCard: TaskCard
 }
 
 export const IndexTaskCard: VFC<Props> = (props) => {
+  const dispatch = useDispatch()
   const {taskCard} = props
   const [isFinished, setIsFinished] = useState(false)
   const [finish, setFinish] = useState(false)
@@ -29,8 +32,8 @@ export const IndexTaskCard: VFC<Props> = (props) => {
   }, [isFinished])
 
   const onClickDelete = useCallback(() => {
-    console.log("delete!")
-  }, [])
+    dispatch(deleteTaskCard(taskCard.id))
+  }, [taskCard])
 
   const onclickToShowTodo = useCallback(() => {
     setOpen(true)
