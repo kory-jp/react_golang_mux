@@ -185,7 +185,7 @@ func (controller *TaskCardController) Show(w http.ResponseWriter, r *http.Reques
 	if err != nil {
 		fmt.Println(err)
 		log.Println(err)
-		resStr := new(Response).SetResp(400, "データ取得に失敗しました", 0, nil, nil)
+		resStr := new(Response).SetResp(400, err.Error(), 0, nil, nil)
 		fmt.Fprintln(w, resStr)
 		return
 	}
@@ -258,6 +258,70 @@ func (controller *TaskCardController) Update(w http.ResponseWriter, r *http.Requ
 	fmt.Fprintln(w, resStr)
 }
 
+// --- 完了未完了を変更 ---
+// ---
+
+func (controller *TaskCardController) IsFinished(w http.ResponseWriter, r *http.Request) {
+	if r.ContentLength == 0 {
+		fmt.Println("NO DATA BODY")
+		log.Println("NO DATA BODY")
+		resStr := new(Response).SetResp(400, "データ取得に失敗しました", 0, nil, nil)
+		fmt.Fprintln(w, resStr)
+		return
+	}
+
+	vars := mux.Vars(r)
+	strTodoId, ok := vars["id"]
+	taskCardId, err := strconv.Atoi(strTodoId)
+	if !ok || err != nil || taskCardId == 0 {
+		fmt.Println(err)
+		log.Println(err)
+		resStr := new(Response).SetResp(400, "データ取得に失敗しました", 0, nil, nil)
+		fmt.Fprintln(w, resStr)
+		return
+	}
+
+	taskCardType := new(domain.TaskCard)
+	bytesTaskCard, err := io.ReadAll(r.Body)
+	if err != nil {
+		fmt.Println(err)
+		log.Println(err)
+		resStr := new(Response).SetResp(400, "データ取得に失敗しました", 0, nil, nil)
+		fmt.Fprintln(w, resStr)
+		return
+	}
+
+	if err := json.Unmarshal(bytesTaskCard, taskCardType); err != nil {
+		fmt.Println(err)
+		log.Println(err)
+		resStr := new(Response).SetResp(400, "データ取得に失敗しました", 0, nil, nil)
+		fmt.Fprintln(w, resStr)
+		return
+	}
+
+	userId, err := GetUserId(r)
+	if err != nil || userId == 0 {
+		fmt.Println(err)
+		log.Println(err)
+		resStr := new(Response).SetResp(401, "ログインをしてください", 0, nil, nil)
+		fmt.Fprintln(w, resStr)
+		return
+	}
+
+	mess, err := controller.Interactor.IsFinishedTaskCard(taskCardId, *taskCardType, userId)
+	if err != nil {
+		fmt.Println(err)
+		log.Println(err)
+		resStr := new(Response).SetResp(400, err.Error(), 0, nil, nil)
+		fmt.Fprintln(w, resStr)
+		return
+	}
+	resStr := new(Response).SetResp(200, mess.Message, 0, nil, nil)
+	fmt.Fprintln(w, resStr)
+}
+
+// --- 削除 ---
+// ---
 func (controller *TaskCardController) Delete(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	strTodoId, ok := vars["id"]

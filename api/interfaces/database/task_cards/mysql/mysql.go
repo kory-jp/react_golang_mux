@@ -63,6 +63,18 @@ var UpdateTaskCardState = `
 	and
 		user_id = ?
 `
+
+var ChangeBoolState = `
+		update
+			task_cards
+		set
+			isFinished = ?
+		where
+			id = ?
+		and
+			user_id = ?
+`
+
 var DeleteTaskCardState = `
 		delete from
 			task_cards
