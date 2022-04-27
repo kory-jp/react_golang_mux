@@ -26,6 +26,14 @@ then
   exit 1
 fi
 
+resultUTC=`go test ./usecase/task_card/`
+if [ ${resultUTC:0:2} != "ok" ]
+then
+  echo "task_card_interactor_test.go ERROR"
+  go test -v ./usecase/task_card/
+  exit 1
+fi
+
 resultCU=`go test ./interfaces/controllers/users/`
 if [ ${resultCU:0:2} != "ok" ]
 then
