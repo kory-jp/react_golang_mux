@@ -1,6 +1,4 @@
-import { Label } from "@mui/icons-material";
-import { Box, FormControl, Input, InputLabel, Modal, TextField, Typography } from "@mui/material";
-import { height, textAlign } from "@mui/system";
+import { Box, FormControl, Input, Modal, TextField } from "@mui/material";
 import { VFC } from "react";
 import { PrimaryButton } from "../../atoms/button/PrimaryButton";
 

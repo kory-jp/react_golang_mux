@@ -24,7 +24,7 @@ export const createTaskCard = (todoId: number, title: string, purpose: string, c
           title: title,
           purpose: purpose,
           content: content,
-          mamo: memo
+          memo: memo
         },
         {
           withCredentials: true,
