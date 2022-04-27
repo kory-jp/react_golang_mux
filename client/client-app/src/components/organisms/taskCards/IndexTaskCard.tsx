@@ -5,7 +5,7 @@ import StickyNote2Icon from '@mui/icons-material/StickyNote2';
 import { TaskCard } from "../../../reducks/taskCards/types";
 import ShowTaskCardModal from "./ShowTaskCardModal";
 import { useDispatch } from "react-redux";
-import { deleteTaskCard } from "../../../reducks/taskCards/operations";
+import { deleteTaskCard, updateIsFinished } from "../../../reducks/taskCards/operations";
 
 type Props ={
   taskCard: TaskCard
@@ -15,8 +15,8 @@ export const IndexTaskCard: VFC<Props> = (props) => {
   const dispatch = useDispatch()
   const {taskCard} = props
   const [isFinished, setIsFinished] = useState(false)
-  const [finish, setFinish] = useState(false)
   const [open, setOpen] = useState(false);
+
   useEffect(() => {
     setIsFinished(taskCard.isFinished)
   },[])
@@ -24,10 +24,10 @@ export const IndexTaskCard: VFC<Props> = (props) => {
   const onChangeIsFinished = useCallback(() => {
     if (isFinished) {
       setIsFinished(false)
-      // dispatch(updateIsFinished(id, false))
+      dispatch(updateIsFinished(taskCard.id, false))
     } else {
       setIsFinished(true)
-      // dispatch(updateIsFinished(id, true))
+      dispatch(updateIsFinished(taskCard.id, true))
     }
   }, [isFinished])
 
@@ -78,8 +78,8 @@ export const IndexTaskCard: VFC<Props> = (props) => {
                   <Grid item xs={4}>
                     <FormControlLabel
                       control={<Checkbox 
-                                  checked={finish}
-                                  value={finish}
+                                  checked={isFinished}
+                                  value={isFinished}
                                   onChange={onChangeIsFinished}
                                 />} 
                       label="finish"

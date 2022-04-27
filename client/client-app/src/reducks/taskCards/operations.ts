@@ -114,6 +114,36 @@ export const updateTaskCard = (id: number, todoId: number, title: string, purpos
   }
 }
 
+export const updateIsFinished = (id: number, isFinished: boolean) => {
+  return async (dispatch: Dispatch<{}>) => {
+    const apiURL = process.env.REACT_APP_API_URL + `taskcard/isfinished/${id}`
+    axios
+      .post(apiURL,
+        {
+          isFinished: isFinished,
+        },
+        {
+          withCredentials: true,
+          headers: {
+            'Accept': 'application/json',  
+            'Content-Type': 'application/json'
+          }
+        }
+      ).then((response) => {
+        const resp: Response = response.data
+        if (resp.status == 200){
+          dispatch(pushToast({title: resp.message, severity: "success"}))
+        } else {
+          dispatch(pushToast({title: resp.message, severity: "error"}))
+        }
+      }).catch((error) => {
+        console.log(error)
+        dispatch(pushToast({title: '処理に失敗しました', severity: "error"}))
+      })
+  }
+}
+
+
 
 export const deleteTaskCard = (id: number) => {
   return async (dispatch: Dispatch<{}>) => {
