@@ -162,6 +162,15 @@ Todo
 - 緊急度で分類
 - 重要度、緊急度で検索
 
+TaskCard
+
+- 新規投稿
+- 一覧表示
+- 詳細表示
+- 編集
+- 削除
+- 完了/未完了切り替え
+
 その他
 
 画像投稿/保存/配信
@@ -324,7 +333,7 @@ TEST ALL COMPLETED
 
 ## モデルデザイン
 
-![ER](https://user-images.githubusercontent.com/66899822/165004467-2e4eb863-3025-49f5-8bfe-a32f3544ea75.png)
+![ER](https://user-images.githubusercontent.com/66899822/165665661-25880a7c-fa77-4c79-af0a-bf6999ac69f3.png)
 
 <br>
 <br>
