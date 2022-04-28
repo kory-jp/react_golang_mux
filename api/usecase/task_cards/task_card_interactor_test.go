@@ -25,7 +25,7 @@ func TestAdd(t *testing.T) {
 		wantErr       error
 	}{
 		{
-			name: "success",
+			name: "create = success",
 			args: domain.TaskCard{
 				UserID:  1,
 				TodoID:  1,
@@ -42,7 +42,7 @@ func TestAdd(t *testing.T) {
 			},
 		},
 		{
-			name: "when userId = 0, result = fail",
+			name: "when userId = 0, create = fail",
 			args: domain.TaskCard{
 				TodoID:  1,
 				Title:   "test title",
@@ -56,7 +56,7 @@ func TestAdd(t *testing.T) {
 			wantErr: errors.New("ユーザーIDは必須です。"),
 		},
 		{
-			name: "when title = , result = fail",
+			name: "when title = , create = fail",
 			args: domain.TaskCard{
 				UserID:  1,
 				TodoID:  1,
@@ -70,7 +70,7 @@ func TestAdd(t *testing.T) {
 			wantErr: errors.New("タイトルは必須です。"),
 		},
 		{
-			name: "when title > 50, result = fail",
+			name: "when title > 50, create = fail",
 			args: domain.TaskCard{
 				UserID:  1,
 				TodoID:  1,
@@ -85,7 +85,7 @@ func TestAdd(t *testing.T) {
 			wantErr: errors.New("タイトルは50文字以内の入力になります。"),
 		},
 		{
-			name: "when purpose > 2000, result = fail",
+			name: "when purpose > 2000, create = fail",
 			args: domain.TaskCard{
 				UserID:  1,
 				TodoID:  1,
@@ -100,7 +100,7 @@ func TestAdd(t *testing.T) {
 			wantErr: errors.New("目的は2000文字以内の入力になります。"),
 		},
 		{
-			name: "when content > 2000, result = fail",
+			name: "when content > 2000, create = fail",
 			args: domain.TaskCard{
 				UserID:  1,
 				TodoID:  1,
@@ -115,7 +115,7 @@ func TestAdd(t *testing.T) {
 			wantErr: errors.New("作業内容は2000文字以内の入力になります。"),
 		},
 		{
-			name: "when memo > 2000, result = fail",
+			name: "when memo > 2000, create = fail",
 			args: domain.TaskCard{
 				UserID:  1,
 				TodoID:  1,
@@ -157,7 +157,7 @@ func TestTaskCards(t *testing.T) {
 		wantErr       error
 	}{
 		{
-			name:   "success",
+			name:   "getTaskCards = success",
 			userId: 1,
 			todoId: 1,
 			page:   1,
@@ -167,7 +167,7 @@ func TestTaskCards(t *testing.T) {
 			wantTaskCards: []domain.TaskCard{{UserID: 1, TodoID: 1}},
 		},
 		{
-			name:   "when userId = 0, result = fail",
+			name:   "when userId = 0, getTaskCards = fail",
 			userId: 0,
 			todoId: 1,
 			page:   1,
@@ -177,7 +177,7 @@ func TestTaskCards(t *testing.T) {
 			wantErr: errors.New("データ取得に失敗しました"),
 		},
 		{
-			name:   "when todoId = 0, result = fail",
+			name:   "when todoId = 0, getTaskCards = fail",
 			userId: 1,
 			todoId: 0,
 			page:   1,
@@ -187,7 +187,7 @@ func TestTaskCards(t *testing.T) {
 			wantErr: errors.New("データ取得に失敗しました"),
 		},
 		{
-			name:   "when page = 0, result = fail",
+			name:   "when page = 0, getTaskCards = fail",
 			userId: 1,
 			todoId: 1,
 			page:   0,
@@ -228,7 +228,7 @@ func TestTaskCardByIdAndUserId(t *testing.T) {
 		wantErr       error
 	}{
 		{
-			name:       "success",
+			name:       "getTaskCard = success",
 			userId:     1,
 			taskCardId: 1,
 			prepareMockFn: func(m *mock_usecase.MockTaskCardRepository, userId int, taskCardId int) {
@@ -237,7 +237,7 @@ func TestTaskCardByIdAndUserId(t *testing.T) {
 			wantTaskCard: &domain.TaskCard{ID: 1, UserID: 1},
 		},
 		{
-			name:       "when userId = 0, result = fail",
+			name:       "when userId = 0, getTaskCard = fail",
 			userId:     0,
 			taskCardId: 1,
 			prepareMockFn: func(m *mock_usecase.MockTaskCardRepository, userId int, taskCardId int) {
@@ -246,7 +246,7 @@ func TestTaskCardByIdAndUserId(t *testing.T) {
 			wantErr: errors.New("データ取得に失敗しました"),
 		},
 		{
-			name:       "when taskCardId = 0, result = fail",
+			name:       "when taskCardId = 0, getTaskCard = fail",
 			userId:     1,
 			taskCardId: 0,
 			prepareMockFn: func(m *mock_usecase.MockTaskCardRepository, userId int, taskCardId int) {
@@ -285,7 +285,7 @@ func TestUpdateTaskCard(t *testing.T) {
 		wantErr       error
 	}{
 		{
-			name: "success",
+			name: "update = success",
 			args: domain.TaskCard{
 				UserID:  1,
 				TodoID:  1,
@@ -366,7 +366,7 @@ func TestIsFinishedTaskCard(t *testing.T) {
 			},
 		},
 		{
-			name:   "tcId = 0, resutl = fail",
+			name:   "tcId = 0, changeIsFinished = fail",
 			tcId:   0,
 			userId: 1,
 			args: domain.TaskCard{
@@ -381,7 +381,7 @@ func TestIsFinishedTaskCard(t *testing.T) {
 			wantErr: errors.New("データ取得に失敗しました"),
 		},
 		{
-			name:   "userId = 0, resutl = fail",
+			name:   "userId = 0, changeIsFinished = fail",
 			tcId:   1,
 			userId: 0,
 			args: domain.TaskCard{
@@ -427,7 +427,7 @@ func TestDeleteTaskCard(t *testing.T) {
 		wantErr       error
 	}{
 		{
-			name:   "success",
+			name:   "delete = success",
 			tcId:   1,
 			userId: 1,
 			prepareMockFn: func(m *mock_usecase.MockTaskCardRepository, tcId int, userId int) {
@@ -438,7 +438,7 @@ func TestDeleteTaskCard(t *testing.T) {
 			},
 		},
 		{
-			name:   "when tcId = 0, resutl = fail",
+			name:   "when tcId = 0, delete = fail",
 			tcId:   0,
 			userId: 1,
 			prepareMockFn: func(m *mock_usecase.MockTaskCardRepository, tcId int, userId int) {
@@ -447,7 +447,7 @@ func TestDeleteTaskCard(t *testing.T) {
 			wantErr: errors.New("データ取得に失敗しました"),
 		},
 		{
-			name:   "when userId = 0, resutl = fail",
+			name:   "when userId = 0, delete = fail",
 			tcId:   1,
 			userId: 0,
 			prepareMockFn: func(m *mock_usecase.MockTaskCardRepository, tcId int, userId int) {

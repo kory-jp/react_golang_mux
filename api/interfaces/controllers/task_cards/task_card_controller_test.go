@@ -39,7 +39,7 @@ func TestCreate(t *testing.T) {
 		response      controllers.Response
 	}{
 		{
-			name: "success",
+			name: "create = success",
 			args: domain.TaskCard{
 				UserID:  1,
 				TodoID:  1,
@@ -58,7 +58,7 @@ func TestCreate(t *testing.T) {
 			},
 		},
 		{
-			name: "when userId = 0, result = fail",
+			name: "when userId = 0, create = fail",
 			args: domain.TaskCard{
 				UserID:  0,
 				TodoID:  1,
@@ -77,7 +77,7 @@ func TestCreate(t *testing.T) {
 			},
 		},
 		{
-			name: "when requestBody = nil, result = fail",
+			name: "when requestBody = nil, create = fail",
 			args: domain.TaskCard{
 				UserID:  1,
 				TodoID:  1,
@@ -133,7 +133,7 @@ func TestIndex(t *testing.T) {
 		response      controllers.Response
 	}{
 		{
-			name:        "success",
+			name:        "getTaskCards = success",
 			loginUserId: 1,
 			todoId:      1,
 			page:        1,
@@ -146,7 +146,7 @@ func TestIndex(t *testing.T) {
 			},
 		},
 		{
-			name:        "when loginUserId = 0, resutl = fail",
+			name:        "when loginUserId = 0, getTaskCards = fail",
 			loginUserId: 0,
 			todoId:      1,
 			page:        1,
@@ -159,7 +159,7 @@ func TestIndex(t *testing.T) {
 			},
 		},
 		{
-			name:        "when todoId = 0, resutl = fail",
+			name:        "when todoId = 0, getTaskCards = fail",
 			loginUserId: 1,
 			todoId:      0,
 			page:        1,
@@ -172,7 +172,7 @@ func TestIndex(t *testing.T) {
 			},
 		},
 		{
-			name:        "when page = 0, resutl = fail",
+			name:        "when page = 0, getTaskCards = fail",
 			loginUserId: 1,
 			todoId:      1,
 			page:        0,
@@ -218,7 +218,7 @@ func TestShow(t *testing.T) {
 		response      controllers.Response
 	}{
 		{
-			name:        "success",
+			name:        "getTaskCard = success",
 			loginUserId: 1,
 			todoId:      1,
 			prepareMockFn: func(m *mock_usecase.MockTaskCardRepository, todoId, loginUserId int) {
@@ -230,7 +230,7 @@ func TestShow(t *testing.T) {
 			},
 		},
 		{
-			name:        "when loginUserId = 0, result = fail",
+			name:        "when loginUserId = 0, getTaskCard = fail",
 			loginUserId: 0,
 			todoId:      1,
 			prepareMockFn: func(m *mock_usecase.MockTaskCardRepository, todoId, loginUserId int) {
@@ -242,7 +242,7 @@ func TestShow(t *testing.T) {
 			},
 		},
 		{
-			name:        "when todoId = 0, result = fail",
+			name:        "when todoId = 0, getTaskCard = fail",
 			loginUserId: 1,
 			todoId:      0,
 			prepareMockFn: func(m *mock_usecase.MockTaskCardRepository, todoId, loginUserId int) {
@@ -288,7 +288,7 @@ func TestUpdate(t *testing.T) {
 		response      controllers.Response
 	}{
 		{
-			name: "success",
+			name: "updateTaskCard = success",
 			args: domain.TaskCard{
 				ID:         1,
 				UserID:     1,
@@ -309,7 +309,7 @@ func TestUpdate(t *testing.T) {
 			},
 		},
 		{
-			name: "when UserID = 0, result = fail",
+			name: "when UserID = 0, updateTaskCard = fail",
 			args: domain.TaskCard{
 				ID:         1,
 				UserID:     0,
@@ -330,7 +330,7 @@ func TestUpdate(t *testing.T) {
 			},
 		},
 		{
-			name: "when ID = 0, result = fail",
+			name: "when ID = 0, updateTaskCard = fail",
 			args: domain.TaskCard{
 				ID:         0,
 				UserID:     1,
@@ -351,7 +351,7 @@ func TestUpdate(t *testing.T) {
 			},
 		},
 		{
-			name: "when requestBody = nil, result = fail",
+			name: "when requestBody = nil, updateTaskCard = fail",
 			args: domain.TaskCard{
 				ID:         1,
 				UserID:     1,
@@ -414,7 +414,7 @@ func TestIsFinished(t *testing.T) {
 		response              controllers.Response
 	}{
 		{
-			name:        "success",
+			name:        "changeIsFinished = success",
 			taskCardId:  1,
 			loginUserId: 1,
 			args: domain.TaskCard{
@@ -433,7 +433,7 @@ func TestIsFinished(t *testing.T) {
 			},
 		},
 		{
-			name:        "when taskCardId = 0, result = fail",
+			name:        "when taskCardId = 0, changeIsFinished = fail",
 			taskCardId:  0,
 			loginUserId: 1,
 			args: domain.TaskCard{
@@ -452,7 +452,7 @@ func TestIsFinished(t *testing.T) {
 			},
 		},
 		{
-			name:        "when loginUserId = 0, result = fail",
+			name:        "when loginUserId = 0, changeIsFinished = fail",
 			taskCardId:  1,
 			loginUserId: 0,
 			args: domain.TaskCard{
@@ -471,7 +471,7 @@ func TestIsFinished(t *testing.T) {
 			},
 		},
 		{
-			name:        "when requestBody = nil, result = fail",
+			name:        "when requestBody = nil, changeIsFinished = fail",
 			taskCardId:  1,
 			loginUserId: 1,
 			args: domain.TaskCard{
@@ -531,7 +531,7 @@ func TestDelete(t *testing.T) {
 		response      controllers.Response
 	}{
 		{
-			name:        "success",
+			name:        "delete = success",
 			taskCardId:  1,
 			loginUserId: 1,
 			prepareMockFn: func(m *mock_usecase.MockTaskCardRepository, taskCardId int, loginUserId int) {
@@ -543,7 +543,7 @@ func TestDelete(t *testing.T) {
 			},
 		},
 		{
-			name:        "when taskCardId = 0, result = fail",
+			name:        "when taskCardId = 0, delete = fail",
 			taskCardId:  0,
 			loginUserId: 1,
 			prepareMockFn: func(m *mock_usecase.MockTaskCardRepository, taskCardId int, loginUserId int) {
@@ -555,7 +555,7 @@ func TestDelete(t *testing.T) {
 			},
 		},
 		{
-			name:        "when loginUserId = 0, result = fail",
+			name:        "when loginUserId = 0, delete = fail",
 			taskCardId:  1,
 			loginUserId: 0,
 			prepareMockFn: func(m *mock_usecase.MockTaskCardRepository, taskCardId int, loginUserId int) {

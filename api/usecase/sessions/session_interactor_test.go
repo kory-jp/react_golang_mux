@@ -29,7 +29,8 @@ func TestLogin(t *testing.T) {
 		wantErr              error
 	}{
 		{
-			name: "EmailとPasswordが入力されPasswordが一致した場合、ログイン成功",
+			// EmailとPasswordが入力されPasswordが一致した場合、ログイン成功
+			name: "email = correct password = correct, login = success",
 			args: domain.User{
 				Email:    "test@exm.com",
 				Password: "testPassword",
@@ -47,7 +48,7 @@ func TestLogin(t *testing.T) {
 			wantErr: nil,
 		},
 		{
-			name: "Emailがnilの場合、ログイン失敗",
+			name: "when email = nil, login = fail",
 			args: domain.User{
 				Email:    "",
 				Password: "testPassword",
@@ -62,7 +63,7 @@ func TestLogin(t *testing.T) {
 			wantErr: errors.New("認証に失敗しました"),
 		},
 		{
-			name: "Passwordがnilの場合、ログイン失敗",
+			name: "when password = nil, login = fail",
 			args: domain.User{
 				Email:    "test@exm.com",
 				Password: "",
@@ -77,7 +78,8 @@ func TestLogin(t *testing.T) {
 			wantErr: errors.New("認証に失敗しました"),
 		},
 		{
-			name: "EmailとPasswordが入力されたがPasswordが一致しない場合、ログイン失敗",
+			// EmailとPasswordが入力されたがPasswordが一致しない場合、ログイン失敗
+			name: "when password is not equal, login = fail",
 			args: domain.User{
 				Email:    "test@exm.com",
 				Password: "testPassword",
@@ -119,7 +121,7 @@ func TestIsLoggedIn(t *testing.T) {
 		wantErr           error
 	}{
 		{
-			name:   "該当するuserId、データ取得成功",
+			name:   "authentication = success",
 			userId: 1,
 			prepareByIdMockFn: func(m *mock_usecase.MockSessionRepository, userId int) {
 				m.EXPECT().FindById(userId).Return(pUser, nil)
@@ -127,7 +129,7 @@ func TestIsLoggedIn(t *testing.T) {
 			wantErr: nil,
 		},
 		{
-			name:   "userIdがnilの場合、データ取得失敗",
+			name:   "when userId = 0, authentication = fail",
 			userId: 0,
 			prepareByIdMockFn: func(m *mock_usecase.MockSessionRepository, userId int) {
 				m.EXPECT().FindById(userId).Return(pUser, nil).AnyTimes()

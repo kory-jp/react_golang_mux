@@ -72,7 +72,7 @@ func TestLogin(t *testing.T) {
 		haveCookie      bool
 	}{
 		{
-			name: "必須項目が入力された場合、ログイン成功",
+			name: "login = success",
 			args: domain.User{
 				Email:    "test@exm.com",
 				Password: "testPassword",
@@ -96,7 +96,7 @@ func TestLogin(t *testing.T) {
 			haveCookie: true,
 		},
 		{
-			name: "リクエストにcookieの認証情報が含まれない場合(withCredentials: false)、ログイン失敗",
+			name: "when withCredentials: false、login = fail",
 			args: domain.User{
 				Email:    "test@exm.com",
 				Password: "testPassword",
@@ -117,7 +117,7 @@ func TestLogin(t *testing.T) {
 			haveCookie: true,
 		},
 		{
-			name: "リクエストボディがnilの場合、ログイン失敗",
+			name: "when requestBody = nil, login = fail",
 			args: domain.User{
 				Email:    "test@exm.com",
 				Password: "testPassword",
@@ -191,7 +191,7 @@ func TestAuthenticate(t *testing.T) {
 		haveCookie      bool
 	}{
 		{
-			name:            "sessionとcookieにuserIdが保存されている場合、userIdに一致するUser情報を取得",
+			name:            "authentication = success",
 			userId:          1,
 			isSession:       true,
 			withCredentials: true,
@@ -208,7 +208,7 @@ func TestAuthenticate(t *testing.T) {
 			haveCookie: true,
 		},
 		{
-			name:            "sessionのuserIdがnilの場合、User情報の取得失敗",
+			name:            "when userId = 0, authentication = fail",
 			userId:          0,
 			isSession:       true,
 			withCredentials: true,
@@ -225,7 +225,7 @@ func TestAuthenticate(t *testing.T) {
 			haveCookie: false,
 		},
 		{
-			name:            "sessionにtokenが設定されていない場合、User情報の取得失敗",
+			name:            "when session.token = nil, authentication = fail",
 			userId:          1,
 			isSession:       false,
 			withCredentials: true,
@@ -242,7 +242,7 @@ func TestAuthenticate(t *testing.T) {
 			haveCookie: false,
 		},
 		{
-			name:            "cookieにtokenが設定されていない場合、User情報の取得失敗",
+			name:            "when cookie.token = nil, authentication = fail",
 			userId:          1,
 			isSession:       true,
 			withCredentials: false,
@@ -320,7 +320,7 @@ func TestLogout(t *testing.T) {
 		response        controllers.Response
 	}{
 		{
-			name:            "sessionにuserIdが設定されている場合、ログアウト成功",
+			name:            "when session.userId = userId, result = logout",
 			userId:          1,
 			withCredentials: true,
 			prepareMockFn: func(m *mock_usecase.MockSessionRepository, userId int) {
@@ -335,7 +335,7 @@ func TestLogout(t *testing.T) {
 			},
 		},
 		{
-			name:            "リクエストにcookieの認証情報が含まれない場合(withCredentials: false)、ログアウト失敗",
+			name:            "when cookie.withCredentials = false, logout = fail",
 			userId:          1,
 			withCredentials: false,
 			prepareMockFn: func(m *mock_usecase.MockSessionRepository, userId int) {
@@ -350,7 +350,7 @@ func TestLogout(t *testing.T) {
 			},
 		},
 		{
-			name:            "sessionにuserIdが設定されていない場合、ログアウト失敗",
+			name:            "when session.userId = nil, logout = fail",
 			userId:          0,
 			withCredentials: true,
 			prepareMockFn: func(m *mock_usecase.MockSessionRepository, userId int) {

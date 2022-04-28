@@ -44,7 +44,7 @@ func TestCreate(t *testing.T) {
 		response               controllers.Response
 	}{
 		{
-			name: "必須項目が入力された場合(画像有り)、データ保存成功",
+			name: "when image = ImagePath, create = success",
 			args: domain.Todo{
 				UserID:     1,
 				Title:      "test title",
@@ -67,7 +67,7 @@ func TestCreate(t *testing.T) {
 			},
 		},
 		{
-			name: "必須項目が入力された場合(画像無し),データ保存成功",
+			name: "when image = nil, create = success",
 			args: domain.Todo{
 				UserID:     1,
 				Title:      "test title",
@@ -89,7 +89,7 @@ func TestCreate(t *testing.T) {
 			},
 		},
 		{
-			name: "未ログイン(userId = 0)の場合,データ保存失敗",
+			name: "when userId = 0, create = fail",
 			args: domain.Todo{
 				UserID:     0,
 				Title:      "test title",
@@ -111,7 +111,7 @@ func TestCreate(t *testing.T) {
 			},
 		},
 		{
-			name: "requestBodyがnilの場合、データ保存失敗",
+			name: "when requestBody = nil, create = fail",
 			args: domain.Todo{
 				UserID:     1,
 				Title:      "test title",
@@ -180,7 +180,7 @@ func TestIndex(t *testing.T) {
 		response                      controllers.Response
 	}{
 		{
-			name:        "必須項目が入力された場合、データ取得に成功",
+			name:        "getTodos = success",
 			loginUserId: 1,
 			nowPage:     1,
 			prepareRepoFindByUserIdMockFn: func(m *mock_usecase.MockTodoRepository, userId int, page int) {
@@ -192,7 +192,7 @@ func TestIndex(t *testing.T) {
 			},
 		},
 		{
-			name:        "userIdが0の場合、データ取得に失敗",
+			name:        "when userId = 0, getTodos = fail",
 			loginUserId: 0,
 			nowPage:     1,
 			prepareRepoFindByUserIdMockFn: func(m *mock_usecase.MockTodoRepository, userId int, page int) {
@@ -204,7 +204,7 @@ func TestIndex(t *testing.T) {
 			},
 		},
 		{
-			name:        "現在ページ情報(nowPage)が0の場合、データ取得に失敗",
+			name:        "when nowPage = 0, getTodos = fail",
 			loginUserId: 1,
 			nowPage:     0,
 			prepareRepoFindByUserIdMockFn: func(m *mock_usecase.MockTodoRepository, userId int, page int) {
@@ -250,7 +250,7 @@ func TestShow(t *testing.T) {
 		response                           controllers.Response
 	}{
 		{
-			name:        "必須項目が入力された場合、データ取得に成功",
+			name:        "getTodo = success",
 			todoId:      1,
 			loginUserId: 1,
 			prepareRepoFindByIdAndUserIdMockFn: func(m *mock_usecase.MockTodoRepository, id int, userId int) {
@@ -262,7 +262,7 @@ func TestShow(t *testing.T) {
 			},
 		},
 		{
-			name:        "todoIdがnilの場合、データ取得に失敗",
+			name:        "when todoId = 0, getTodo = fail",
 			todoId:      0,
 			loginUserId: 1,
 			prepareRepoFindByIdAndUserIdMockFn: func(m *mock_usecase.MockTodoRepository, id int, userId int) {
@@ -274,7 +274,7 @@ func TestShow(t *testing.T) {
 			},
 		},
 		{
-			name:        "userIdがnilの場合、データ取得に失敗",
+			name:        "when userId = 0, getTodo = fail",
 			todoId:      1,
 			loginUserId: 0,
 			prepareRepoFindByIdAndUserIdMockFn: func(m *mock_usecase.MockTodoRepository, id int, userId int) {
@@ -323,7 +323,8 @@ func TestSearch(t *testing.T) {
 		response                     controllers.Response
 	}{
 		{
-			name:  "検索可能なURLが取得された場合、データ取得に成功",
+			// 検索可能なURLが取得された場合、データ取得に成功
+			name:  "current URL, search = success",
 			tagId: 1,
 			args: domain.Todo{
 				UserID:     1,
@@ -342,7 +343,8 @@ func TestSearch(t *testing.T) {
 			},
 		},
 		{
-			name:  "URLにtag情報が存在しない場合、データ取得に失敗",
+			// URLにtag情報が存在しない場合、データ取得に失敗
+			name:  "not include tagInfo at URL, search = fail",
 			tagId: 1,
 			args: domain.Todo{
 				UserID:     1,
@@ -361,7 +363,8 @@ func TestSearch(t *testing.T) {
 			},
 		},
 		{
-			name:  "URLにimportance情報が存在しない場合、データ取得に失敗",
+			// URLにimportance情報が存在しない場合、データ取得に失敗
+			name:  "not include importanceInfo at URL, search = fail",
 			tagId: 1,
 			args: domain.Todo{
 				UserID:     1,
@@ -380,7 +383,8 @@ func TestSearch(t *testing.T) {
 			},
 		},
 		{
-			name:  "URLにurgency情報が存在しない場合、データ取得に失敗",
+			// URLにurgency情報が存在しない場合、データ取得に失敗
+			name:  "not include urgencyInfo at URL, search = fail",
 			tagId: 1,
 			args: domain.Todo{
 				UserID:     1,
@@ -399,7 +403,8 @@ func TestSearch(t *testing.T) {
 			},
 		},
 		{
-			name:  "URLにpage情報が存在しない場合、データ取得に失敗",
+			// URLにpage情報が存在しない場合、データ取得に失敗
+			name:  "not include pageInfo at URL, search = fail",
 			tagId: 1,
 			args: domain.Todo{
 				UserID:     1,
@@ -455,7 +460,7 @@ func TestUpdate(t *testing.T) {
 		response                   controllers.Response
 	}{
 		{
-			name: "必須項目が入力された場合(画像有り)、データ保存成功",
+			name: "when image = ImagePath, update = success",
 			args: domain.Todo{
 				ID:         1,
 				UserID:     1,
@@ -480,7 +485,7 @@ func TestUpdate(t *testing.T) {
 			},
 		},
 		{
-			name: "必須項目が入力された場合(画像無し),データ保存成功",
+			name: "when image = nil, update = success",
 			args: domain.Todo{
 				ID:         1,
 				UserID:     1,
@@ -505,7 +510,7 @@ func TestUpdate(t *testing.T) {
 			},
 		},
 		{
-			name: "ログイン状態が確認できない場合,データ保存失敗",
+			name: "when loginUserId = 0, update = fail",
 			args: domain.Todo{
 				ID:         1,
 				UserID:     1,
@@ -530,7 +535,7 @@ func TestUpdate(t *testing.T) {
 			},
 		},
 		{
-			name: "requestBodyがnilの場合、データ保存失敗",
+			name: "when requestBody = nil, update = fail",
 			args: domain.Todo{
 				UserID:     1,
 				Title:      "test title",
@@ -603,7 +608,7 @@ func TestIsFinished(t *testing.T) {
 		response              controllers.Response
 	}{
 		{
-			name:   "必須項目が入力された場合、更新メッセージを取得",
+			name:   "changeIsFinished = success",
 			todoId: 1,
 			args: domain.Todo{
 				IsFinished: true,
@@ -621,7 +626,7 @@ func TestIsFinished(t *testing.T) {
 			},
 		},
 		{
-			name:   "todoIdが0の場合、エラーメッセージを取得",
+			name:   "when todoId = 0, changeIsFinished = fail",
 			todoId: 0,
 			args: domain.Todo{
 				IsFinished: true,
@@ -639,7 +644,7 @@ func TestIsFinished(t *testing.T) {
 			},
 		},
 		{
-			name:   "loginUserIdが0の場合、エラーメッセージを取得",
+			name:   "when loginUserId = 0, changeIsFinished = fail",
 			todoId: 1,
 			args: domain.Todo{
 				IsFinished: true,
@@ -693,7 +698,7 @@ func TestDelete(t *testing.T) {
 		response                 controllers.Response
 	}{
 		{
-			name:        "必須項目が入力された場合、データ削除成功",
+			name:        "delete = success",
 			todoId:      1,
 			loginUserId: 1,
 			prepareRepoErasureMockFn: func(m *mock_usecase.MockTodoRepository, id int, userId int) {
@@ -705,7 +710,7 @@ func TestDelete(t *testing.T) {
 			},
 		},
 		{
-			name:        "todoIdがnilの場合、データ削除失敗",
+			name:        "when todoId = 0, delete = fail",
 			todoId:      0,
 			loginUserId: 1,
 			prepareRepoErasureMockFn: func(m *mock_usecase.MockTodoRepository, id int, userId int) {
@@ -717,7 +722,7 @@ func TestDelete(t *testing.T) {
 			},
 		},
 		{
-			name:        "loginUserIdがnilの場合、データ削除失敗",
+			name:        "when loginUserId = 0, delete = fail",
 			todoId:      1,
 			loginUserId: 0,
 			prepareRepoErasureMockFn: func(m *mock_usecase.MockTodoRepository, id int, userId int) {
@@ -765,7 +770,7 @@ func TestDeleteIndex(t *testing.T) {
 		response                 controllers.Response
 	}{
 		{
-			name:        "必須項目が入力された場合、データ削除成功",
+			name:        "getTodos = success",
 			todoId:      2,
 			loginUserId: 1,
 			page:        1,
@@ -781,7 +786,7 @@ func TestDeleteIndex(t *testing.T) {
 			},
 		},
 		{
-			name:        "todoIdがnilの場合、データ削除失敗",
+			name:        "when todoId = 0, getTodos = fail",
 			todoId:      0,
 			loginUserId: 1,
 			page:        1,
@@ -797,7 +802,7 @@ func TestDeleteIndex(t *testing.T) {
 			},
 		},
 		{
-			name:        "loginUserIdがnilの場合、データ削除失敗",
+			name:        "when loginUserId = 0, getTodos = fail",
 			todoId:      1,
 			loginUserId: 0,
 			page:        1,
