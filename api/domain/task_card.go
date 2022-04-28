@@ -50,9 +50,9 @@ func (taskCard *TaskCard) TaskCardValidate() (err error) {
 			case "required":
 				return fmt.Errorf("%sは必須です。", value)
 			case "gte":
-				return fmt.Errorf("%sは%s文字以上が必須です。", value, err.Param())
+				return fmt.Errorf("%sは%s文字より入力が必須です。", value, err.Param())
 			case "lt":
-				return fmt.Errorf("%sは%s文字以内の入力になります。", value, err.Param())
+				return fmt.Errorf("%sは%s文字未満の入力になります。", value, err.Param())
 			}
 		}
 	}

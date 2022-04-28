@@ -11,10 +11,9 @@ var CreateTodoState = `
 			image_path,
 			isFinished,
 			importance,
-			urgency,
-			created_at
+			urgency
 		)
-	value (?, ?, ?, ?, ?, ?, ?, ?)
+	value (?, ?, ?, ?, ?, ?, ?)
 `
 
 // --- 作成されたtodoの総数 ---

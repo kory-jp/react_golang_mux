@@ -6,10 +6,9 @@ var CreateUserState = `
 		users(
 			name,
 			email,
-			password,
-			created_at
+			password
 		)
-	values (?, ?, ?, ?)
+	values (?, ?, ?)
 `
 
 // --- userの取得 ---

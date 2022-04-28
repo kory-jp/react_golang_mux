@@ -9,10 +9,9 @@ var CreateTaskCardState = `
 			purpose,
 			content,
 			memo,
-			isFinished,
-			created_at
+			isFinished
 		)
-	value (?, ?, ?, ?, ?, ?, ?, ?)
+	value (?, ?, ?, ?, ?, ?, ?)
 `
 
 var SumTaskCardItemsState = `

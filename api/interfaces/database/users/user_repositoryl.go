@@ -16,7 +16,7 @@ type UserRepository struct {
 }
 
 func (repo *UserRepository) Store(u domain.User) (id int, err error) {
-	result, err := repo.Execute(mysql.CreateUserState, u.Name, u.Email, u.Password, time.Now())
+	result, err := repo.Execute(mysql.CreateUserState, u.Name, u.Email, u.Password)
 	if err != nil {
 		fmt.Println(err)
 		log.Println(err)

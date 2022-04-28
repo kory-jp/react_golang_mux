@@ -4,10 +4,9 @@ var CreateTodoTagRelationsState = `
 	insert into
 		todo_tag_relations(
 			todo_id,
-			tag_id,
-			created_at
+			tag_id
 		)
-	value (?, ?, ?)
+	value (?, ?)
 `
 
 var DeleteTodoTagRelationsState = `

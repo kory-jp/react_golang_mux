@@ -20,7 +20,7 @@ var allTodosCount float64
 // -- 新規作成 ---
 // ---
 func (repo *TaskCardRepository) Store(t domain.TaskCard) (err error) {
-	_, err = repo.Execute(mysql.CreateTaskCardState, t.UserID, t.TodoID, t.Title, t.Purpose, t.Content, t.Memo, false, time.Now())
+	_, err = repo.Execute(mysql.CreateTaskCardState, t.UserID, t.TodoID, t.Title, t.Purpose, t.Content, t.Memo, false)
 	if err != nil {
 		fmt.Println(err)
 		log.Println(err)

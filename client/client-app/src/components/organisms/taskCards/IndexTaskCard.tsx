@@ -6,6 +6,7 @@ import { TaskCard } from "../../../reducks/taskCards/types";
 import ShowTaskCardModal from "./ShowTaskCardModal";
 import { useDispatch } from "react-redux";
 import { deleteTaskCard, updateIsFinished } from "../../../reducks/taskCards/operations";
+import handleToDateFormat from "../../../utils/handleToDateFormat";
 
 type Props ={
   taskCard: TaskCard
@@ -46,7 +47,6 @@ export const IndexTaskCard: VFC<Props> = (props) => {
   const onClickModalClose = useCallback(() => {
     setOpen(false)
   }, [])
-
 
   return(
     <>
@@ -119,7 +119,7 @@ export const IndexTaskCard: VFC<Props> = (props) => {
               marginY="auto"
             >
               <p>
-                {taskCard.createdAt}
+                {handleToDateFormat(taskCard.createdAt)}
               </p>
             </Box>
           </Box>

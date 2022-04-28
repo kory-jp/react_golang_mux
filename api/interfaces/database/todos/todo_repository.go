@@ -50,7 +50,7 @@ func (u *U8Tags) ToTypeTags() (tgs domain.Tags) {
 
 // --- Todo新規追加 ---
 func (repo *TodoRepository) TransStore(tx *sql.Tx, t domain.Todo) (id int64, err error) {
-	result, err := repo.TransExecute(tx, mysql.CreateTodoState, t.UserID, t.Title, t.Content, t.ImagePath, false, t.Importance, t.Urgency, time.Now())
+	result, err := repo.TransExecute(tx, mysql.CreateTodoState, t.UserID, t.Title, t.Content, t.ImagePath, false, t.Importance, t.Urgency)
 	if err != nil {
 		fmt.Println(err)
 		log.Println(err)
