@@ -56,7 +56,7 @@ func TestAdd(t *testing.T) {
 			wantErr: errors.New("ユーザーIDは必須です。"),
 		},
 		{
-			name: "when title = , create = fail",
+			name: "when title = nil, create = fail",
 			args: domain.TaskCard{
 				UserID:  1,
 				TodoID:  1,
@@ -70,11 +70,11 @@ func TestAdd(t *testing.T) {
 			wantErr: errors.New("タイトルは必須です。"),
 		},
 		{
-			name: "when title > 50, create = fail",
+			name: "when title > 49, create = fail",
 			args: domain.TaskCard{
 				UserID:  1,
 				TodoID:  1,
-				Title:   strings.Repeat("c", 51),
+				Title:   strings.Repeat("c", 50),
 				Purpose: "test purpose",
 				Content: "test content",
 				Memo:    "test memo",
@@ -82,52 +82,52 @@ func TestAdd(t *testing.T) {
 			prepareMockFn: func(m *mock_usecase.MockTaskCardRepository, arges domain.TaskCard) {
 				m.EXPECT().Store(arges).Return(nil)
 			},
-			wantErr: errors.New("タイトルは50文字以内の入力になります。"),
+			wantErr: errors.New("タイトルは50文字未満の入力になります。"),
 		},
 		{
-			name: "when purpose > 2000, create = fail",
+			name: "when purpose > 1999, create = fail",
 			args: domain.TaskCard{
 				UserID:  1,
 				TodoID:  1,
 				Title:   "test title",
-				Purpose: strings.Repeat("c", 2001),
+				Purpose: strings.Repeat("c", 2000),
 				Content: "test content",
 				Memo:    "test memo",
 			},
 			prepareMockFn: func(m *mock_usecase.MockTaskCardRepository, arges domain.TaskCard) {
 				m.EXPECT().Store(arges).Return(nil)
 			},
-			wantErr: errors.New("目的は2000文字以内の入力になります。"),
+			wantErr: errors.New("目的は2000文字未満の入力になります。"),
 		},
 		{
-			name: "when content > 2000, create = fail",
+			name: "when content > 1999, create = fail",
 			args: domain.TaskCard{
 				UserID:  1,
 				TodoID:  1,
 				Title:   "test title",
 				Purpose: "test purpose",
-				Content: strings.Repeat("c", 2001),
+				Content: strings.Repeat("c", 2000),
 				Memo:    "test memo",
 			},
 			prepareMockFn: func(m *mock_usecase.MockTaskCardRepository, arges domain.TaskCard) {
 				m.EXPECT().Store(arges).Return(nil)
 			},
-			wantErr: errors.New("作業内容は2000文字以内の入力になります。"),
+			wantErr: errors.New("作業内容は2000文字未満の入力になります。"),
 		},
 		{
-			name: "when memo > 2000, create = fail",
+			name: "when memo > 1999, create = fail",
 			args: domain.TaskCard{
 				UserID:  1,
 				TodoID:  1,
 				Title:   "test title",
 				Purpose: "test purpose",
 				Content: "test content",
-				Memo:    strings.Repeat("c", 2001),
+				Memo:    strings.Repeat("c", 2000),
 			},
 			prepareMockFn: func(m *mock_usecase.MockTaskCardRepository, arges domain.TaskCard) {
 				m.EXPECT().Store(arges).Return(nil)
 			},
-			wantErr: errors.New("メモは2000文字以内の入力になります。"),
+			wantErr: errors.New("メモは2000文字未満の入力になります。"),
 		},
 	}
 

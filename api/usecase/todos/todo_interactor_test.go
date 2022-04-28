@@ -111,7 +111,7 @@ func TestAdd(t *testing.T) {
 			wantErr: errors.New("タイトルは50文字未満の入力になります。"),
 		},
 		{
-			name: "when memo > 2000, create = fail",
+			name: "when memo > 1999, create = fail",
 			args: domain.Todo{
 				UserID:     1,
 				Title:      "test title",
