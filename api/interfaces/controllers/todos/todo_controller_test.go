@@ -13,8 +13,8 @@ import (
 	"strconv"
 	"testing"
 
-	usecase "github.com/kory-jp/react_golang_mux/api/usecase/todo"
-	mock_usecase "github.com/kory-jp/react_golang_mux/api/usecase/todo/mock"
+	usecase "github.com/kory-jp/react_golang_mux/api/usecase/todos"
+	mock_usecase "github.com/kory-jp/react_golang_mux/api/usecase/todos/mock"
 
 	mock_transaction "github.com/kory-jp/react_golang_mux/api/usecase/transaction/mock"
 

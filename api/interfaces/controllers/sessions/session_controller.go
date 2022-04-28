@@ -13,7 +13,7 @@ import (
 	"github.com/kory-jp/react_golang_mux/api/domain"
 	"github.com/kory-jp/react_golang_mux/api/interfaces/database"
 	sessionRepo "github.com/kory-jp/react_golang_mux/api/interfaces/database/sessions"
-	usecase "github.com/kory-jp/react_golang_mux/api/usecase/session"
+	usecase "github.com/kory-jp/react_golang_mux/api/usecase/sessions"
 )
 
 type SessionController struct {

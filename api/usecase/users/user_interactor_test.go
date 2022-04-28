@@ -9,10 +9,10 @@ import (
 
 	"github.com/kory-jp/react_golang_mux/api/domain"
 
-	usecase "github.com/kory-jp/react_golang_mux/api/usecase/user"
+	usecase "github.com/kory-jp/react_golang_mux/api/usecase/users"
 
 	"github.com/golang/mock/gomock"
-	mock_usecase "github.com/kory-jp/react_golang_mux/api/usecase/user/mock"
+	mock_usecase "github.com/kory-jp/react_golang_mux/api/usecase/users/mock"
 )
 
 func TestAdd(t *testing.T) {

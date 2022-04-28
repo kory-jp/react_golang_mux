@@ -9,7 +9,7 @@ import (
 	controllers "github.com/kory-jp/react_golang_mux/api/interfaces/controllers/sessions"
 	"github.com/kory-jp/react_golang_mux/api/interfaces/database"
 	tags "github.com/kory-jp/react_golang_mux/api/interfaces/database/tags"
-	usecase "github.com/kory-jp/react_golang_mux/api/usecase/tag"
+	usecase "github.com/kory-jp/react_golang_mux/api/usecase/tags"
 
 	"github.com/kory-jp/react_golang_mux/api/domain"
 )
