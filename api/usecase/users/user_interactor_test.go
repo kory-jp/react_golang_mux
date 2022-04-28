@@ -31,7 +31,7 @@ func TestAdd(t *testing.T) {
 		wantErr            error
 	}{
 		{
-			name: "必須項目が入力された場合、データ保存成功",
+			name: "addUser = success",
 			args: domain.User{
 				Name:     "testName",
 				Email:    "test@exm.com",
@@ -47,7 +47,7 @@ func TestAdd(t *testing.T) {
 			wantErr: nil,
 		},
 		{
-			name: "Nameがnilの場合、データ保存失敗",
+			name: "when Name = nil, addUser = fail",
 			args: domain.User{
 				Name:     "",
 				Email:    "test@exm.com",
@@ -63,7 +63,7 @@ func TestAdd(t *testing.T) {
 			wantErr: errors.New("名前は必須です。"),
 		},
 		{
-			name: "Nameが2文字未満の場合、データ保存失敗",
+			name: "when Name.length < 2, addUser = fail",
 			args: domain.User{
 				Name:     "a",
 				Email:    "test@exm.com",
@@ -76,12 +76,12 @@ func TestAdd(t *testing.T) {
 			prepareFindMockFn: func(m *mock_usecase.MockUserRepository, id int) {
 				m.EXPECT().FindById(id).Return(nil, nil).AnyTimes()
 			},
-			wantErr: errors.New("名前は2文字以上が必須です。"),
+			wantErr: errors.New("名前は2文字より入力が必須です。"),
 		},
 		{
-			name: "Nameが21文字以上の場合、データ保存失敗",
+			name: "when Name.length > 19, addUser = fail",
 			args: domain.User{
-				Name:     strings.Repeat("t", 21),
+				Name:     strings.Repeat("t", 20),
 				Email:    "test@exm.com",
 				Password: "testPassword",
 			},
@@ -92,10 +92,10 @@ func TestAdd(t *testing.T) {
 			prepareFindMockFn: func(m *mock_usecase.MockUserRepository, id int) {
 				m.EXPECT().FindById(id).Return(nil, nil).AnyTimes()
 			},
-			wantErr: errors.New("名前は20文字以内の入力になります。"),
+			wantErr: errors.New("名前は20文字未満の入力になります。"),
 		},
 		{
-			name: "Emailがnilの場合、データ保存失敗",
+			name: "when Email = nil, addUser = fail",
 			args: domain.User{
 				Name:     "testName",
 				Email:    "",
@@ -111,7 +111,8 @@ func TestAdd(t *testing.T) {
 			wantErr: errors.New("メールアドレスは必須です。"),
 		},
 		{
-			name: "Emailのフォーマットに誤りがある場合、データ保存失敗",
+			// Emailのフォーマットに誤りがある場合、データ保存失敗
+			name: "when Email is not fomat, addUser = fail",
 			args: domain.User{
 				Name:     "testName",
 				Email:    "testmail",
@@ -127,7 +128,7 @@ func TestAdd(t *testing.T) {
 			wantErr: errors.New("メールアドレスのフォーマットに誤りがあります"),
 		},
 		{
-			name: "Emailの文字数が30文字以上ある場合、データ保存失敗",
+			name: "when Email > 29, addUser = fail",
 			args: domain.User{
 				Name:     "testName",
 				Email:    "12345abcde12345abcde12345abcde@exm.com",
@@ -140,10 +141,10 @@ func TestAdd(t *testing.T) {
 			prepareFindMockFn: func(m *mock_usecase.MockUserRepository, id int) {
 				m.EXPECT().FindById(id).Return(nil, nil).AnyTimes()
 			},
-			wantErr: errors.New("メールアドレスは30文字以内の入力になります。"),
+			wantErr: errors.New("メールアドレスは30文字未満の入力になります。"),
 		},
 		{
-			name: "Passwordがnilの場合、データ保存失敗",
+			name: "when Password = nil, addUser = fail",
 			args: domain.User{
 				Name:     "testName",
 				Email:    "test@exm.com",
@@ -159,7 +160,7 @@ func TestAdd(t *testing.T) {
 			wantErr: errors.New("パスワードは必須です。"),
 		},
 		{
-			name: "Passwordが5文字未満の場合、データ保存失敗",
+			name: "when Password < 5, addUser = fail",
 			args: domain.User{
 				Name:     "testName",
 				Email:    "test@exm.com",
@@ -172,14 +173,14 @@ func TestAdd(t *testing.T) {
 			prepareFindMockFn: func(m *mock_usecase.MockUserRepository, id int) {
 				m.EXPECT().FindById(id).Return(nil, nil).AnyTimes()
 			},
-			wantErr: errors.New("パスワードは5文字以上が必須です。"),
+			wantErr: errors.New("パスワードは5文字より入力が必須です。"),
 		},
 		{
-			name: "Passwordが21文字以上の場合、データ保存失敗",
+			name: "when Password > 19. addUser = fail",
 			args: domain.User{
 				Name:     "testName",
 				Email:    "test@exm.com",
-				Password: strings.Repeat("t", 21),
+				Password: strings.Repeat("t", 20),
 			},
 			id: 1,
 			prepareStoreMockFn: func(m *mock_usecase.MockUserRepository, args domain.User) {
@@ -188,7 +189,7 @@ func TestAdd(t *testing.T) {
 			prepareFindMockFn: func(m *mock_usecase.MockUserRepository, id int) {
 				m.EXPECT().FindById(id).Return(nil, nil).AnyTimes()
 			},
-			wantErr: errors.New("パスワードは20文字以内の入力になります。"),
+			wantErr: errors.New("パスワードは20文字未満の入力になります。"),
 		},
 	}
 

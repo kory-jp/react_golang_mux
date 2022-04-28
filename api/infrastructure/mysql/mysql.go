@@ -4,8 +4,8 @@ func Query() (query []string) {
 	users := `
 	CREATE TABLE IF NOT EXISTS users (
 		id integer PRIMARY KEY AUTO_INCREMENT,
-		name varchar(50) NOT NULL,
-		email varchar(50) NOT NULL UNIQUE,
+		name varchar(19) NOT NULL,
+		email varchar(29) NOT NULL UNIQUE,
 		password varchar(60) NOT NULL,
 		created_at datetime DEFAULT CURRENT_TIMESTAMP
 	);
@@ -15,7 +15,7 @@ func Query() (query []string) {
 		CREATE TABLE IF NOT EXISTS todos (
 			id integer PRIMARY KEY AUTO_INCREMENT,
 			user_id integer NOT NULL,
-			title varchar(50) NOT NULL,
+			title varchar(49) NOT NULL,
 			content text NOT NULL,
 			image_path varchar(100),
 			isFinished boolean NOT NULL,
@@ -60,7 +60,7 @@ func Query() (query []string) {
 			id integer PRIMARY KEY AUTO_INCREMENT,
 			user_id integer NOT NULL,
 			todo_id integer NOT NULL,
-			title varchar(50) NOT NULL,
+			title varchar(49) NOT NULL,
 			purpose text,
 			content text,
 			memo text,
