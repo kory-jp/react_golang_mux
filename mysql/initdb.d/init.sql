@@ -43,3 +43,23 @@ CREATE TABLE IF NOT EXISTS todo_tag_relations (
 		REFERENCES tags(id)
 		ON DELETE CASCADE
 );
+
+CREATE TABLE IF NOT EXISTS task_cards (
+	id integer PRIMARY KEY AUTO_INCREMENT,
+	user_id integer NOT NULL,
+  todo_id integer NOT NULL,
+  title varchar(50) NOT NULL,
+  purpose text,
+  content text,
+  memo text,
+  isFinished boolean NOT NULL,
+  created_at datetime DEFAULT CURRENT_TIMESTAMP,
+  INDEX td_ind (todo_id),
+  FOREIGN KEY (todo_id)
+		REFERENCES todos(id)
+    ON DELETE CASCADE
+	INDEX usr_ind (user_id),
+	FOREIGN KEY (user_id)
+		REFERENCES users(id)
+		ON DELETE CASCADE
+);

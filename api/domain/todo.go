@@ -24,7 +24,7 @@ type Todo struct {
 
 type Todos []Todo
 
-func traslateTodosField(field string) (value string) {
+func translateTodosField(field string) (value string) {
 	switch field {
 	case "UserID":
 		value = "ユーザーID"
@@ -48,7 +48,7 @@ func (todo *Todo) TodoValidate() (err error) {
 
 	if err != nil {
 		for _, err := range err.(validator.ValidationErrors) {
-			value := traslateTodosField(err.Field())
+			value := translateTodosField(err.Field())
 			switch err.ActualTag() {
 			case "required":
 				return fmt.Errorf("%sは必須です。", value)

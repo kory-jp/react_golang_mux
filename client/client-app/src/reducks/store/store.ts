@@ -11,6 +11,8 @@ import { LoadingReducer } from "../loading/reducers";
 import { Loading } from "../loading/types";
 import { TagReducer } from "../tags/reducers";
 import { Tags } from "../tags/types";
+import { TaskCards } from "../taskCards/types";
+import { TaskCardReducer } from "../taskCards/reducers";
 
 const composeEnhancers = (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 
@@ -20,6 +22,7 @@ export type RootState = {
   todos: Todos
   loading: Loading
   tags: Tags
+  taskCards: TaskCards
 }
 
 export default function createInitStore(history: any ) {
@@ -31,7 +34,8 @@ export default function createInitStore(history: any ) {
       user: UserReducer,
       toasts: ToastReducer,
       loading: LoadingReducer,
-      tags: TagReducer
+      tags: TagReducer,
+      taskCards: TaskCardReducer
     }),
     composeEnhancers(
       applyMiddleware(routerMiddleware(history), thunk)
