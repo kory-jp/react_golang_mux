@@ -58,4 +58,12 @@ then
   exit 1
 fi
 
+resultCTC=`go test ./interfaces/controllers/task_cards/`
+if [ ${resultCTC:0:2} != "ok" ]
+then
+  echo "task_card_controller_test.go ERROR"
+  go test -v ./interfaces/controllers/task_cards/
+  exit 1
+fi
+
 echo "TEST ALL COMPLETED"
