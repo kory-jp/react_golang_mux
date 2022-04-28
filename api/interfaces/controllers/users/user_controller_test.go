@@ -8,8 +8,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	usecase "github.com/kory-jp/react_golang_mux/api/usecase/user"
-	mock_usecase "github.com/kory-jp/react_golang_mux/api/usecase/user/mock"
+	usecase "github.com/kory-jp/react_golang_mux/api/usecase/users"
+	mock_usecase "github.com/kory-jp/react_golang_mux/api/usecase/users/mock"
 
 	"github.com/stretchr/testify/assert"
 

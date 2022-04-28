@@ -11,11 +11,11 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	mock_usecase "github.com/kory-jp/react_golang_mux/api/usecase/todo/mock"
+	mock_usecase "github.com/kory-jp/react_golang_mux/api/usecase/todos/mock"
 
 	"github.com/golang/mock/gomock"
 	"github.com/kory-jp/react_golang_mux/api/domain"
-	usecase "github.com/kory-jp/react_golang_mux/api/usecase/todo"
+	usecase "github.com/kory-jp/react_golang_mux/api/usecase/todos"
 )
 
 func TestAdd(t *testing.T) {

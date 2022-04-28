@@ -351,7 +351,7 @@ export const ShowTodo: FC = () => {
 
             {/* --- taskCards index --- */}
             {
-              taskCards.length > 0 && (
+              taskCards !== null && taskCards.length > 0 && (
                 <Box
                 sx={{
                   marginBottom: "80px",

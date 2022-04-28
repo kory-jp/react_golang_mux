@@ -11,7 +11,7 @@ import (
 	"github.com/kory-jp/react_golang_mux/api/domain"
 	"github.com/kory-jp/react_golang_mux/api/interfaces/database"
 	users "github.com/kory-jp/react_golang_mux/api/interfaces/database/users"
-	usecase "github.com/kory-jp/react_golang_mux/api/usecase/user"
+	usecase "github.com/kory-jp/react_golang_mux/api/usecase/users"
 )
 
 type UserController struct {

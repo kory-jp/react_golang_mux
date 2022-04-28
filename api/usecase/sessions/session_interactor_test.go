@@ -9,8 +9,8 @@ import (
 	"github.com/kory-jp/react_golang_mux/api/domain"
 
 	"github.com/golang/mock/gomock"
-	usecase "github.com/kory-jp/react_golang_mux/api/usecase/session"
-	mock_usecase "github.com/kory-jp/react_golang_mux/api/usecase/session/mock"
+	usecase "github.com/kory-jp/react_golang_mux/api/usecase/sessions"
+	mock_usecase "github.com/kory-jp/react_golang_mux/api/usecase/sessions/mock"
 )
 
 func TestLogin(t *testing.T) {

@@ -16,8 +16,8 @@ import (
 
 	"github.com/golang/mock/gomock"
 	mock_database "github.com/kory-jp/react_golang_mux/api/interfaces/mock"
-	usecase "github.com/kory-jp/react_golang_mux/api/usecase/task_card"
-	mock_usecase "github.com/kory-jp/react_golang_mux/api/usecase/task_card/mock"
+	usecase "github.com/kory-jp/react_golang_mux/api/usecase/task_cards"
+	mock_usecase "github.com/kory-jp/react_golang_mux/api/usecase/task_cards/mock"
 
 	controllers "github.com/kory-jp/react_golang_mux/api/interfaces/controllers/task_cards"
 

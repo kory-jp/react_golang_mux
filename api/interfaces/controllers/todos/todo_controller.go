@@ -21,7 +21,7 @@ import (
 	database "github.com/kory-jp/react_golang_mux/api/interfaces/database"
 	todoTagRelations "github.com/kory-jp/react_golang_mux/api/interfaces/database/todo_tag_relations"
 	todos "github.com/kory-jp/react_golang_mux/api/interfaces/database/todos"
-	usecase "github.com/kory-jp/react_golang_mux/api/usecase/todo"
+	usecase "github.com/kory-jp/react_golang_mux/api/usecase/todos"
 )
 
 type TodoController struct {

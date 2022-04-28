@@ -10,8 +10,8 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/golang/mock/gomock"
-	usecase "github.com/kory-jp/react_golang_mux/api/usecase/task_card"
-	mock_usecase "github.com/kory-jp/react_golang_mux/api/usecase/task_card/mock"
+	usecase "github.com/kory-jp/react_golang_mux/api/usecase/task_cards"
+	mock_usecase "github.com/kory-jp/react_golang_mux/api/usecase/task_cards/mock"
 )
 
 func TestAdd(t *testing.T) {

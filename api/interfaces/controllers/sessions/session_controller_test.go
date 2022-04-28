@@ -14,8 +14,8 @@ import (
 
 	mock_database "github.com/kory-jp/react_golang_mux/api/interfaces/mock"
 
-	usecase "github.com/kory-jp/react_golang_mux/api/usecase/session"
-	mock_usecase "github.com/kory-jp/react_golang_mux/api/usecase/session/mock"
+	usecase "github.com/kory-jp/react_golang_mux/api/usecase/sessions"
+	mock_usecase "github.com/kory-jp/react_golang_mux/api/usecase/sessions/mock"
 
 	"github.com/golang/mock/gomock"
 	"github.com/kory-jp/react_golang_mux/api/domain"

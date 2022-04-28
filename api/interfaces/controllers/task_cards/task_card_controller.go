@@ -12,7 +12,7 @@ import (
 	controllers "github.com/kory-jp/react_golang_mux/api/interfaces/controllers/sessions"
 	"github.com/kory-jp/react_golang_mux/api/interfaces/database"
 	taskCards "github.com/kory-jp/react_golang_mux/api/interfaces/database/task_cards"
-	usecase "github.com/kory-jp/react_golang_mux/api/usecase/task_card"
+	usecase "github.com/kory-jp/react_golang_mux/api/usecase/task_cards"
 
 	"github.com/kory-jp/react_golang_mux/api/domain"
 )
