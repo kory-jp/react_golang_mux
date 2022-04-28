@@ -34,7 +34,7 @@ func TestAdd(t *testing.T) {
 		wantErr            error
 	}{
 		{
-			name: "必須項目が入力された場合、データ保存成功",
+			name: "create = success",
 			args: domain.Todo{
 				UserID:     1,
 				Title:      "test title",
@@ -56,7 +56,7 @@ func TestAdd(t *testing.T) {
 			},
 		},
 		{
-			name: "ユーザーIDがnilの場合、エラー返却",
+			name: "when UserID = nil, create = fail",
 			args: domain.Todo{
 				Title:      "test title",
 				Content:    "test content",
@@ -74,7 +74,7 @@ func TestAdd(t *testing.T) {
 			wantErr: errors.New("ユーザーIDは必須です。"),
 		},
 		{
-			name: "タイトルがnilの場合、エラー返却",
+			name: "when title = nil, create = fail",
 			args: domain.Todo{
 				UserID:     1,
 				Content:    "test content",
@@ -92,7 +92,7 @@ func TestAdd(t *testing.T) {
 			wantErr: errors.New("タイトルは必須です。"),
 		},
 		{
-			name: "タイトルが50文字以上の場合、エラー返却",
+			name: "when title > 50, create = fail",
 			args: domain.Todo{
 				UserID:     1,
 				Title:      strings.Repeat("t", 51),
@@ -111,7 +111,7 @@ func TestAdd(t *testing.T) {
 			wantErr: errors.New("タイトルは50文字未満の入力になります。"),
 		},
 		{
-			name: "メモが2000文字以上の場合、エラー返却",
+			name: "when memo > 2000, create = fail",
 			args: domain.Todo{
 				UserID:     1,
 				Title:      "test title",
@@ -130,7 +130,7 @@ func TestAdd(t *testing.T) {
 			wantErr: errors.New("メモは2000文字未満の入力になります。"),
 		},
 		{
-			name: "Importanceがnilの場合、エラー返却",
+			name: "when importance = nil, create = fail",
 			args: domain.Todo{
 				UserID:     1,
 				Title:      "test title",
@@ -149,7 +149,7 @@ func TestAdd(t *testing.T) {
 			wantErr: errors.New("重要度は必須です。"),
 		},
 		{
-			name: "Importanceに3以上の値が入力されたの場合、エラー返却",
+			name: "when importance > 2, create = fail",
 			args: domain.Todo{
 				UserID:     1,
 				Title:      "test title",
@@ -168,7 +168,7 @@ func TestAdd(t *testing.T) {
 			wantErr: errors.New("重要度に異常な値が入力されました"),
 		},
 		{
-			name: "Urgencyがnilの場合、エラー返却",
+			name: "when urgency = nil, create = fail",
 			args: domain.Todo{
 				UserID:     1,
 				Title:      "test title",
@@ -187,7 +187,7 @@ func TestAdd(t *testing.T) {
 			wantErr: errors.New("緊急度は必須です。"),
 		},
 		{
-			name: "Urgencyに3以上の値が入力されたの場合、エラー返却",
+			name: "urgency > 2, create = fail",
 			args: domain.Todo{
 				UserID:     1,
 				Title:      "test title",
@@ -234,7 +234,7 @@ func TestTodos(t *testing.T) {
 		wantErr       error
 	}{
 		{
-			name:   "userIdと現在ページ情報が正しい場合,Todo一覧を取得",
+			name:   "getTodos = success",
 			userId: 1,
 			page:   1,
 			prepareMockFn: func(m *mock_usecase.MockTodoRepository, userId int, page int) {
@@ -243,7 +243,7 @@ func TestTodos(t *testing.T) {
 			wantTodos: []domain.Todo{{UserID: 1}},
 		},
 		{
-			name: "userIdがnilの場合,エラーを取得",
+			name: "when userId = nil, getTodos = fail",
 			page: 1,
 			prepareMockFn: func(m *mock_usecase.MockTodoRepository, userId int, page int) {
 				m.EXPECT().FindByUserId(0, page).Return([]domain.Todo{{UserID: 0}}, 0.0, nil).AnyTimes()
@@ -251,7 +251,7 @@ func TestTodos(t *testing.T) {
 			wantErr: errors.New("データ取得に失敗しました"),
 		},
 		{
-			name:   "pageがnilの場合,エラーを取得",
+			name:   "when page = nil, getTodos = fail",
 			userId: 1,
 			prepareMockFn: func(m *mock_usecase.MockTodoRepository, userId int, page int) {
 				m.EXPECT().FindByUserId(userId, 0).Return([]domain.Todo{{UserID: userId}}, 0.0, nil).AnyTimes()
@@ -290,7 +290,7 @@ func TestTodoByIdAndUserId(t *testing.T) {
 		wantErr       error
 	}{
 		{
-			name:   "idとuserIdが正しい場合、該当するtodoデータを取得",
+			name:   "getTodo = success",
 			id:     1,
 			userId: 1,
 			prepareMockFn: func(m *mock_usecase.MockTodoRepository, id int, userId int) {
@@ -299,7 +299,7 @@ func TestTodoByIdAndUserId(t *testing.T) {
 			wantTodo: &domain.Todo{ID: 1, UserID: 1},
 		},
 		{
-			name:   "idがnilの場合、todoデータの取得の失敗",
+			name:   "when id = nil, getTodo = fail",
 			userId: 1,
 			prepareMockFn: func(m *mock_usecase.MockTodoRepository, id int, userId int) {
 				m.EXPECT().FindByIdAndUserId(0, userId).Return(&domain.Todo{ID: 0, UserID: userId}, nil).AnyTimes()
@@ -307,7 +307,7 @@ func TestTodoByIdAndUserId(t *testing.T) {
 			wantErr: errors.New("データ取得に失敗しました"),
 		},
 		{
-			name: "userIdがnilの場合、todoデータの取得の失敗",
+			name: "when userId = nil, getTodo = fail",
 			id:   1,
 			prepareMockFn: func(m *mock_usecase.MockTodoRepository, id int, userId int) {
 				m.EXPECT().FindByIdAndUserId(id, 0).Return(&domain.Todo{ID: id, UserID: 0}, nil).AnyTimes()
@@ -348,7 +348,7 @@ func TestSearch(t *testing.T) {
 		wantErr       error
 	}{
 		{
-			name:   "必須項目が入力された場合、データ取得成功",
+			name:   "search = success",
 			tagId:  1,
 			userId: 1,
 			args: domain.Todo{
@@ -363,7 +363,8 @@ func TestSearch(t *testing.T) {
 			wantTodos: []domain.Todo{{UserID: 1, Importance: 1, Urgency: 1, Tags: []domain.Tag{{ID: 1}}}},
 		},
 		{
-			name:   "検索条件(importance)に不適切な値(3以上の値)が入力された場合、データ取得失敗",
+			// 検索条件(importance)に不適切な値(3以上の値)が入力された場合、データ取得失敗
+			name:   "when importance > 2, search = fail",
 			tagId:  1,
 			userId: 1,
 			args: domain.Todo{
@@ -378,7 +379,8 @@ func TestSearch(t *testing.T) {
 			wantErr: errors.New("データ取得に失敗しました"),
 		},
 		{
-			name:   "検索条件(urgency)に不適切な値(3以上の値)が入力された場合、データ取得失敗",
+			// 検索条件(urgency)に不適切な値(3以上の値)が入力された場合、データ取得失敗
+			name:   "when urgency > 2, search = fail",
 			tagId:  1,
 			userId: 1,
 			args: domain.Todo{
@@ -393,7 +395,8 @@ func TestSearch(t *testing.T) {
 			wantErr: errors.New("データ取得に失敗しました"),
 		},
 		{
-			name:   "検索条件(tagId,importance,urgency)に値が入力されていない場合、データ取得失敗",
+			// 検索条件(tagId,importance,urgency)に値が入力されていない場合、データ取得失敗
+			name:   "when tagId = 0 && importance = 0 && urgency = 0, search =fail",
 			tagId:  0,
 			userId: 1,
 			args: domain.Todo{
@@ -408,7 +411,7 @@ func TestSearch(t *testing.T) {
 			wantErr: errors.New("データ取得に失敗しました"),
 		},
 		{
-			name:   "userIdがnilの場合、データ取得失敗",
+			name:   "when userId = 0, search = fail",
 			tagId:  1,
 			userId: 0,
 			args: domain.Todo{
@@ -423,7 +426,7 @@ func TestSearch(t *testing.T) {
 			wantErr: errors.New("データ取得に失敗しました"),
 		},
 		{
-			name:   "pageがnilの場合、データ取得失敗",
+			name:   "when page = 0, search =fail",
 			tagId:  1,
 			userId: 1,
 			page:   0,
@@ -466,7 +469,7 @@ func TestUpdateTodo(t *testing.T) {
 		wantErr                error
 	}{
 		{
-			name: "必須項目が入力された場合、データ更新成功",
+			name: "update = success",
 			args: domain.Todo{
 				UserID:     1,
 				Title:      "test update title",
@@ -488,7 +491,7 @@ func TestUpdateTodo(t *testing.T) {
 			},
 		},
 		{
-			name: "ユーザーIDがnilの場合、エラー返却",
+			name: "when UserID = nil, update = fail",
 			args: domain.Todo{
 				Title:      "test title",
 				Content:    "test content",
@@ -538,7 +541,7 @@ func TestIsFinishedTodo(t *testing.T) {
 		wantErr               error
 	}{
 		{
-			name:   "isFinishedがtrueの場合、メッセージ=[完了しました]",
+			name:   "isFinished = true, message = 完了しました",
 			id:     1,
 			userId: 1,
 			todo: domain.Todo{
@@ -560,7 +563,7 @@ func TestIsFinishedTodo(t *testing.T) {
 			},
 		},
 		{
-			name:   "isFinishedがfalseの場合、メッセージ=[未完了の項目が追加されました]",
+			name:   "isFinished = false, message = 未完了の項目が追加されました",
 			id:     1,
 			userId: 1,
 			todo: domain.Todo{
@@ -601,7 +604,7 @@ func TestIsFinishedTodo(t *testing.T) {
 			wantErr: errors.New("データ取得に失敗しました"),
 		},
 		{
-			name: "userIdがnilの場合、isFinishedの更新の失敗",
+			name: "when userId = nil, changeIsFinished = fail",
 			id:   1,
 			todo: domain.Todo{
 				ID:         1,
@@ -651,7 +654,7 @@ func TestDeleteTodo(t *testing.T) {
 		wantErr       error
 	}{
 		{
-			name:   "idとuserIdが正しい場合、Todoを削除成功",
+			name:   "delete = success",
 			id:     1,
 			userId: 1,
 			prepareMockFn: func(m *mock_usecase.MockTodoRepository, id int, userId int) {
@@ -662,7 +665,7 @@ func TestDeleteTodo(t *testing.T) {
 			},
 		},
 		{
-			name:   "idがnilの場合、Todoを削除失敗",
+			name:   "when id = nil, delete = fail",
 			userId: 1,
 			prepareMockFn: func(m *mock_usecase.MockTodoRepository, id int, userId int) {
 				m.EXPECT().Erasure(0, userId).Return(nil).AnyTimes()
@@ -670,7 +673,7 @@ func TestDeleteTodo(t *testing.T) {
 			wantErr: errors.New("データ取得に失敗しました"),
 		},
 		{
-			name: "idがnilの場合、Todoを削除失敗",
+			name: "when userId = nil, delete = fail",
 			id:   1,
 			prepareMockFn: func(m *mock_usecase.MockTodoRepository, id int, userId int) {
 				m.EXPECT().Erasure(id, 0).Return(nil).AnyTimes()
@@ -710,7 +713,7 @@ func TestDeleteTodoIndex(t *testing.T) {
 		wantErr              error
 	}{
 		{
-			name:   "id、userIdとpageが正しい場合、todos,sumPageとmessageを取得",
+			name:   "getTodos = success",
 			id:     1,
 			userId: 1,
 			page:   1,
@@ -727,7 +730,7 @@ func TestDeleteTodoIndex(t *testing.T) {
 			},
 		},
 		{
-			name:   "idがnilの場合、エラーメッセージeを取得",
+			name:   "when id = nil, getTodo = fail",
 			userId: 1,
 			page:   1,
 			prepareMockErasureFn: func(m *mock_usecase.MockTodoRepository, id int, userId int) {
@@ -739,7 +742,7 @@ func TestDeleteTodoIndex(t *testing.T) {
 			wantErr: errors.New("データ取得に失敗しました"),
 		},
 		{
-			name: "userIdがnilの場合、エラーメッセージeを取得",
+			name: "when userID = nil, getTodo = fail",
 			id:   1,
 			page: 1,
 			prepareMockErasureFn: func(m *mock_usecase.MockTodoRepository, id int, userId int) {

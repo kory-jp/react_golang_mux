@@ -44,7 +44,7 @@ func TestCreate(t *testing.T) {
 		response           controllers.Response
 	}{
 		{
-			name: "必須項目が入力された場合、データ保存成功",
+			name: "create = success",
 			args: domain.User{
 				Name:     "testUser",
 				Email:    "test@exm.com",
@@ -64,7 +64,7 @@ func TestCreate(t *testing.T) {
 			},
 		},
 		{
-			name: "リクエストボディがnilの場合、データ保存失敗",
+			name: "when requestBody = nil, create = fail",
 			args: domain.User{
 				Name:     "testUser",
 				Email:    "test@exm.com",
