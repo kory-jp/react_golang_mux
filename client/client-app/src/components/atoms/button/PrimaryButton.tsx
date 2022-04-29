@@ -1,17 +1,5 @@
 import { ReactNode, VFC } from "react";
-import { Button, styled } from "@mui/material";
-
-const PrimaryButtonStyle = styled(Button)({
-  backgroundColor: '#1e90ff',
-  fontWeight: 600,
-  color: 'white',
-  "&:hover": {
-    backgroundColor: '#00bfff'
-  },
-  "&:disabled": {
-    backgroundColor: "#bbdefb"
-  }
-})
+import { Button } from "@mui/material";
 
 type Props = {
   children: ReactNode
@@ -19,15 +7,27 @@ type Props = {
   disabled?: boolean
 }
 
-// 暫定的な{children}を含む型指定VFC
 export const PrimaryButton: VFC<Props> = (props) => {
-  const {children, onClick} = props;
-  return(
-    <PrimaryButtonStyle 
+  const {children, onClick, disabled} = props;
+
+  return (
+    <Button
       onClick={onClick}
-      disabled={props.disabled}
+      disabled={disabled}
+      sx={{
+        color: "#FFF !important",
+        backgroundColor: '#587FBA',
+        fontFamily: 'Noto Serif JP, serif',
+        ":hover": {
+          backgroundColor: '#2E6DCA',
+        },
+        ":disabled": {
+          backgroundColor: '#869FC5',
+        }
+      }}
     >
       {children}
-    </PrimaryButtonStyle>
+    </Button>
   )
 }
+
