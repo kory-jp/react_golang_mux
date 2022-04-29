@@ -1,7 +1,8 @@
 import { FC } from "react";
 import { Route, Switch } from 'react-router-dom';
 
-import Login from "../components/pages/auth/Login";
+// import Login from "../components/pages/auth/Login";
+import Login from "../components_ver2/pages/users/Login";
 import Registration from "../components/pages/auth/Registration";
 import EditTodo from "../components/pages/todos/EditTodo";
 import IndexTodos from "../components/pages/todos/IndexTodos";
