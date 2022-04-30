@@ -33,11 +33,7 @@ export const LoginSection:FC = () => {
         id="loginSection"
         bgcolor="#2D2A2A"
         borderRadius="10px"
-        sx={{
-          width: {
-            xs: '360px',
-          }
-        }}
+        width='360px'
       >
         <Box
           sx={{
