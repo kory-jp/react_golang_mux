@@ -4,6 +4,7 @@ import { ReactNode, VFC } from "react";
 import TopImage from "../../atoms/images/TopImage";
 import Footer from "../../organisms/layout/Footer";
 import AppLogo from "../../../assets/images/AppLogo.svg"
+import Toast from "../../molecules/toast/Toast";
 
 type Props = {
   children: ReactNode
@@ -133,6 +134,7 @@ export const DefaultTemplate: VFC<Props> = (props) => {
           <Footer />
         </Box>
       </Box>
+      <Toast />
     </>
   )
 }

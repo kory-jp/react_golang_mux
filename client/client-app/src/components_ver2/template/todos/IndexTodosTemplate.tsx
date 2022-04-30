@@ -1,13 +1,13 @@
 import { FC } from "react";
 import IndexSection from "../../organisms/toods/IndexSection";
-import DefaultTemplate from "./DefaultTemplate";
+import DefaultIndexTemplate from "./DefaultIndexTemplate";
 
 export const IndexTodosTemplate: FC = () => {
   return(
     <>
-      <DefaultTemplate>
+      <DefaultIndexTemplate>
         <IndexSection />
-      </DefaultTemplate>
+      </DefaultIndexTemplate>
     </>
   )
 }
