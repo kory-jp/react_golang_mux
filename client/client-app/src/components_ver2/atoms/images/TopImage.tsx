@@ -26,7 +26,7 @@ export const TopImage: FC = () => {
             },
             top: '80px',
             left: {
-              xs: '10%',
+              xs: '15%',
               sm: '30%',
               md: '40%',
             }
