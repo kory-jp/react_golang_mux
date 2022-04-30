@@ -117,6 +117,7 @@ func (repo *TodoRepository) FindByUserId(identifier int, page int) (todos domain
 			&todo.Title,
 			&todo.ImagePath,
 			&todo.IsFinished,
+			&todo.CreatedAt,
 			&u8tags.U8ID,
 			&u8tags.U8Value,
 			&u8tags.U8Label,
