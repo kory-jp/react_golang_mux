@@ -59,6 +59,10 @@ export const TodoCard: FC<Props> = (props) => {
           transition: '0.7s',
           bgcolor: finish? 'text.disabled' : '#2D2A2A',
           borderRadius: '10px',
+          width: {
+            md: '360px',
+            xl: '400px',
+          }
         }}
       >
         {/* ----- 画像セクション ----- */}
@@ -183,25 +187,6 @@ export const TodoCard: FC<Props> = (props) => {
             {handleToDateFormat(todo.createdAt)}
           </Box>
         </CardContent>
-        {/* --- tagzone --- */}
-        {/* {
-            tags != null && (
-              <Grid container>
-                {tags.map(tag => (
-                  <Grid
-                    key={tag.id}
-                    marginLeft="10px"
-                    marginY="20px"
-                  >
-                    <PrimaryChip 
-                      label={tag.label}
-                      onClick={() => onClickToSearchTagTodo(tag.id)}
-                    />
-                  </Grid>
-                ))}
-              </Grid>
-            )
-          } */}
           <Grid
             container
             sx={{

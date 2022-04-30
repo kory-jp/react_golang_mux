@@ -91,14 +91,14 @@ func (repo *TodoRepository) FindByUserId(identifier int, page int) (todos domain
 	row.Close()
 
 	// データ総数を1ページに表示したい件数を割り、ページ総数を算出
-	sumPage = math.Ceil(allTodosCount / 5)
+	sumPage = math.Ceil(allTodosCount / 6)
 	// ---
 
 	var offsetNum int
 	if page == 1 {
 		offsetNum = 0
 	} else {
-		offsetNum = (page - 1) * 5
+		offsetNum = (page - 1) * 6
 	}
 	rows, err := repo.Query(mysql.GetTodosState, identifier, offsetNum)
 	if err != nil {

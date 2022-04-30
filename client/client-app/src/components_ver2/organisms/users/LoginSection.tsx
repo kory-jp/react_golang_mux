@@ -44,7 +44,7 @@ export const LoginSection:FC = () => {
         >
 
           <Typography
-            variant="h1"
+          component='h1'
             color="#FFF"
             fontFamily="Noto Serif JP, serif;"
             sx={{

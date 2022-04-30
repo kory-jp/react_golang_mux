@@ -9,7 +9,8 @@ import EditTodo from "../components/pages/todos/EditTodo";
 // import IndexTodos from "../components/pages/todos/IndexTodos";
 import IndexTodos from "../components_ver2/pages/todos/IndexTodos";
 import NewTodo from "../components/pages/todos/NewTodo";
-import SearchTodos from "../components/pages/todos/SearchTodos";
+// import SearchTodos from "../components/pages/todos/SearchTodos";
+import SearchTodos from "../components_ver2/pages/todos/SearchTodos";
 import ShowTodo from "../components/pages/todos/ShowTodo";
 
 export const Router: FC = () => {

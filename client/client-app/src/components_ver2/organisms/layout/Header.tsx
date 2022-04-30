@@ -10,6 +10,7 @@ import { isLoggedIn, logout } from "../../../reducks/users/opretions";
 import Toast from "../../molecules/toast/Toast";
 import DefautlDrawer from "../../molecules/drawer/DefaultDrawer";
 import { RootState } from "../../../reducks/store/store";
+import { push } from "connected-react-router";
 
 export const Header: FC = () => {
   const dispatch = useDispatch()
@@ -19,6 +20,10 @@ export const Header: FC = () => {
   useEffect(() => {
     dispatch(isLoggedIn())
   },[])
+
+  const onClickToTop = useCallback(() => {
+    dispatch(push("/todo"))
+  }, [])
 
   // --------
   const onClickOpen = useCallback(() => {
@@ -72,8 +77,12 @@ export const Header: FC = () => {
                 },
                 paddingY: {
                   xs: '24px',
+                },
+                ":hover": {
+                  cursor: 'pointer',
                 }
               }}
+              onClick={onClickToTop}
             >
               <CardMedia 
                 component="img"
@@ -114,7 +123,7 @@ export const Header: FC = () => {
               </Box>
               <Box>
                 <PrimaryButton
-                  onClick={onClickOpen}
+                  onClick={onClickLogout}
                 >
                   ログアウト
                 </PrimaryButton>

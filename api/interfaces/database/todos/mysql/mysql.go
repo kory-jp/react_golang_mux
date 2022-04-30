@@ -52,7 +52,7 @@ var GetTodosState = `
 		t.id
 	order by
 		id desc
-	limit 5
+	limit 6
 	offset ?
 `
 
