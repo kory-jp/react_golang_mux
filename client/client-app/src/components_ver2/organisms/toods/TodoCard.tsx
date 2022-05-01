@@ -59,7 +59,7 @@ export const TodoCard: FC<Props> = (props) => {
       <Card
         sx={{
           transition: '0.7s',
-          bgcolor: finish? 'text.disabled' : '#2D2A2A',
+          bgcolor: finish? '#464141' : '#2D2A2A',
           borderRadius: '10px',
           width: {
             md: '360px',
