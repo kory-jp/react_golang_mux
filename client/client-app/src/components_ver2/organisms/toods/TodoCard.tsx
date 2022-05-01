@@ -12,6 +12,8 @@ import { Tags } from "../../../reducks/tags/types";
 import { Box } from "@mui/system";
 import handleToDateFormat from "../../../utils/handleToDateFormat";
 import { PrimaryChip } from "../../atoms/chip/PrimaryChip";
+import MoreIconsArea from "../../molecules/iconsArea/MoreIconsArea";
+import TagSection from "../../molecules/tag/TagSection";
 
 type Props = {
   todo: Todo,
@@ -103,74 +105,12 @@ export const TodoCard: FC<Props> = (props) => {
             paddingX: '16px',
           }}          
         >
-          <Grid
-            container
-          >
-            <Grid item xs={5}>
-              <FormControlLabel
-                control={<Checkbox 
-                            checked={finish}
-                            value={finish}
-                            onChange={onChangeIsFinished}
-                            sx={{
-                              color: '#587FBA',
-                            }}
-                          />} 
-                sx={{
-                  color: '#FFF',
-                  fontSize: '8px',
-                  marginBottom: '3px',
-                  fontFamily: 'Merriweather, serif',
-                }}
-                label="finish"
-              />
-            </Grid>
-            <Grid 
-              item 
-              xs={7}
-              sx={{
-                display: 'flex',
-              }}
-            >
-              <Box
-                marginRight='8px'
-              >
-                <Button
-                  onClick={onClickDelete}
-                  sx={{
-                    color: '#FFF',
-                    fontSize: '8px',
-                    marginBottom: '3px',
-                    fontFamily: 'Merriweather, serif',
-                  }}
-                >
-                  <DeleteIcon 
-                    sx={{
-                      color: '#587FBA',
-                    }}
-                  />
-                  Delete
-                </Button>
-              </Box>
-              <Box>
-                <Button
-                  onClick={onclickToShowTodo}
-                  sx={{
-                    color: '#FFF',
-                    fontSize: '8px',
-                    fontFamily: 'Merriweather, serif',
-                  }}
-                >
-                  <StickyNote2Icon 
-                    sx={{
-                      color: '#587FBA',
-                    }}
-                  />
-                  more
-                </Button>
-              </Box>
-            </Grid>
-          </Grid>
+          <MoreIconsArea 
+            finish={finish}
+            onChangeIsFinished={onChangeIsFinished}
+            onClickDelete={onClickDelete}
+            onClickToShowTodo={onclickToShowTodo}
+          />
         </CardActions>
         {/* --- timezone --- */}
         <CardContent
@@ -187,32 +127,18 @@ export const TodoCard: FC<Props> = (props) => {
             {handleToDateFormat(todo.createdAt)}
           </Box>
         </CardContent>
-          <Grid
-            container
-            sx={{
-              minHeight: '40px',
-            }}
-          >
-            {
-              tags != null && (
-                <>
-                  {
-                    tags.map(tag => (
-                      <Grid
-                        key={tag.id}
-                        marginLeft='10px'
-                      >
-                        <PrimaryChip 
-                          label={tag.label}
-                          onClick={() => onClickToSearchTagTodo(tag.id)}
-                        />                      
-                      </Grid>
-                    ))
-                  }                
-                </>
-              )
+        <Box
+          sx={{
+            paddingX: {
+              xs: '16px',
             }
-          </Grid>
+          }}
+        >
+          <TagSection 
+            tags={tags}
+            onClickToSearchTagTodo={onClickToSearchTagTodo}
+          />
+        </Box>
       </Card>      
     </>
   )
