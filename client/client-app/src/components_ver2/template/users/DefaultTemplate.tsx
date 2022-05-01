@@ -24,12 +24,18 @@ export const DefaultTemplate: VFC<Props> = (props) => {
         <TopImage />
       </Box>
       <Box
+        className='toppage__content'
         component='main'
-        id='top_main'
         display='flex'
         justifyContent='center'
+        sx={{
+          marginBottom: {
+            xs: '40px',
+          }
+        }}
       >
         <Box
+          className='content__inner'
           sx={{
             width: {
               xs: '95%',
@@ -41,40 +47,34 @@ export const DefaultTemplate: VFC<Props> = (props) => {
         >
           <Grid
             container
+            spacing={1}
             sx={{
               justifyContent: {
                 xs: 'center',
-                md: 'space-between',
+                md: 'space-between'
               }
             }}
           >
-            <Grid 
+            <Grid
               item
-              xs={10}
-              md={7}
-              sx={{
-                display: 'flex',
-                justifyContent: {
-                  xs: 'center',
-                  md: 'flex-start'
-                },
-                marginBottom: '40px',
-              }}
             >
-              <Typography
-                color='#FFF'
-                sx={{
-                  fontFamily: 'Noto Serif JP, serif',
-                  fontSize: {
-                    xs: '16px',
-                    sm: '24px',
-                    xl: '40px',
-                  }
-                }}
-              >
-                一流のビジネスマンのための <br />
-                一流のリーダーのための <br />
-                一流の経営者のためのタスク管理 <br />
+              <Box>
+                <Typography
+                  color='#FFF'
+                  sx={{
+                    fontFamily: 'Noto Serif JP, serif',
+                    fontSize: {
+                      xs: '21px',
+                      sm: '24px',
+                      xl: '40px',
+                    },
+                  }}
+                >
+                  一流のビジネスマンのための <br />
+                  一流のリーダーのための <br />
+                  一流の経営者のためのタスク管理 <br />
+                </Typography>
+              </Box>             
               <Box
                 sx={{
                   width: {
@@ -91,25 +91,10 @@ export const DefaultTemplate: VFC<Props> = (props) => {
                   component="img"
                   image={AppLogo}
                 />
-              </Box>              
-              </Typography>
+              </Box> 
             </Grid>
             <Grid
               item
-              xs={10}
-              md={5}
-              // justifyContent='flex-end'
-              sx={{
-                display: 'flex',
-                justifyContent: {
-                  xs: 'center',
-                  sm: 'center',
-                  md: 'flex-end',
-                },
-                marginBottom: {
-                  xs: '40px',
-                }
-              }}
             >
               {children}
             </Grid>

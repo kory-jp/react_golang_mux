@@ -4,7 +4,6 @@ import { push } from "connected-react-router";
 import { FC, useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
-import useLoadingState from "../../../hooks/useLoadingState";
 import { RootState } from "../../../reducks/store/store";
 import { Tags } from "../../../reducks/tags/types";
 import { deleteTodo, showTodo, updateIsFinished } from "../../../reducks/todos/operations";
@@ -25,7 +24,6 @@ export const ShowSection: FC = () => {
   const params: Params = useParams();
   const id: number = Number(params.id)
   const todo = useSelector((state: RootState) => state.todos[0])
-  const loadingState = useLoadingState()
   const [finish, setFinish] = useState(false)
   const tags: Tags | null = todo.tags ? todo.tags : null
 
@@ -73,9 +71,9 @@ export const ShowSection: FC = () => {
     <>
       <Box
         className='showContainer'
-        bgcolor='#2D2A2A'
         sx={{
           borderRadius: '10px',
+          bgcolor: finish? '#464141' : '#2D2A2A',
         }}
       >
         <Box
@@ -248,7 +246,7 @@ export const ShowSection: FC = () => {
             }}
           >
             <TagSection 
-              tags={todo.tags}
+              tags={tags}
               onClickToSearchTagTodo={onClickToSearchTagTodo}
             />
           </Box>
