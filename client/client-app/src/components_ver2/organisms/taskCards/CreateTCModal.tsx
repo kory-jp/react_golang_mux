@@ -3,6 +3,7 @@ import { createTaskCard } from "../../../reducks/taskCards/operations";
 import { useDispatch } from "react-redux";
 import { useParams } from "react-router-dom";
 import DefaultInputTCModal from "./DefaultInputTCModal";
+import usePagination from "../../../hooks/usePagination";
 
 type Props = {
   open: boolean,
@@ -22,6 +23,7 @@ export const CreateTCModal: FC<Props> = (props) => {
   const [purpose, setPurpose] = useState("")
   const [content, setContent] = useState("")
   const [memo, setMemo] = useState("")
+  const {setSumPage, queryPage} = usePagination()
 
   const onChangeInputTitle = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     setTitle(event.target.value)
@@ -40,7 +42,7 @@ export const CreateTCModal: FC<Props> = (props) => {
   },[setMemo])
 
   const onClickNewTaskCard = useCallback(() => {
-    dispatch(createTaskCard(id, title, purpose, content, memo))
+    dispatch(createTaskCard(id, title, purpose, content, memo, setSumPage, queryPage))
     onClose()
   }, [id, title, purpose, content, memo])
 
