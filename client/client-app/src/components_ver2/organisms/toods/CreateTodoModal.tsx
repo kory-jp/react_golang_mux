@@ -7,6 +7,7 @@ import { makeOptions } from "../../../utils/makeOptions";
 import { Todo } from "../../../reducks/todos/types";
 import { createTodo } from "../../../reducks/todos/operations";
 import DefaultInputModal from "./DefaultInputModal";
+import usePagination from "../../../hooks/usePagination";
 
 type Props = {
   open: boolean,
@@ -24,6 +25,7 @@ export const CreateTodoModal: FC<Props> = (props) => {
   const { importanceOptions, urgencyOptions } = makeOptions()
   const [image, setImage] = useState<File>()
   const [preview, setPreview] =useState('')
+  const {setSumPage, queryPage} = usePagination()
   
   useEffect(() => {
     dispatch(indexTags())
@@ -91,7 +93,7 @@ export const CreateTodoModal: FC<Props> = (props) => {
   const formData = createFormData()
 
   const onClickNewTodo = useCallback(() => {
-    dispatch(createTodo(formData))
+    dispatch(createTodo(formData, setSumPage, queryPage))
     onClose()
   }, [formData])
 
