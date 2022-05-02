@@ -11,10 +11,12 @@ import Toast from "../../molecules/toast/Toast";
 import DefautlDrawer from "../../molecules/drawer/DefaultDrawer";
 import { RootState } from "../../../reducks/store/store";
 import { push } from "connected-react-router";
+import CreateTodoModal from "../toods/CreateTodoModal";
 
 export const Header: FC = () => {
   const dispatch = useDispatch()
   const [open ,setOpen] = useState(false)
+  const [openModal ,setOpenModal] = useState(false)
   const user = useSelector((state: RootState) => state.user)
 
   useEffect(() => {
@@ -43,12 +45,14 @@ export const Header: FC = () => {
     setOpen(false)
   }, [])
 
-  // --------
-  const onClickToNewTodo = useCallback(() => {
-    console.log('create')
+  const onClickOpenCreateTodoModal = useCallback(() => {
+    setOpenModal(true)
   }, [])
 
-  // --------
+  const onClickCloseTodoModal = useCallback(() => {
+    setOpenModal(false)
+  }, [])
+
 
   return (
     <>
@@ -116,7 +120,7 @@ export const Header: FC = () => {
                 }}
               >
                 <PrimaryButton
-                  onClick={onClickOpen}
+                  onClick={onClickOpenCreateTodoModal}
                 >
                   Todo追加
                 </PrimaryButton>
@@ -160,8 +164,12 @@ export const Header: FC = () => {
         open={open}
         user={user}
         onClickCloseDrawer={onClickCloseDrawer}
-        onClickToNewTodo={onClickToNewTodo}
+        onClickToNewTodo={onClickOpenCreateTodoModal}
         onClickLogout={onClickLogout}
+      />
+      <CreateTodoModal 
+        open={openModal}
+        onClose={onClickCloseTodoModal}
       />
     </>
   )
