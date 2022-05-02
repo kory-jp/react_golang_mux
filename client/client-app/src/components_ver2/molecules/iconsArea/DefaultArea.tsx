@@ -36,7 +36,7 @@ export const DefaultArea: FC<Props> = (props) => {
               marginBottom: '3px',
               fontFamily: 'Merriweather, serif',
             }}
-            label="finish"
+            label="FINISH"
           />
         </Grid>
         <Grid 

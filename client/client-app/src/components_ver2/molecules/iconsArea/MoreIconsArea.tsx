@@ -6,11 +6,11 @@ type Props = {
   finish: boolean,
   onChangeIsFinished: () => void,
   onClickDelete: () => void,
-  onClickToShowTodo: () => void,
+  onClickMoreInfo: () => void,
 }
 
 export const MoreIconsArea: VFC<Props> = (props) => {
-  const {finish, onChangeIsFinished, onClickDelete, onClickToShowTodo} = props
+  const {finish, onChangeIsFinished, onClickDelete, onClickMoreInfo} = props
 
   return(
     <>
@@ -18,7 +18,7 @@ export const MoreIconsArea: VFC<Props> = (props) => {
         finish={finish}
         onChangeIsFinished={onChangeIsFinished}
         onClickDelete={onClickDelete}
-        onClickSomeEvent={onClickToShowTodo}
+        onClickSomeEvent={onClickMoreInfo}
       >
         <StickyNote2Icon 
           sx={{

@@ -57,7 +57,7 @@ export const ShowSection: FC = () => {
   }, [id, finish])
 
   const onClickToSearchTagTodo = useCallback((tagId: number) => {
-    dispatch(push(`/todo/tag/${tagId}`))
+    dispatch(push(`/todo/search?tagId=${tagId}&importance=0&urgency=0&page=1`))
   },[])
 
   const onClickOpenEditTodoModal = useCallback(() => {
@@ -107,7 +107,7 @@ export const ShowSection: FC = () => {
                 component='h1'
                 color='#FFF'
                 sx={{
-                  fontSize: '16px',
+                  fontSize: '24px',
                 }}
               >
                 {todo.title}
@@ -244,7 +244,7 @@ export const ShowSection: FC = () => {
               finish={finish}
               onChangeIsFinished={onChangeIsFinished}
               onClickDelete={onClickDelete}
-              onClickToEditTodo={onClickOpenEditTodoModal}
+              onClickToEdit={onClickOpenEditTodoModal}
             />
           </Box>
           <Box

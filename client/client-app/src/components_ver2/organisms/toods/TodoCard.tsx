@@ -51,7 +51,7 @@ export const TodoCard: FC<Props> = (props) => {
   }, [todo])
 
   const onClickToSearchTagTodo = useCallback((tagId: number) => {
-    dispatch(push(`/todo/tag/${tagId}`))
+    dispatch(push(`/todo/search?tagId=${tagId}&importance=0&urgency=0&page=1`))
   },[])
 
   return(
@@ -109,7 +109,7 @@ export const TodoCard: FC<Props> = (props) => {
             finish={finish}
             onChangeIsFinished={onChangeIsFinished}
             onClickDelete={onClickDelete}
-            onClickToShowTodo={onclickToShowTodo}
+            onClickMoreInfo={onclickToShowTodo}
           />
         </CardActions>
         {/* --- timezone --- */}

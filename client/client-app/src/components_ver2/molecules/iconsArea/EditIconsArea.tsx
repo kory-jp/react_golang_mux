@@ -6,11 +6,11 @@ type Props = {
   finish: boolean,
   onChangeIsFinished: () => void,
   onClickDelete: () => void,
-  onClickToEditTodo: () => void,
+  onClickToEdit: () => void,
 }
 
 export const EditIconsArea: VFC<Props> = (props) => {
-  const { finish, onChangeIsFinished, onClickDelete, onClickToEditTodo } = props
+  const { finish, onChangeIsFinished, onClickDelete, onClickToEdit } = props
 
   return(
     <>
@@ -18,7 +18,7 @@ export const EditIconsArea: VFC<Props> = (props) => {
         finish={finish}
         onChangeIsFinished={onChangeIsFinished}
         onClickDelete={onClickDelete}
-        onClickSomeEvent={onClickToEditTodo}
+        onClickSomeEvent={onClickToEdit}
       >
         <EditIcon 
           sx={{

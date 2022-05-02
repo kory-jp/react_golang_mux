@@ -103,8 +103,6 @@ func (repo *TaskCardRepository) FindByTodoIdAndUserId(todoId int, userId int, pa
 // --- 詳細取得 ---
 // ---
 func (repo *TaskCardRepository) FindByIdAndUserId(taskCardId int, userId int) (taskCard *domain.TaskCard, err error) {
-	fmt.Println("taskCardId:", taskCardId)
-	fmt.Println("userId:", userId)
 	row, err := repo.Query(mysql.ShowTaskCardState, taskCardId, userId)
 	if err != nil {
 		fmt.Println(err)

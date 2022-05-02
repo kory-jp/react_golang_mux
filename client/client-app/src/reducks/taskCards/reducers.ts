@@ -20,6 +20,8 @@ export const TaskCardReducer = (state = initialState, action: TaskCardsActionTyp
   switch(action.type) {
     case ActionTypes.indexTaskCards:
       return action.payload
+    case ActionTypes.showTaskCard:
+      return action.payload
   }
   return state;
 }

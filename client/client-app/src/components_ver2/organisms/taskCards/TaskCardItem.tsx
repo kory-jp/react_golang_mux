@@ -1,10 +1,12 @@
 import { Box, CardActions, Divider, FormControlLabel, Grid } from "@mui/material";
 import { FC, useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
+import usePagination from "../../../hooks/usePagination";
 import { deleteTaskCard, updateIsFinished } from "../../../reducks/taskCards/operations";
 import { TaskCard } from "../../../reducks/taskCards/types";
 import handleToDateFormat from "../../../utils/handleToDateFormat";
 import MoreIconsArea from "../../molecules/iconsArea/MoreIconsArea";
+import ShowTCModal from "./ShowTCModal";
 
 type Props = {
   taskCard: TaskCard
@@ -14,31 +16,36 @@ export const TaskCardItem: FC<Props> = (props) => {
   const { taskCard } = props
   const dispatch = useDispatch()
   const [isFinished, setIsFinished] = useState(false)
+  const [openShowTCModal, setOpenShowTCModal] = useState(false)
+  const {setSumPage, queryPage} = usePagination()
 
     useEffect(() => {
     setIsFinished(taskCard.isFinished)
-  },[])
+  },[taskCard.isFinished])
 
   const onChangeIsFinished = useCallback(() => {
     if (isFinished) {
       setIsFinished(false)
       dispatch(updateIsFinished(taskCard.id, false))
+      taskCard.isFinished = false
     } else {
       setIsFinished(true)
       dispatch(updateIsFinished(taskCard.id, true))
+      taskCard.isFinished = true
     }
   }, [isFinished])
 
   const onClickDelete = useCallback(() => {
-    dispatch(deleteTaskCard(taskCard.id))
+    dispatch(deleteTaskCard(taskCard.id, taskCard.todoId, setSumPage, queryPage))
   }, [taskCard])
 
-  // -----
-  const onclickToShowTodo = useCallback(() => {
-    console.log("open!")
-    // setOpen(true)
+  const onClickOpenShowTCModal = useCallback(() => {
+    setOpenShowTCModal(true)
   }, [])
-  // ------
+
+  const onClickCloseShowTCModal = useCallback(() => {
+    setOpenShowTCModal(false)
+  }, [])
 
   return(
     <>
@@ -67,8 +74,12 @@ export const TaskCardItem: FC<Props> = (props) => {
               sx={{
                 marginBottom: {
                   xs: '16px'
+                },
+                ":hover": {
+                  cursor: 'pointer',
                 }
               }}
+              onClick={onClickOpenShowTCModal}
             >
               {taskCard.title}
             </Box>
@@ -104,12 +115,17 @@ export const TaskCardItem: FC<Props> = (props) => {
                 finish={isFinished}
                 onChangeIsFinished={onChangeIsFinished}
                 onClickDelete={onClickDelete}
-                onClickToShowTodo={onclickToShowTodo}
+                onClickMoreInfo={onClickOpenShowTCModal}
               />
             </CardActions>
           </Box>
         </Box>
       </Box>
+      <ShowTCModal 
+        open={openShowTCModal}
+        onClose={onClickCloseShowTCModal}
+        taskCard={taskCard}
+      />
     </>
   )
 }
