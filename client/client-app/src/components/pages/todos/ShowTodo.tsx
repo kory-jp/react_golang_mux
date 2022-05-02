@@ -101,7 +101,7 @@ export const ShowTodo: FC = () => {
   },[setMemo])
 
   const onClickNewTaskCard = useCallback(() => {
-    dispatch(createTaskCard(id, title, purpose, content, memo))
+    dispatch(createTaskCard(id, title, purpose, content, memo, setSumPage, queryPage))
     setOpen(false)
   }, [id, title, purpose, content, memo])
 
