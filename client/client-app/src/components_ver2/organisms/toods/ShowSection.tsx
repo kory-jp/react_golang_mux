@@ -15,6 +15,7 @@ import EditIconsArea from "../../molecules/iconsArea/EditIconsArea";
 import TagSection from "../../molecules/tag/TagSection";
 import { PrimaryButton } from "../../atoms/buttons/PrimaryButton";
 import EditTodoModal from "./EditTodoModal";
+import CreateTCModal from "../taskCards/CreateTCModal";
 
 type Params = {
   id: string | undefined
@@ -28,6 +29,7 @@ export const ShowSection: FC = () => {
   const [finish, setFinish] = useState(false)
   const tags: Tags | null = todo.tags ? todo.tags : null
   const [openModal ,setOpenModal] = useState(false)
+  const [openCreateTCModal, setOpenTCModal] = useState(false)
 
   useEffect(() => {
     dispatch(showTodo(id))
@@ -38,11 +40,6 @@ export const ShowSection: FC = () => {
   },[todo])
 
   const imagePath = process.env.REACT_APP_API_URL + `img/${todo.imagePath}`
-
-  const onClickToEdit = useCallback(() => {
-    // dispatch(push(`/todo/edit/${id}`))
-    console.log("modal open!")
-  }, [id])
 
   const onClickDelete = useCallback(() => {
     dispatch(deleteTodo(id))
@@ -63,19 +60,22 @@ export const ShowSection: FC = () => {
     dispatch(push(`/todo/tag/${tagId}`))
   },[])
 
-  // ------
-  const onClickCreateTaskCard = useCallback(()=> {
-    console.log('crete!')
-  }, [])
-  // -----
-
-  const onClickOpenCreateTodoModal = useCallback(() => {
+  const onClickOpenEditTodoModal = useCallback(() => {
     setOpenModal(true)
   }, [])
 
   const onClickCloseTodoModal = useCallback(() => {
     setOpenModal(false)
   }, [])
+
+    // ------
+    const onClickOpenCreateTCModal = useCallback(()=> {
+      setOpenTCModal(true)
+    }, [])
+
+    const onClickCloseCreateTCModal = useCallback(() => {
+      setOpenTCModal(false)
+    }, [])
 
   return (
     <>
@@ -244,7 +244,7 @@ export const ShowSection: FC = () => {
               finish={finish}
               onChangeIsFinished={onChangeIsFinished}
               onClickDelete={onClickDelete}
-              onClickToEditTodo={onClickOpenCreateTodoModal}
+              onClickToEditTodo={onClickOpenEditTodoModal}
             />
           </Box>
           <Box
@@ -290,7 +290,7 @@ export const ShowSection: FC = () => {
             </Box>
             <Box>
               <PrimaryButton
-                onClick={onClickCreateTaskCard}
+                onClick={onClickOpenCreateTCModal}
               >
                 タスクカードを作成
               </PrimaryButton>
@@ -301,6 +301,10 @@ export const ShowSection: FC = () => {
       <EditTodoModal 
         open={openModal}
         onClose={onClickCloseTodoModal}
+      />
+      <CreateTCModal 
+        open={openCreateTCModal}
+        onClose={onClickCloseCreateTCModal}
       />
     </>
   )
