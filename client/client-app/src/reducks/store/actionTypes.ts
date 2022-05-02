@@ -8,4 +8,5 @@ export const ActionTypes = {
   nowLoading: "NOWLOADING",
   indexTags: "INDEXTAGS",
   indexTaskCards: "INDEXTASKCARDS",
+  showTaskCard: "SHOWTASKCARD",
 }

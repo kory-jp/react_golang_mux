@@ -43,6 +43,10 @@ export const CreateTCModal: FC<Props> = (props) => {
 
   const onClickNewTaskCard = useCallback(() => {
     dispatch(createTaskCard(id, title, purpose, content, memo, setSumPage, queryPage))
+    setTitle('')
+    setPurpose('')
+    setContent('')
+    setMemo('')
     onClose()
   }, [id, title, purpose, content, memo])
 

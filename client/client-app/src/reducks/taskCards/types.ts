@@ -20,4 +20,9 @@ interface indexTaskCardsAction extends Action {
   payload: TaskCards
 }
 
-export type TaskCardsActionTypes = indexTaskCardsAction;
+interface showTaskCardAction extends Action {
+  type: typeof ActionTypes.showTaskCard;
+  payload: TaskCards;
+}
+
+export type TaskCardsActionTypes = indexTaskCardsAction | showTaskCardAction;
