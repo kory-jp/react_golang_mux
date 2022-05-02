@@ -16,7 +16,8 @@ type Props = {
   onChangeInputPurpose: (event: React.ChangeEvent<HTMLInputElement>) => void,
   onChangeInputContent: (event: React.ChangeEvent<HTMLInputElement>) => void,
   onChangeInputMemo: (event: React.ChangeEvent<HTMLInputElement>) => void,
-  onClickSubmitTC: () => void
+  onClickSubmitTC: () => void,
+  label: string,
 }
 
 export const DefaultInputTCModal: FC<Props> = (props) => {
@@ -31,7 +32,8 @@ export const DefaultInputTCModal: FC<Props> = (props) => {
     onChangeInputPurpose,
     onChangeInputContent,
     onChangeInputMemo,
-    onClickSubmitTC
+    onClickSubmitTC,
+    label
   } = props
 
   return(
@@ -184,7 +186,7 @@ export const DefaultInputTCModal: FC<Props> = (props) => {
                 <PrimaryButton
                   onClick={onClickSubmitTC}
                 >
-                  タスクカード追加
+                  {label}
                 </PrimaryButton>
               </Box>
             </Box>

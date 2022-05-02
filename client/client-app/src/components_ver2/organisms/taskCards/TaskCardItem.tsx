@@ -64,7 +64,10 @@ export const TaskCardItem: FC<Props> = (props) => {
             className="tc__item__inner_title"
             color='#FFF'
             sx={{
-              fontSize: "24px",
+              fontSize: {
+                xs: '16px',
+                nd: '24px',
+              },
               marginBottom: {
                 xs: '8px',
               }

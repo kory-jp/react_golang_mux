@@ -24,6 +24,10 @@ const customStyles = {
     fontSize: '14px',
     minWidth: "280px",
   }),
+  option: (base: any) => ({
+    color: '#000',
+    cursor: 'pointer',
+  }),
   placeholder: (defaultStyles: any) => {
     return {
       ...defaultStyles,

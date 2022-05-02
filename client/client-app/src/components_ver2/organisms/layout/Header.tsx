@@ -27,12 +27,6 @@ export const Header: FC = () => {
     dispatch(push("/todo"))
   }, [])
 
-  // --------
-  const onClickOpen = useCallback(() => {
-    console.log('hello')
-  }, [])
-  // --------
-
   const onClickLogout = useCallback(() => {
     dispatch(logout())
   }, [])

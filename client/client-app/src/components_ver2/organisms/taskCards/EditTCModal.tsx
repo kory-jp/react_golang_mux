@@ -1,29 +1,31 @@
-import { FC, useCallback, useState } from "react";
-import { createTaskCard } from "../../../reducks/taskCards/operations";
+import { FC, useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { useParams } from "react-router-dom";
-import DefaultInputTCModal from "./DefaultInputTCModal";
 import usePagination from "../../../hooks/usePagination";
+import { updateTaskCard } from "../../../reducks/taskCards/operations";
+import { TaskCard } from "../../../reducks/taskCards/types";
+import DefaultInputTCModal from "./DefaultInputTCModal";
 
 type Props = {
   open: boolean,
   onClose: () => void,
+  taskCard: TaskCard,
 }
 
-type Params = {
-  id: string | undefined
-}
-
-export const CreateTCModal: FC<Props> = (props) => {
+export const EditTCModal: FC<Props> = (props) => {
+  const {open, onClose, taskCard} = props
   const dispatch = useDispatch()
-  const params: Params = useParams();
-  const id: number = Number(params.id)
-  const {open, onClose} = props
   const [title, setTitle] = useState('')
   const [purpose, setPurpose] = useState("")
   const [content, setContent] = useState("")
   const [memo, setMemo] = useState("")
   const {setSumPage, queryPage} = usePagination()
+
+  useEffect(() => {
+    setTitle(taskCard.title)
+    setPurpose(taskCard.purpose)
+    setContent(taskCard.content)
+    setMemo(taskCard.memo)
+  }, [])
 
   const onChangeInputTitle = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     setTitle(event.target.value)
@@ -41,14 +43,10 @@ export const CreateTCModal: FC<Props> = (props) => {
     setMemo(event.target.value)
   },[setMemo])
 
-  const onClickNewTaskCard = useCallback(() => {
-    dispatch(createTaskCard(id, title, purpose, content, memo, setSumPage, queryPage))
-    setTitle('')
-    setPurpose('')
-    setContent('')
-    setMemo('')
+  const onClickUpdateTaskCard = useCallback(() => {
+    dispatch(updateTaskCard(taskCard.id, taskCard.todoId, title, purpose, content, memo, setSumPage, queryPage))
     onClose()
-  }, [id, title, purpose, content, memo])
+  }, [taskCard, title, purpose, content, memo])
 
   return(
     <>
@@ -63,11 +61,11 @@ export const CreateTCModal: FC<Props> = (props) => {
         onChangeInputPurpose={onChangeInputPurpose}
         onChangeInputContent={onChangeInputContent}
         onChangeInputMemo={onChangeInputMemo}
-        onClickSubmitTC={onClickNewTaskCard}
-        label='タスクカード追加'
-      />
+        onClickSubmitTC={onClickUpdateTaskCard}
+        label='タスクカード更新'
+      />    
     </>
   )
 }
 
-export default CreateTCModal;
+export default EditTCModal;

@@ -107,7 +107,10 @@ export const ShowSection: FC = () => {
                 component='h1'
                 color='#FFF'
                 sx={{
-                  fontSize: '24px',
+                  fontSize: {
+                    xs: '16px',
+                    md: '24px',
+                  }
                 }}
               >
                 {todo.title}

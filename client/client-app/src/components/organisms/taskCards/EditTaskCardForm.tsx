@@ -2,6 +2,7 @@ import { FormControl, Input, Modal, TextField } from "@mui/material";
 import { Box } from "@mui/system";
 import { useCallback, useEffect, useState, VFC } from "react";
 import { useDispatch } from "react-redux";
+import usePagination from "../../../hooks/usePagination";
 import {updateTaskCard } from "../../../reducks/taskCards/operations";
 import { TaskCard } from "../../../reducks/taskCards/types";
 import { PrimaryButton } from "../../atoms/button/PrimaryButton";
@@ -19,6 +20,7 @@ export const EditTaskCardForm: VFC<Props> = (props) => {
   const [purpose, setPurpose] = useState("")
   const [content, setContent] = useState("")
   const [memo, setMemo] = useState("")
+  const {setSumPage, queryPage} = usePagination()
 
   useEffect(() => {
     setTitle(taskCard.title)
@@ -44,7 +46,7 @@ export const EditTaskCardForm: VFC<Props> = (props) => {
   },[setMemo])
 
   const onClickNewTaskCard = useCallback(() => {
-    dispatch(updateTaskCard(taskCard.id, taskCard.todoId, title, purpose, content, memo))
+    dispatch(updateTaskCard(taskCard.id, taskCard.todoId, title, purpose, content, memo, setSumPage, queryPage))
     onClose()
   }, [taskCard, title, purpose, content, memo])
 

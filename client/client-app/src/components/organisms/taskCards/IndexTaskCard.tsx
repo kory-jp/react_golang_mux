@@ -7,6 +7,7 @@ import ShowTaskCardModal from "./ShowTaskCardModal";
 import { useDispatch } from "react-redux";
 import { deleteTaskCard, updateIsFinished } from "../../../reducks/taskCards/operations";
 import handleToDateFormat from "../../../utils/handleToDateFormat";
+import usePagination from "../../../hooks/usePagination";
 
 type Props ={
   taskCard: TaskCard
@@ -17,6 +18,7 @@ export const IndexTaskCard: VFC<Props> = (props) => {
   const {taskCard} = props
   const [isFinished, setIsFinished] = useState(false)
   const [open, setOpen] = useState(false);
+  const {setSumPage, queryPage} = usePagination()
 
   useEffect(() => {
     setIsFinished(taskCard.isFinished)
@@ -33,7 +35,7 @@ export const IndexTaskCard: VFC<Props> = (props) => {
   }, [isFinished])
 
   const onClickDelete = useCallback(() => {
-    dispatch(deleteTaskCard(taskCard.id))
+    dispatch(deleteTaskCard(taskCard.id, taskCard.todoId, setSumPage, queryPage))
   }, [taskCard])
 
   const onclickToShowTodo = useCallback(() => {

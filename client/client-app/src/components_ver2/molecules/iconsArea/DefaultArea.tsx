@@ -77,12 +77,6 @@ export const DefaultArea: FC<Props> = (props) => {
                 paddingRight: '0',
               }}
             >
-              {/* <StickyNote2Icon 
-                sx={{
-                  color: '#587FBA',
-                }}
-              />
-              more */}
               {children}
             </Button>
           </Box>
