@@ -13,6 +13,7 @@ import { RootState } from '../../../reducks/store/store';
 import { Tags } from '../../../reducks/tags/types';
 import { makeOptions } from '../../../utils/makeOptions';
 import { Todo } from '../../../reducks/todos/types';
+import usePagination from '../../../hooks/usePagination';
 
 export const NewTodo: FC = () => {
   const dispatch = useDispatch()
@@ -24,6 +25,7 @@ export const NewTodo: FC = () => {
   const [importance, setImportance] = useState(0)
   const [urgency, setUrgency] = useState(0)
   const { importanceOptions, urgencyOptions } = makeOptions()
+  const {setSumPage, queryPage} = usePagination()
 
   useEffect(() => {
     dispatch(indexTags())
@@ -91,7 +93,7 @@ export const NewTodo: FC = () => {
 
   const formData = createFormData()
   const onClickNewTodo = useCallback(() => {
-    dispatch(createTodo(formData))
+    dispatch(createTodo(formData, setSumPage, queryPage))
   }, [formData])
 
   return(

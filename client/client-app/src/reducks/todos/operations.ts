@@ -14,7 +14,7 @@ type Response = {
   todo: Todo,
 }
 
-export const createTodo = (formdata: FormData) => {
+export const createTodo = (formdata: FormData, setSumPage: React.Dispatch<React.SetStateAction<number>>, queryPage: number) => {
   return async(dispatch: Dispatch<{}>) => {
     const apiURL = process.env.REACT_APP_API_URL + "new"
     axios
@@ -31,8 +31,8 @@ export const createTodo = (formdata: FormData) => {
       .then((response) => {
         const resp: Response = response.data
         if (resp.status == 200) {
-          dispatch(push("/todo"))
           dispatch(pushToast({title: resp.message, severity: "success"}))
+          dispatch(indexTodos(setSumPage, queryPage))
         } else {
           dispatch(pushToast({title: resp.message, severity: "error"}))
         }
