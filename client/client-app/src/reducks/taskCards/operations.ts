@@ -122,7 +122,16 @@ export const ShowTaskCard = (tcId: number) => {
   }
 }
 
-export const updateTaskCard = (id: number, todoId: number, title: string, purpose: string, content: string, memo: string) => {
+export const updateTaskCard = (
+                                id: number, 
+                                todoId: number, 
+                                title: string, 
+                                purpose: string, 
+                                content: string, 
+                                memo: string, 
+                                setSumPage: React.Dispatch<React.SetStateAction<number>>, 
+                                queryPage: number
+                              ) => {
   return async (dispatch: Dispatch<{}>) => {
     const apiURL = process.env.REACT_APP_API_URL + `taskcard/${id}`
     axios
@@ -146,6 +155,7 @@ export const updateTaskCard = (id: number, todoId: number, title: string, purpos
         const resp: Response = response.data
         if (resp.status == 200){
           dispatch(pushToast({title: resp.message, severity: "success"}))
+          dispatch(indexTaskCards(todoId, setSumPage, queryPage))
         } else {
           dispatch(pushToast({title: resp.message, severity: "error"}))
         }

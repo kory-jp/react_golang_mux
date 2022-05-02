@@ -7,6 +7,7 @@ import EditIconsArea from "../../molecules/iconsArea/EditIconsArea";
 import { deleteTaskCard, updateIsFinished } from "../../../reducks/taskCards/operations";
 import { useDispatch } from "react-redux";
 import usePagination from "../../../hooks/usePagination";
+import EditTCModal from "./EditTCModal";
 
 type Props = {
   open: boolean,
@@ -19,6 +20,7 @@ export const ShowTCModal: FC<Props> = (props) => {
   const dispatch = useDispatch()
   const [isFinished, setIsFinished] = useState(false)
   const {setSumPage, queryPage} = usePagination()
+  const [openEditModal, setOpenEditModal] = useState(false)
 
   useEffect(() => {
     setIsFinished(taskCard.isFinished)
@@ -42,7 +44,11 @@ export const ShowTCModal: FC<Props> = (props) => {
   }, [])
 
   const onClickOpenEditModal = useCallback(() => {
-    console.log("edit")
+    setOpenEditModal(true)
+  }, [])
+
+  const onClickCloseEditModal = useCallback(() => {
+    setOpenEditModal(false)
   }, [])
 
   return(
@@ -103,6 +109,10 @@ export const ShowTCModal: FC<Props> = (props) => {
                 sx={{
                   marginBottom: {
                     xs: '8px',
+                  },
+                  fontSize: {
+                    xs: '16px',
+                    md: '24px',
                   }
                 }}
               >
@@ -254,7 +264,12 @@ export const ShowTCModal: FC<Props> = (props) => {
             </Box>
           </Box>
         </Box>
-      </Modal>         
+      </Modal>
+      <EditTCModal 
+        open={openEditModal}
+        onClose={onClickCloseEditModal}
+        taskCard={taskCard}
+      />
     </>
   )
 }
