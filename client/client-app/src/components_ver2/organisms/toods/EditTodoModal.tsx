@@ -1,42 +1,89 @@
+import axios from "axios";
 import { ChangeEvent, FC, useCallback, useEffect, useState } from "react";
-import { Tags } from "../../../reducks/tags/types";
-import { indexTags } from "../../../reducks/tags/operations";
-import { RootState } from "../../../reducks/store/store";
 import { useDispatch, useSelector } from "react-redux";
-import { makeOptions } from "../../../utils/makeOptions";
+import { useParams } from "react-router-dom";
+import { nowLoadingState } from "../../../reducks/loading/actions";
+import { RootState } from "../../../reducks/store/store";
+import { indexTags } from "../../../reducks/tags/operations";
+import { Tags } from "../../../reducks/tags/types";
+import { pushToast } from "../../../reducks/toasts/actions";
+import { updateTodo } from "../../../reducks/todos/operations";
 import { Todo } from "../../../reducks/todos/types";
-import { createTodo } from "../../../reducks/todos/operations";
+import { makeOptions } from "../../../utils/makeOptions";
 import DefaultInputModal from "./DefaultInputModal";
-import usePagination from "../../../hooks/usePagination";
+
+type Params = {
+  id: string | undefined
+}
 
 type Props = {
   open: boolean,
   onClose: () => void,
 }
 
-export const CreateTodoModal: FC<Props> = (props) => {
+export const EditTodoModal: FC<Props> = (props) => {
+  const { open, onClose} = props
   const dispatch = useDispatch()
-  const {open, onClose} = props;
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
   const [tags, setTags] = useState<Tags>([])
-  const [importance, setImportance] = useState<number | undefined>(undefined)
-  const [urgency, setUrgency] = useState<number | undefined>(undefined)
-  const { importanceOptions, urgencyOptions } = makeOptions()
+  const [importance, setImportance] = useState(0)
+  const [urgency, setUrgency] = useState(0)
+  const [imagePath, setImagePath] = useState('')
   const [image, setImage] = useState<File>()
   const [preview, setPreview] =useState('')
-  const {setSumPage, queryPage} = usePagination()
-  
+  const params: Params = useParams();
+  const id: number = Number(params.id)
+  const { importanceOptions, urgencyOptions } = makeOptions()
+
+  const getTodoInfo = useCallback((id: number) => {
+      dispatch(nowLoadingState(true))
+      const apiURL = process.env.REACT_APP_API_URL + `todos/${id}`
+      axios
+        .get(apiURL,
+        {
+          withCredentials: true,
+          headers:{
+            'Accept': 'application/json',  
+            'Content-Type': 'multipart/form-data'
+          }
+        }
+        ).then((response) => {
+          if (response.data.status == 200) {
+            const todo = response.data.todo
+            setTitle(todo.title)
+            setContent(todo.content)
+            setImportance(todo.importance)
+            setUrgency(todo.urgency)
+            setTags(todo.tags)
+            setImagePath(todo.imagePath)
+            const imagePath = todo.imagePath? process.env.REACT_APP_API_URL + `img/${todo.imagePath}` : ''            
+            setPreview(imagePath)
+          } else {
+            dispatch(pushToast({title: response.data.message, severity: "error"}))               
+          }
+        })
+        .catch((error) => {
+          dispatch(pushToast({title: 'データ取得に失敗しました', severity: "error"}))
+        })
+        .finally(() => {
+          setTimeout(() => {
+            dispatch(nowLoadingState(false));
+          }, 800);
+        });
+  }, [])
+
   useEffect(() => {
+    getTodoInfo(id)
     dispatch(indexTags())
-  }, [dispatch])
+  }, [getTodoInfo])
 
   const options = useSelector((state: RootState) => state.tags)
 
   const onChangeInputTitle = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     setTitle(event.target.value)
   },[setTitle])
-
+  
   const onChangeInputContent = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     setContent(event.target.value)
   },[setContent])
@@ -52,17 +99,16 @@ export const CreateTodoModal: FC<Props> = (props) => {
   const onChangeUrgency = useCallback((event: Todo) => {
     setUrgency(event.id)
   }, [setUrgency])
-
-  const previewImage = useCallback((event: ChangeEvent<HTMLInputElement>) => {
+  
+  const previewImage = useCallback((event: ChangeEvent<HTMLInputElement> ) => {
     if (event.target.files === null) {
       return;
     }
     const imageFile = event.target.files[0];
     setPreview(window.URL.createObjectURL(imageFile))
   },[])
-
-  const onClickInputImage = useCallback((event: ChangeEvent<HTMLInputElement>)=> {
-    console.log('img OK?')
+  
+  const onClickInputImage = useCallback((event: ChangeEvent<HTMLInputElement>  )=> {
     if (event.target.files === null) {
       return;
     }
@@ -73,27 +119,30 @@ export const CreateTodoModal: FC<Props> = (props) => {
 
   const onClickCancelImage = useCallback(() => {
     setImage(undefined)
+    setImagePath('')
     setPreview('')
   }, [])
 
   const createFormData = useCallback(() => {
     const formData = new FormData()
+    formData.append('id', String(id))
     formData.append('title', title)
     formData.append('content', content)
     formData.append('importance', String(importance))
     formData.append('urgency', String(urgency))
     if (image) formData.append('image', image)
+    formData.append('imagePath', imagePath)
     for(let i in tags) {
       let tagId = String(tags[i].id)
       formData.append('tagIds', tagId)
     }
     return formData
-  }, [title, content, importance, urgency, image, tags])
+  }, [title, content, importance, urgency, tags, image, imagePath])
+
 
   const formData = createFormData()
-
-  const onClickNewTodo = useCallback(() => {
-    dispatch(createTodo(formData, setSumPage, queryPage))
+  const onClickEditTodo = useCallback(() => {
+    dispatch(updateTodo(id, formData))
     onClose()
   }, [formData])
 
@@ -119,11 +168,11 @@ export const CreateTodoModal: FC<Props> = (props) => {
         onChangeUrgency={onChangeUrgency}
         onClickInputImage={onClickInputImage}
         onClickCancelImage={onClickCancelImage}
-        onClickSubmitTodo={onClickNewTodo}
-        label="Todo 追加"
-      />
+        onClickSubmitTodo={onClickEditTodo}
+        label="Todo 更新"
+      />      
     </>
   )
 }
 
-export default CreateTodoModal;
+export default EditTodoModal;
