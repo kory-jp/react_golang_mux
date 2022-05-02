@@ -1,5 +1,5 @@
-import { CardMedia, Link, Typography } from "@mui/material";
-import { Box, height } from "@mui/system";
+import { CardMedia, Link } from "@mui/material";
+import { Box } from "@mui/system";
 import { FC } from "react";
 import AppLogo from "../../../assets/images/AppLogo.svg"
 
@@ -41,7 +41,6 @@ export const Footer:FC = () => {
           </Box>
             <Box>
               <Link
-                component='button'
                 underline="none"
                 color="#FFF"
                 href="https://github.com/kory-jp/react_golang_mux"

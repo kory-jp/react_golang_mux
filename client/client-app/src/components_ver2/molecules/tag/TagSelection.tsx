@@ -47,6 +47,7 @@ export const TagSelection: VFC<Props> = (props) => {
         options={options}
         onChange={onChange}
         value={values}
+        styles={customStyles}
       />
     )
   } else {
