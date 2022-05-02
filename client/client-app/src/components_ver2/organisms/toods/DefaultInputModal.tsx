@@ -28,7 +28,8 @@ type Props = {
   onChangeUrgency:  (event: Todo) => void,
   onClickInputImage: (event: ChangeEvent<HTMLInputElement>) => void,
   onClickCancelImage: () => void,
-  onClickNewTodo: () => void,
+  onClickSubmitTodo: () => void,
+  label: string,
 }
 
 export const DefaultInputModal: FC<Props>= (props) => {
@@ -51,7 +52,8 @@ export const DefaultInputModal: FC<Props>= (props) => {
     onChangeUrgency,
     onClickInputImage,
     onClickCancelImage,
-    onClickNewTodo
+    onClickSubmitTodo,
+    label
   } = props
   return(
     <>
@@ -218,9 +220,9 @@ export const DefaultInputModal: FC<Props>= (props) => {
             >
               <PrimaryButton
                 disabled={title === '' || importance === 0 || urgency === 0}
-                onClick={onClickNewTodo}
+                onClick={onClickSubmitTodo}
               >
-                Todo追加
+                {label}
               </PrimaryButton>
             </Box>
           </Box>

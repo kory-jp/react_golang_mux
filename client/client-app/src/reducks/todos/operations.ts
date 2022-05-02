@@ -159,8 +159,8 @@ export const updateTodo = (id: number, formdata: FormData) => {
       .then((response) => {
         const resp: Response = response.data
         if (resp.status == 200) {
-          dispatch(push("/todo"))
-          dispatch(pushToast({title: resp.message, severity: "success"}))          
+          dispatch(pushToast({title: resp.message, severity: "success"}))
+          dispatch(showTodo(id))          
         } else {
           dispatch(pushToast({title: resp.message, severity: "error"}))          
         }

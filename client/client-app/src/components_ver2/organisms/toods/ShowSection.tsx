@@ -14,6 +14,7 @@ import taskComment from "../../../assets/images/taskComment.svg"
 import EditIconsArea from "../../molecules/iconsArea/EditIconsArea";
 import TagSection from "../../molecules/tag/TagSection";
 import { PrimaryButton } from "../../atoms/buttons/PrimaryButton";
+import EditTodoModal from "./EditTodoModal";
 
 type Params = {
   id: string | undefined
@@ -26,6 +27,7 @@ export const ShowSection: FC = () => {
   const todo = useSelector((state: RootState) => state.todos[0])
   const [finish, setFinish] = useState(false)
   const tags: Tags | null = todo.tags ? todo.tags : null
+  const [openModal ,setOpenModal] = useState(false)
 
   useEffect(() => {
     dispatch(showTodo(id))
@@ -66,6 +68,14 @@ export const ShowSection: FC = () => {
     console.log('crete!')
   }, [])
   // -----
+
+  const onClickOpenCreateTodoModal = useCallback(() => {
+    setOpenModal(true)
+  }, [])
+
+  const onClickCloseTodoModal = useCallback(() => {
+    setOpenModal(false)
+  }, [])
 
   return (
     <>
@@ -234,7 +244,7 @@ export const ShowSection: FC = () => {
               finish={finish}
               onChangeIsFinished={onChangeIsFinished}
               onClickDelete={onClickDelete}
-              onClickToEditTodo={onClickToEdit}
+              onClickToEditTodo={onClickOpenCreateTodoModal}
             />
           </Box>
           <Box
@@ -288,6 +298,10 @@ export const ShowSection: FC = () => {
           </Box>
         </Box>
       </Box>
+      <EditTodoModal 
+        open={openModal}
+        onClose={onClickCloseTodoModal}
+      />
     </>
   )
 }
