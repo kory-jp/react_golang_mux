@@ -1,9 +1,20 @@
 import { CardMedia, Link } from "@mui/material";
 import { Box } from "@mui/system";
-import { FC } from "react";
+import { FC, useCallback, useState } from "react";
 import AppLogo from "../../../assets/images/AppLogo.svg"
+import AboutModal from "./AboutModal";
 
 export const Footer:FC = () => {
+  const [open, setOpen] = useState(false)
+
+  const onClickOpen = useCallback(() => {
+    setOpen(true)
+  }, [])
+
+  const onClickClose = useCallback(() => {
+    setOpen(false)
+  }, [])
+
   return (
     <>
       <Box
@@ -13,33 +24,64 @@ export const Footer:FC = () => {
         marginY='auto'
         sx={{
           height: {
-            xs: '120px',
+            xs: '140px',
           }
-        }}
+        }}      
       >
         <Box
+          className='footer__inner'
           sx={{
-            marginBottom: {
-              xs: '24px',
+            marginY: {
+              xs: '16px',
             }
           }}
         >
           <Box
+            className='links'
             sx={{
-              width: {
-                xs: '136px',
-              },
-              paddingY: {
-                xs: '16px',
+              marginBottom: {
+                xs: '24px'
               }
             }}
           >
-            <CardMedia 
-              component="img"
-              image={AppLogo}
-            />
-          </Box>
-            <Box>
+            <Box
+              className='logo'
+              sx={{
+                width: {
+                  xs: '136px',
+                },
+                marginBottom: {
+                  xs: '16px',
+                }
+              }}
+            >
+              <CardMedia 
+                component="img"
+                image={AppLogo}
+              />
+            </Box>  
+            <Box
+              className='about'
+              sx={{
+                marginBottom: {
+                  xs: '16px',
+                }
+              }}
+            >
+              <Box
+                onClick={onClickOpen}
+                sx={{
+                  ":hover": {
+                    cursor: 'pointer',
+                  }
+                }}
+              >
+                このサイトについて
+              </Box>
+            </Box>
+            <Box
+              className='github'
+            >
               <Link
                 underline="none"
                 color="#FFF"
@@ -51,18 +93,24 @@ export const Footer:FC = () => {
                 }}
               >
                 GitHub
-              </Link>
-            </Box>
-        </Box>  
-        <Box>
-        <Box
-            textAlign="center"
-            color="#FFF"
+              </Link>              
+            </Box>         
+          </Box>
+          <Box
+            className='copyright'
           >
-            ©︎All right reserved by kory
-          </Box>        
-        </Box>      
+            <Box
+              textAlign="center"
+            >
+              ©︎All right reserved by kory
+            </Box>              
+          </Box>
+        </Box>
       </Box>
+      <AboutModal 
+        open={open}
+        onClose={onClickClose}
+      />
     </>
   )
 }
