@@ -8,6 +8,7 @@ import { deleteTaskCard, updateIsFinished } from "../../../reducks/taskCards/ope
 import { useDispatch } from "react-redux";
 import usePagination from "../../../hooks/usePagination";
 import EditTCModal from "./EditTCModal";
+import TextFormat from "../../../utils/TextFormat";
 
 type Props = {
   open: boolean,
@@ -169,7 +170,9 @@ export const ShowTCModal: FC<Props> = (props) => {
                   }
                 }}
               >
-                {taskCard.purpose}
+                <TextFormat 
+                  text={taskCard.purpose}
+                />
               </Box>            
             </Box>
             <Box
@@ -213,7 +216,9 @@ export const ShowTCModal: FC<Props> = (props) => {
                   }
                 }}
               >
-                {taskCard.content}
+                <TextFormat 
+                  text={taskCard.content}
+                />
               </Box>                      
             </Box>
             <Box
@@ -248,7 +253,9 @@ export const ShowTCModal: FC<Props> = (props) => {
                   }
                 }}
               >
-                {taskCard.memo}
+                <TextFormat 
+                  text={taskCard.memo}
+                />
               </Box>
             </Box>
             <Box

@@ -17,6 +17,7 @@ import { PrimaryButton } from "../../atoms/buttons/PrimaryButton";
 import EditTodoModal from "./EditTodoModal";
 import CreateTCModal from "../taskCards/CreateTCModal";
 import useReturnTop from "../../../hooks/useReturnTop";
+import TextFormat from "../../../utils/TextFormat";
 
 type Params = {
   id: string | undefined
@@ -235,7 +236,10 @@ export const ShowSection: FC = () => {
                 }
               }}
             >
-              {todo.content}
+              {/* {todo.content} */}
+              <TextFormat 
+                text={todo.content}
+              />
             </Box>
           </Box>
           <Box
