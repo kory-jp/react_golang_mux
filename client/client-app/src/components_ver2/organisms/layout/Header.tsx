@@ -120,7 +120,7 @@ export const Header: FC = () => {
                 <PrimaryButton
                   onClick={onClickOpenCreateTodoModal}
                 >
-                  Todo追加
+                  タスク追加
                 </PrimaryButton>
               </Box>
               <Box>
