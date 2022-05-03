@@ -13,6 +13,7 @@ import NewTodo from "../components/pages/todos/NewTodo";
 import SearchTodos from "../components_ver2/pages/todos/SearchTodos";
 // import ShowTodo from "../components/pages/todos/ShowTodo";
 import ShowTodo from "../components_ver2/pages/todos/ShowTodo";
+import Page404 from "../components_ver2/pages/Page404";
 
 export const Router: FC = () => {
   return(
@@ -21,9 +22,10 @@ export const Router: FC = () => {
       <Route path={"/registration"} component={Registration} />
       <Route exact path={"/todo"} component={IndexTodos} />
       <Route path={"/todo/search"} component={SearchTodos} />
-      <Route path={"/todo/new"} component={NewTodo} />
+      {/* <Route path={"/todo/new"} component={NewTodo} /> */}
       <Route path={"/todo/show/:id"} component={ShowTodo} />
-      <Route path={"/todo/edit/:id"} component={EditTodo} />
+      {/* <Route path={"/todo/edit/:id"} component={EditTodo} /> */}
+      <Route path={"*"} component={Page404} />
     </Switch>
   )
 }

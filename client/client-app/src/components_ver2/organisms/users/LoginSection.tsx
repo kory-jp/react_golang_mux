@@ -1,9 +1,9 @@
 import { Box, Link, Typography } from "@mui/material";
 import { push } from "connected-react-router";
-import { FC, useCallback, useState } from "react";
+import { FC, useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import useReturnTop from "../../../hooks/useReturnTop";
-import { login } from "../../../reducks/users/opretions";
+import { isLoggedOut, login } from "../../../reducks/users/opretions";
 import { PrimaryButton } from "../../atoms/buttons/PrimaryButton";
 import AuthInput from "../../atoms/inputs/AuthInput";
 
@@ -12,6 +12,10 @@ export const LoginSection:FC = () => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const returnTop = useReturnTop()
+
+  useEffect(() => {
+    dispatch(isLoggedOut())
+  },[])
 
   const inputEmail = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(event.target.value)

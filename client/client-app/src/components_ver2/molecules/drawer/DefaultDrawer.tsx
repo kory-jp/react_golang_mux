@@ -52,7 +52,7 @@ export const DefautlDrawer: FC<Props> = (props) => {
                 onClick={onClickToNewTodo}
               >
                 <DriveFileRenameOutlineIcon />
-                TODO追加
+                タスク追加
               </Button>
             </Box>
             <Box>
