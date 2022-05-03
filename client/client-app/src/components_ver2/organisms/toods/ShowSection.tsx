@@ -16,6 +16,7 @@ import TagSection from "../../molecules/tag/TagSection";
 import { PrimaryButton } from "../../atoms/buttons/PrimaryButton";
 import EditTodoModal from "./EditTodoModal";
 import CreateTCModal from "../taskCards/CreateTCModal";
+import useReturnTop from "../../../hooks/useReturnTop";
 
 type Params = {
   id: string | undefined
@@ -30,6 +31,7 @@ export const ShowSection: FC = () => {
   const tags: Tags | null = todo.tags ? todo.tags : null
   const [openModal ,setOpenModal] = useState(false)
   const [openCreateTCModal, setOpenTCModal] = useState(false)
+  const returnTop = useReturnTop()
 
   useEffect(() => {
     dispatch(showTodo(id))
@@ -58,6 +60,7 @@ export const ShowSection: FC = () => {
 
   const onClickToSearchTagTodo = useCallback((tagId: number) => {
     dispatch(push(`/todo/search?tagId=${tagId}&importance=0&urgency=0&page=1`))
+    returnTop()
   },[])
 
   const onClickOpenEditTodoModal = useCallback(() => {

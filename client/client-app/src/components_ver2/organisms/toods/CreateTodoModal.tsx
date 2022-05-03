@@ -120,7 +120,8 @@ export const CreateTodoModal: FC<Props> = (props) => {
         onClickInputImage={onClickInputImage}
         onClickCancelImage={onClickCancelImage}
         onClickSubmitTodo={onClickNewTodo}
-        label="Todo 追加"
+        topLabel='タスク追加'
+        buttonLabel="追加"
       />
     </>
   )

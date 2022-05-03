@@ -21,7 +21,10 @@ export const DefaultTemplate: VFC<Props> = (props) => {
         sx={{
           marginBottom: {
             xs: '40px',
-          }
+          },
+          position: 'fixed',
+          width: '100%',
+          zIndex: '10'
         }}
       >
         <Box
@@ -43,7 +46,10 @@ export const DefaultTemplate: VFC<Props> = (props) => {
         sx={{
           // --- フッター下部に固定 ---
           flexFlow: 'column',
-          minHeight: '100vh'
+          minHeight: '100vh',
+          paddingTop: {
+            xs: '120px',
+          }
         }}
       >
         {children}

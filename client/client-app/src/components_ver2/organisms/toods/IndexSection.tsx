@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 
 import useLoadingState from "../../../hooks/useLoadingState";
 import usePagination from "../../../hooks/usePagination";
+import useReturnTop from "../../../hooks/useReturnTop";
 import { RootState } from "../../../reducks/store/store";
 import { indexTodos } from "../../../reducks/todos/operations";
 import { Todos } from "../../../reducks/todos/types";
@@ -13,6 +14,7 @@ export const IndexSection: FC = () => {
   const dispatch = useDispatch()
   const loadingState = useLoadingState()
   const {sumPage, setSumPage, queryPage} = usePagination()
+  const returnTop = useReturnTop()
   
   useEffect(() => {
     dispatch(indexTodos(setSumPage, queryPage))
@@ -21,6 +23,7 @@ export const IndexSection: FC = () => {
 
   const onChangeCurrentPage = useCallback((event: React.ChangeEvent<unknown>, page: number) => {
     dispatch(push(`/todo?page=${page}`))
+    returnTop()
   }, [])
 
   return(

@@ -62,7 +62,8 @@ export const EditTCModal: FC<Props> = (props) => {
         onChangeInputContent={onChangeInputContent}
         onChangeInputMemo={onChangeInputMemo}
         onClickSubmitTC={onClickUpdateTaskCard}
-        label='タスクカード更新'
+        topLabel='タスクカード更新'
+        buttonLabel='更新'
       />    
     </>
   )
