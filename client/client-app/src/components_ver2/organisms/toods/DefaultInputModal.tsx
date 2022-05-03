@@ -29,7 +29,8 @@ type Props = {
   onClickInputImage: (event: ChangeEvent<HTMLInputElement>) => void,
   onClickCancelImage: () => void,
   onClickSubmitTodo: () => void,
-  label: string,
+  topLabel: string,
+  buttonLabel: string,
 }
 
 export const DefaultInputModal: FC<Props>= (props) => {
@@ -53,7 +54,8 @@ export const DefaultInputModal: FC<Props>= (props) => {
     onClickInputImage,
     onClickCancelImage,
     onClickSubmitTodo,
-    label
+    topLabel,
+    buttonLabel
   } = props
   return(
     <>
@@ -93,18 +95,24 @@ export const DefaultInputModal: FC<Props>= (props) => {
             >
               <Box
                 className='close__button'
-                onClick={onClose}
               >
                 <CloseIcon
                   fontSize="large"
+                  onClick={onClose}
                   sx={{
                     color: '#FFF',
+                    cursor: 'pointer',
                   }}
                 />
               </Box>
             </Box>
             <Box
               className='modal__heading'
+              sx={{
+                marginBottom: {
+                  xs: '8px',
+                }
+              }}
             >
               <Box
                 component='h2'
@@ -112,7 +120,7 @@ export const DefaultInputModal: FC<Props>= (props) => {
                   color: '#FFF'
                 }}
               >
-                新規タスク追加
+                {topLabel}
               </Box>
             </Box>
             <Box
@@ -219,10 +227,10 @@ export const DefaultInputModal: FC<Props>= (props) => {
               }}
             >
               <PrimaryButton
-                disabled={title === '' || importance === 0 || urgency === 0}
+                disabled={title === '' || importance === undefined || urgency === undefined}
                 onClick={onClickSubmitTodo}
               >
-                {label}
+                {buttonLabel}
               </PrimaryButton>
             </Box>
           </Box>

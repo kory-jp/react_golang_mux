@@ -2,6 +2,7 @@ import { Box, Link, Typography } from "@mui/material";
 import { push } from "connected-react-router";
 import { FC, useCallback, useState } from "react";
 import { useDispatch } from "react-redux";
+import useReturnTop from "../../../hooks/useReturnTop";
 import { login } from "../../../reducks/users/opretions";
 import { PrimaryButton } from "../../atoms/buttons/PrimaryButton";
 import AuthInput from "../../atoms/inputs/AuthInput";
@@ -10,6 +11,7 @@ export const LoginSection:FC = () => {
   const dispatch = useDispatch()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const returnTop = useReturnTop()
 
   const inputEmail = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(event.target.value)
@@ -21,10 +23,12 @@ export const LoginSection:FC = () => {
 
   const onClickLogin = useCallback(() => {
     dispatch(login(email, password))
+    returnTop()
   },[email, password])
 
   const onClickToRegistration = useCallback(() => {
     dispatch(push("/registration"))
+    returnTop()
   },[])
 
   return (

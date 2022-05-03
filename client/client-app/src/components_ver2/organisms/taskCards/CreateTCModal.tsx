@@ -4,6 +4,7 @@ import { useDispatch } from "react-redux";
 import { useParams } from "react-router-dom";
 import DefaultInputTCModal from "./DefaultInputTCModal";
 import usePagination from "../../../hooks/usePagination";
+import useReturnTop from "../../../hooks/useReturnTop";
 
 type Props = {
   open: boolean,
@@ -24,6 +25,7 @@ export const CreateTCModal: FC<Props> = (props) => {
   const [content, setContent] = useState("")
   const [memo, setMemo] = useState("")
   const {setSumPage, queryPage} = usePagination()
+  const returnTop = useReturnTop()
 
   const onChangeInputTitle = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     setTitle(event.target.value)
@@ -48,6 +50,7 @@ export const CreateTCModal: FC<Props> = (props) => {
     setContent('')
     setMemo('')
     onClose()
+    returnTop()
   }, [id, title, purpose, content, memo])
 
   return(
@@ -64,7 +67,8 @@ export const CreateTCModal: FC<Props> = (props) => {
         onChangeInputContent={onChangeInputContent}
         onChangeInputMemo={onChangeInputMemo}
         onClickSubmitTC={onClickNewTaskCard}
-        label='タスクカード追加'
+        topLabel='タスクカード追加'
+        buttonLabel='追加'
       />
     </>
   )

@@ -3,6 +3,7 @@ import { Box } from "@mui/system";
 import { push } from "connected-react-router";
 import { FC, useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import useReturnTop from "../../../hooks/useReturnTop";
 import { RootState } from "../../../reducks/store/store";
 import { indexTags } from "../../../reducks/tags/operations";
 import { Tag, Tags } from "../../../reducks/tags/types";
@@ -15,7 +16,8 @@ export const SearchSection: FC = () => {
   const dispatch = useDispatch()
   const [tag, setTag] = useState(0)
   const [importance, setImportance] = useState(0)
-  const [urgency, setUrgency] = useState(0)  
+  const [urgency, setUrgency] = useState(0) 
+  const returnTop = useReturnTop()
 
   useEffect(() => {
     dispatch(indexTags())
@@ -38,6 +40,7 @@ export const SearchSection: FC = () => {
 
   const onClickToSearchPage = useCallback(() => {
     dispatch(push(`/todo/search?tagId=${tag}&importance=${importance}&urgency=${urgency}`))
+    returnTop()
   },[tag, importance, urgency])
 
   return(

@@ -26,7 +26,7 @@ export const PrimaryButton: VFC<Props> = (props) => {
           backgroundColor: '#2E6DCA',
         },
         ":disabled": {
-          backgroundColor: '#869FC5',
+          backgroundColor: '#495B76',
         }
       }}
     >

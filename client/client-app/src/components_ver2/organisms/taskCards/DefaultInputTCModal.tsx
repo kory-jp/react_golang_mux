@@ -17,7 +17,8 @@ type Props = {
   onChangeInputContent: (event: React.ChangeEvent<HTMLInputElement>) => void,
   onChangeInputMemo: (event: React.ChangeEvent<HTMLInputElement>) => void,
   onClickSubmitTC: () => void,
-  label: string,
+  topLabel: string,
+  buttonLabel: string,
 }
 
 export const DefaultInputTCModal: FC<Props> = (props) => {
@@ -33,7 +34,8 @@ export const DefaultInputTCModal: FC<Props> = (props) => {
     onChangeInputContent,
     onChangeInputMemo,
     onClickSubmitTC,
-    label
+    topLabel,
+    buttonLabel
   } = props
 
   return(
@@ -74,10 +76,14 @@ export const DefaultInputTCModal: FC<Props> = (props) => {
             >
               <Box
                 className='close__button'
-                onClick={onClose}
               >
                 <CloseIcon
                   fontSize="large"
+                  onClick={onClose}
+                  sx={{
+                    color: '#FFF',
+                    cursor: 'pointer',
+                  }}
                 />
               </Box>
             </Box>
@@ -92,7 +98,7 @@ export const DefaultInputTCModal: FC<Props> = (props) => {
                   }
                 }}
               >
-                新規タスクカード追加
+                {topLabel}
               </Box>
             </Box>
             <Box
@@ -186,7 +192,7 @@ export const DefaultInputTCModal: FC<Props> = (props) => {
                 <PrimaryButton
                   onClick={onClickSubmitTC}
                 >
-                  {label}
+                  {buttonLabel}
                 </PrimaryButton>
               </Box>
             </Box>

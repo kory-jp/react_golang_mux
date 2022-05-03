@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
 import useLoadingState from "../../../hooks/useLoadingState";
 import usePagination from "../../../hooks/usePagination";
+import useReturnTop from "../../../hooks/useReturnTop";
 import { RootState } from "../../../reducks/store/store";
 import { search } from "../../../reducks/todos/operations";
 import { Todos } from "../../../reducks/todos/types";
@@ -13,11 +14,11 @@ export const SearchIndexSection: FC = () => {
   const dispatch = useDispatch()
   const loadingState = useLoadingState()
   const {sumPage, setSumPage, queryPage} = usePagination()
-
   const query =  new URLSearchParams(useLocation().search)
   const tagId = Number(query.get("tagId"))
   const importance = Number(query.get("importance"))
   const urgency = Number(query.get("urgency"))
+  const returnTop = useReturnTop()
 
   useEffect(()=> {
     dispatch(search(tagId, importance, urgency, queryPage, setSumPage))
@@ -27,6 +28,7 @@ export const SearchIndexSection: FC = () => {
   
   const onChangeCurrentPage = useCallback((event: React.ChangeEvent<unknown>, page: number) => {
     dispatch(push(`/todo/search?tagId=${tagId}&importance=${importance}&urgency=${urgency}&page=${page}`))
+    returnTop()
   }, [tagId, importance, urgency])
 
   return(

@@ -89,10 +89,14 @@ export const ShowTCModal: FC<Props> = (props) => {
             >
               <Box
                 className='close__button'
-                onClick={onClose}
               >
                 <CloseIcon
                   fontSize="large"
+                  onClick={onClose}
+                  sx={{
+                    color: '#FFF',
+                    cursor: 'pointer',
+                  }}
                 />
               </Box>
             </Box>

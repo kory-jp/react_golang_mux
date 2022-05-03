@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import useLoadingState from "../../../hooks/useLoadingState";
 import usePagination from "../../../hooks/usePagination";
+import useReturnTop from "../../../hooks/useReturnTop";
 import { nowLoadingState } from "../../../reducks/loading/actions";
 import { RootState } from "../../../reducks/store/store";
 import { indexTaskCards } from "../../../reducks/taskCards/operations";
@@ -23,6 +24,7 @@ export const IndexTCSection: FC = () => {
   const id: number = Number(params.id)
   const loadingState = useLoadingState()
   const {sumPage, setSumPage, queryPage} = usePagination()
+  const returnTop = useReturnTop()
   
   useLayoutEffect(() => {
     dispatch(nowLoadingState(true))
@@ -35,6 +37,7 @@ export const IndexTCSection: FC = () => {
 
   const onChangeCurrentPage = useCallback((event: React.ChangeEvent<unknown>, page: number) => {
     dispatch(push(`/todo/show/${id}?page=${page}`))
+    returnTop()
   }, [])
 
   return(

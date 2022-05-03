@@ -14,6 +14,7 @@ import handleToDateFormat from "../../../utils/handleToDateFormat";
 import { PrimaryChip } from "../../atoms/chip/PrimaryChip";
 import MoreIconsArea from "../../molecules/iconsArea/MoreIconsArea";
 import TagSection from "../../molecules/tag/TagSection";
+import useReturnTop from "../../../hooks/useReturnTop";
 
 type Props = {
   todo: Todo,
@@ -27,6 +28,7 @@ export const TodoCard: FC<Props> = (props) => {
   const dispatch = useDispatch()
   const [finish, setFinish] = useState(false)
   const imagePath = process.env.REACT_APP_API_URL + `img/${todo.imagePath}`
+  const returnTop = useReturnTop()
 
   useEffect(() => {
     setFinish(todo.isFinished)
@@ -34,6 +36,7 @@ export const TodoCard: FC<Props> = (props) => {
 
   const onclickToShowTodo = useCallback(() => {
     dispatch(push(`/todo/show/${todo.id}`))
+    returnTop()
   }, [])
 
   const onChangeIsFinished = useCallback(() => {
@@ -52,6 +55,7 @@ export const TodoCard: FC<Props> = (props) => {
 
   const onClickToSearchTagTodo = useCallback((tagId: number) => {
     dispatch(push(`/todo/search?tagId=${tagId}&importance=0&urgency=0&page=1`))
+    returnTop()
   },[])
 
   return(

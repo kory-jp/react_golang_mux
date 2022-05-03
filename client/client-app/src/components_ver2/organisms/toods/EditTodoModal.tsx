@@ -169,7 +169,8 @@ export const EditTodoModal: FC<Props> = (props) => {
         onClickInputImage={onClickInputImage}
         onClickCancelImage={onClickCancelImage}
         onClickSubmitTodo={onClickEditTodo}
-        label="Todo 更新"
+        topLabel='タスク更新'
+        buttonLabel="更新"
       />      
     </>
   )

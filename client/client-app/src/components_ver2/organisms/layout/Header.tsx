@@ -12,12 +12,14 @@ import DefautlDrawer from "../../molecules/drawer/DefaultDrawer";
 import { RootState } from "../../../reducks/store/store";
 import { push } from "connected-react-router";
 import CreateTodoModal from "../toods/CreateTodoModal";
+import useReturnTop from "../../../hooks/useReturnTop";
 
 export const Header: FC = () => {
   const dispatch = useDispatch()
   const [open ,setOpen] = useState(false)
   const [openModal ,setOpenModal] = useState(false)
   const user = useSelector((state: RootState) => state.user)
+  const returnTop = useReturnTop()
 
   useEffect(() => {
     dispatch(isLoggedIn())
@@ -25,10 +27,12 @@ export const Header: FC = () => {
 
   const onClickToTop = useCallback(() => {
     dispatch(push("/todo"))
+    returnTop()
   }, [])
 
   const onClickLogout = useCallback(() => {
     dispatch(logout())
+    returnTop()
   }, [])
 
   const onClickOpenDrawer = useCallback(() => {
