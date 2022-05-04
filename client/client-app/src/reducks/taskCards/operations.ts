@@ -103,7 +103,6 @@ export const ShowTaskCard = (tcId: number) => {
         }
       }
       ).then((response) => {
-        console.log(response)
         const resp: Response = response.data
         if (resp.status == 200) {
           dispatch(showTaskCardAction(resp.taskCard))
