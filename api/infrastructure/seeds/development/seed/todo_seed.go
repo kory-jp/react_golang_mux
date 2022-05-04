@@ -13,8 +13,8 @@ import (
 func TodosDate() (todos domain.Todos) {
 	todo1 := domain.Todo{
 		UserID:     1,
-		Title:      "買い物",
-		Content:    "野菜、果物、魚",
+		Title:      "商品の企画書を作成",
+		Content:    "来春の新商品の企画書を作成 締切日:来週末 二日前に一度、確認をお願いする",
 		ImagePath:  "",
 		Importance: 1,
 		Urgency:    2,
@@ -22,26 +22,26 @@ func TodosDate() (todos domain.Todos) {
 
 	todo2 := domain.Todo{
 		UserID:     1,
-		Title:      "メール送信",
-		Content:    "田中さんに明日までに契約書を送信",
+		Title:      "請求書作成依頼",
+		Content:    "受注が成功した鈴木株式会社への請求書を経理部の加藤さんに作成依頼 期限:6/15",
 		ImagePath:  "",
-		Importance: 3,
-		Urgency:    3,
+		Importance: 2,
+		Urgency:    2,
 	}
 
 	todo3 := domain.Todo{
 		UserID:     1,
-		Title:      "資料作成",
-		Content:    "テスト株式会社へプレゼンする資料を火曜日までに作成",
+		Title:      "メール返信",
+		Content:    "未返信のメールを返信",
 		ImagePath:  "",
-		Importance: 1,
+		Importance: 2,
 		Urgency:    1,
 	}
 
 	todo4 := domain.Todo{
 		UserID:     1,
-		Title:      "面談",
-		Content:    "佐藤部長との面談が明日の9時から",
+		Title:      "就活生の面接",
+		Content:    "2時面接の対応 再来週の水曜日 就活生: 鈴木太郎様",
 		ImagePath:  "",
 		Importance: 2,
 		Urgency:    2,
@@ -49,8 +49,8 @@ func TodosDate() (todos domain.Todos) {
 
 	todo5 := domain.Todo{
 		UserID:     1,
-		Title:      "Amazonで米を購入",
-		Content:    "合わせて醤油も購入",
+		Title:      "営業実績の入力",
+		Content:    "社内ツールに営業活動実績を入力  進捗具合 成約率 不安点 対応策",
 		ImagePath:  "",
 		Importance: 1,
 		Urgency:    2,
@@ -58,26 +58,26 @@ func TodosDate() (todos domain.Todos) {
 
 	todo6 := domain.Todo{
 		UserID:     1,
-		Title:      "銀行口座を開設",
-		Content:    "給与振込用の口座をテスト銀行で開設",
+		Title:      "翌四半期の営業計画",
+		Content:    "目標のコンタクト数 制約数 成約率 活動地域の選定 来月のミーティングで発表",
 		ImagePath:  "",
-		Importance: 1,
-		Urgency:    3,
+		Importance: 2,
+		Urgency:    2,
 	}
 
 	todo7 := domain.Todo{
 		UserID:     1,
-		Title:      "旅行計画",
-		Content:    "吉村と来月の旅行を調整",
+		Title:      "東京フーズ株式会社との合同イベント企画",
+		Content:    "会議場所:新宿オフィス 日時:5/30 先方:緒方部長 同伴者:吉田係長",
 		ImagePath:  "",
-		Importance: 3,
+		Importance: 1,
 		Urgency:    1,
 	}
 
 	todo8 := domain.Todo{
 		UserID:     1,
-		Title:      "結婚式の招待状を返信",
-		Content:    "5月28日までに出席の旨の返信",
+		Title:      "業務改善に向けた調査",
+		Content:    "第二営業課の従業員から受けたフィードバックから、業務の効率化を図る",
 		ImagePath:  "",
 		Importance: 2,
 		Urgency:    2,
@@ -85,29 +85,29 @@ func TodosDate() (todos domain.Todos) {
 
 	todo9 := domain.Todo{
 		UserID:     1,
-		Title:      "住民票をを入手する",
-		Content:    "",
+		Title:      "神奈川商事へのプレゼンのため、地域トレンドの調査",
+		Content:    "プレゼン日時:7/24 地域に根付いた活動をされている神奈川商事への弊社商品をアピールするために地域のトレンドを調査",
 		ImagePath:  "",
 		Importance: 1,
-		Urgency:    3,
+		Urgency:    2,
 	}
 
 	todo10 := domain.Todo{
 		UserID:     1,
-		Title:      "引っ越し準備",
-		Content:    "荷物の梱包",
+		Title:      "先月の出張の精算処理",
+		Content:    "先日の11~14日で訪問した徳島出張の旅費精算を申請",
 		ImagePath:  "",
-		Importance: 1,
-		Urgency:    3,
+		Importance: 2,
+		Urgency:    2,
 	}
 
 	todo11 := domain.Todo{
 		UserID:     1,
-		Title:      "家賃の支払い",
-		Content:    "",
+		Title:      "月末会議の準備",
+		Content:    "二日後の社内ミーティングの準備 報告内容 今月の活動実績 来月の活動予定 業務効率化の提案  上記の内容を発表するための台本準備",
 		ImagePath:  "",
 		Importance: 1,
-		Urgency:    2,
+		Urgency:    1,
 	}
 
 	todos = append(todos, todo1, todo2, todo3, todo4, todo5, todo6, todo7, todo8, todo9, todo10, todo11)
