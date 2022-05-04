@@ -472,6 +472,64 @@ func TestDeleteTaskCard(t *testing.T) {
 	}
 }
 
+func TestGetIncompleteTaskCount(t *testing.T) {
+	inter, TaskCardRepository := setMock(t)
+
+	cases := []struct {
+		name          string
+		todoId        int
+		userId        int
+		prepareMockFn func(m *mock_usecase.MockTaskCardRepository, tcId int, userId int)
+		wantMess      usecase.TaskCardMessage
+		wantErr       error
+	}{
+		{
+			name:   "get incomplete taskCards count = success",
+			todoId: 1,
+			userId: 1,
+			prepareMockFn: func(m *mock_usecase.MockTaskCardRepository, todoId int, userId int) {
+				m.EXPECT().GetCounts(todoId, userId).Return(1, nil)
+			},
+			wantMess: usecase.TaskCardMessage{
+				Message: "未完了タスクカード総数取得",
+			},
+		},
+		{
+			name:   "when tcId = 0, delete = fail",
+			todoId: 0,
+			userId: 1,
+			prepareMockFn: func(m *mock_usecase.MockTaskCardRepository, todoId int, userId int) {
+				m.EXPECT().GetCounts(todoId, userId).Return(0, nil)
+			},
+			wantErr: errors.New("データ取得に失敗しました"),
+		},
+		{
+			name:   "when userId = 0, delete = fail",
+			todoId: 1,
+			userId: 0,
+			prepareMockFn: func(m *mock_usecase.MockTaskCardRepository, todoId int, userId int) {
+				m.EXPECT().GetCounts(todoId, userId).Return(0, nil)
+
+			},
+			wantErr: errors.New("データ取得に失敗しました"),
+		},
+	}
+
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			tt.prepareMockFn(TaskCardRepository, tt.todoId, tt.userId)
+			mess, _, err := inter.GetIncompleteTaskCount(tt.todoId, tt.userId)
+			if err == nil {
+				if mess.Message != tt.wantMess.Message {
+					assert.Equal(t, tt.wantMess, mess)
+				}
+			} else if err.Error() != tt.wantErr.Error() {
+				assert.Equal(t, tt.wantErr, err)
+			}
+		})
+	}
+}
+
 func setMock(t *testing.T) (inter *usecase.TaskCardInteractor, TaskCardRepository *mock_usecase.MockTaskCardRepository) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()

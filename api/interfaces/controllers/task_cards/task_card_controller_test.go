@@ -590,6 +590,76 @@ func TestDelete(t *testing.T) {
 	}
 }
 
+func TestIncompleteTaskCount(t *testing.T) {
+	ctrl, taskCardRepository := setMock(t)
+
+	cases := []struct {
+		name          string
+		todoId        int
+		loginUserId   int
+		prepareMockFn func(m *mock_usecase.MockTaskCardRepository, todoId int, loginUserId int)
+		response      controllers.Response
+	}{
+		{
+			name:        "delete = success",
+			todoId:      1,
+			loginUserId: 1,
+			prepareMockFn: func(m *mock_usecase.MockTaskCardRepository, todoId int, userId int) {
+				m.EXPECT().GetCounts(todoId, userId).Return(1, nil)
+			},
+			response: controllers.Response{
+				Status:  200,
+				Message: "未完了タスクカード総数取得",
+			},
+		},
+		{
+			name:        "when taskCardId = 0, delete = fail",
+			todoId:      0,
+			loginUserId: 1,
+			prepareMockFn: func(m *mock_usecase.MockTaskCardRepository, todoId int, userId int) {
+				m.EXPECT().GetCounts(todoId, userId).Return(1, nil)
+			},
+			response: controllers.Response{
+				Status:  400,
+				Message: "データ取得に失敗しました",
+			},
+		},
+		{
+			name:        "when loginUserId = 0, delete = fail",
+			todoId:      1,
+			loginUserId: 0,
+			prepareMockFn: func(m *mock_usecase.MockTaskCardRepository, todoId int, userId int) {
+				m.EXPECT().GetCounts(todoId, userId).Return(1, nil)
+			},
+			response: controllers.Response{
+				Status:  401,
+				Message: "ログインをしてください",
+			},
+		},
+	}
+
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			apiURL := fmt.Sprintf("/api/taskcard/isfinished/incompletetaskcount/%s", strconv.Itoa(tt.todoId))
+			req := httptest.NewRequest("GET", apiURL, nil)
+			req = mux.SetURLVars(req, map[string]string{
+				"id": strconv.Itoa(tt.todoId),
+			})
+			w := httptest.NewRecorder()
+
+			SetSessionUserId(t, w, req, tt.loginUserId)
+
+			tt.prepareMockFn(taskCardRepository, tt.todoId, tt.loginUserId)
+
+			ctrl.IncompleteTaskCount(w, req)
+			buf, _ := ioutil.ReadAll(w.Body)
+			json.Unmarshal(buf, &response)
+			assert.Equal(t, tt.response.Status, response.Status)
+			assert.Equal(t, tt.response.Message, response.Message)
+		})
+	}
+}
+
 func setMock(t *testing.T) (ctrl *controllers.TaskCardController, taskCardRepository *mock_usecase.MockTaskCardRepository) {
 	c := gomock.NewController(t)
 	defer c.Finish()
