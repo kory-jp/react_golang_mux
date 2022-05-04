@@ -91,5 +91,5 @@ var GetIncompleteTaskCount = `
 	and
 		user_id = ?
 	and
-		isFinished = 1
+		isFinished = 0
 `
