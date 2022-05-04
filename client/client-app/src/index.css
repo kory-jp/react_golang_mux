@@ -1,11 +1,15 @@
+@import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Noto+Serif+JP&display=swap');
+
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+  /* font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
     "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
-    sans-serif;
+    sans-serif; */
+    font-family: 'Merriweather', 'Noto Serif JP', serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #e3f2fd;
+  background-color: #605D5D;
+  color: #FFF;
 }
 
 code {

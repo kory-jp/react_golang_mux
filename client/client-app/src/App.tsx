@@ -1,3 +1,4 @@
+import 'normalize.css'
 import { ConnectedRouter } from 'connected-react-router';
 import { Provider } from 'react-redux';
 import createInitStore from './reducks/store/store';

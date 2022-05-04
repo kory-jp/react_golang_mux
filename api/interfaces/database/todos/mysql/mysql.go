@@ -32,6 +32,7 @@ var GetTodosState = `
 		t.title,
 		t.image_path,
 		t.isFinished,
+		t.created_at,
 		group_concat(tg.id),
 		group_concat(tg.value),
 		group_concat(tg.label)
@@ -51,7 +52,7 @@ var GetTodosState = `
 		t.id
 	order by
 		id desc
-	limit 5
+	limit 6
 	offset ?
 `
 

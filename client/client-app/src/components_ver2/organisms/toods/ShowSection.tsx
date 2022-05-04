@@ -1,0 +1,323 @@
+import { CardMedia, Divider, Grid } from "@mui/material";
+import { Box } from "@mui/system";
+import { push } from "connected-react-router";
+import { FC, useCallback, useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useParams } from "react-router-dom";
+import { RootState } from "../../../reducks/store/store";
+import { Tags } from "../../../reducks/tags/types";
+import { deleteTodo, showTodo, updateIsFinished } from "../../../reducks/todos/operations";
+import handleToDateFormat from "../../../utils/handleToDateFormat";
+import { PrimaryChip } from "../../atoms/chip/PrimaryChip";
+import DefaultImage from "../../../assets/images/DefaultImage.jpg"
+import taskComment from "../../../assets/images/taskComment.svg"
+import EditIconsArea from "../../molecules/iconsArea/EditIconsArea";
+import TagSection from "../../molecules/tag/TagSection";
+import { PrimaryButton } from "../../atoms/buttons/PrimaryButton";
+import EditTodoModal from "./EditTodoModal";
+import CreateTCModal from "../taskCards/CreateTCModal";
+import useReturnTop from "../../../hooks/useReturnTop";
+import TextFormat from "../../../utils/TextFormat";
+
+type Params = {
+  id: string | undefined
+}
+
+export const ShowSection: FC = () => {
+  const dispatch = useDispatch()
+  const params: Params = useParams();
+  const id: number = Number(params.id)
+  const todo = useSelector((state: RootState) => state.todos[0])
+  const [finish, setFinish] = useState(false)
+  const tags: Tags | null = todo.tags ? todo.tags : null
+  const [openModal ,setOpenModal] = useState(false)
+  const [openCreateTCModal, setOpenTCModal] = useState(false)
+  const returnTop = useReturnTop()
+
+  useEffect(() => {
+    dispatch(showTodo(id))
+  }, [id])
+
+  useEffect(()=> {
+    setFinish(todo.isFinished)
+  },[todo])
+
+  const imagePath = process.env.REACT_APP_API_URL + `img/${todo.imagePath}`
+
+  const onClickDelete = useCallback(() => {
+    dispatch(deleteTodo(id))
+  }, [id])
+
+  // --- todo isFinished ----
+  const onChangeIsFinished = useCallback(() => {
+    if (finish) {
+      setFinish(false)
+      dispatch(updateIsFinished(id, false))
+    } else {
+      setFinish(true)
+      dispatch(updateIsFinished(id, true))
+    }
+  }, [id, finish])
+
+  const onClickToSearchTagTodo = useCallback((tagId: number) => {
+    dispatch(push(`/todo/search?tagId=${tagId}&importance=0&urgency=0&page=1`))
+    returnTop()
+  },[])
+
+  const onClickOpenEditTodoModal = useCallback(() => {
+    setOpenModal(true)
+  }, [])
+
+  const onClickCloseTodoModal = useCallback(() => {
+    setOpenModal(false)
+  }, [])
+
+    // ------
+    const onClickOpenCreateTCModal = useCallback(()=> {
+      setOpenTCModal(true)
+    }, [])
+
+    const onClickCloseCreateTCModal = useCallback(() => {
+      setOpenTCModal(false)
+    }, [])
+
+  return (
+    <>
+      <Box
+        className='showContainer'
+        sx={{
+          borderRadius: '10px',
+          bgcolor: finish? '#464141' : '#2D2A2A',
+        }}
+      >
+        <Box
+          className='show__innner'
+          sx={{
+            padding: {
+              xs: '16px',
+            }
+          }}
+        >
+          <Box
+            className='show__title'
+            sx={{
+              marginBottom: {
+                xs: '8px',
+              }
+            }}
+          >
+            <Box>
+              <Box
+                component='h1'
+                color='#FFF'
+                sx={{
+                  fontSize: {
+                    xs: '16px',
+                    md: '24px',
+                  }
+                }}
+              >
+                {todo.title}
+              </Box>
+              <Divider
+                sx={{
+                  backgroundColor: '#FFF',
+                }}
+              />
+            </Box>
+          </Box>
+          <Box
+            className='show__infoArea'
+            display='flex'
+            justifyContent='space-between'
+            sx={{
+              marginBottom: {
+                xs: '16px',
+              }
+            }}
+          >
+            <Box
+              className='infoBadge'
+              display='flex'
+            >
+              <Box
+                sx={{
+                  marginRight: {
+                    xs: '8px',
+                  }
+                }}
+              >
+                <PrimaryChip 
+                  label='重要'
+                  colorFlag={todo.importance}
+                />
+              </Box>
+              <Box>
+                <PrimaryChip 
+                  label='緊急'
+                  colorFlag={todo.urgency}
+                />
+              </Box>
+            </Box>
+            <Box
+              className='createdAt'
+              color='#FFF'
+            >
+              {handleToDateFormat(todo.createdAt)}
+            </Box>
+          </Box>
+          <Box
+            className='show__image'
+            sx={{
+              marginBottom: {
+                xs: '40px',
+              }
+            }}
+          >
+            <CardMedia
+              component="img"
+              image={todo.imagePath? imagePath : DefaultImage}
+              sx={{
+                height : {
+                  xs: 'auto'
+                },
+                width: {
+                  xs: '100%',
+                },
+                transition: '0.7s',
+                filter: finish? 'grayscale(100%)' : '',
+                '&:hover': {
+                  cursor: 'pointer'
+                }
+              }}
+            />
+          </Box>
+          <Box
+            className='show__content'
+            sx={{
+              marginBottom: {
+                xs: '40px',
+              }
+            }}
+          >
+            <Box
+              className='content__title'
+              sx={{
+                marginBottom: {
+                  xs: '16px',
+                }
+              }}
+            >
+              <Box
+                color='#FFF'
+                sx={{
+                  fontSize: {
+                    xs: '16px',
+                  }
+                }}
+              >
+                補足
+              </Box>
+              <Divider
+                sx={{
+                  backgroundColor: '#FFF',
+                }}
+              />              
+            </Box>
+            <Box
+              className='content__content'
+              color='#FFF'
+              sx={{
+                fontSize: {
+                  xs: '16px',
+                },
+                minHeight: {
+                  xs: '160px',
+                }
+              }}
+            >
+              {/* {todo.content} */}
+              <TextFormat 
+                text={todo.content}
+              />
+            </Box>
+          </Box>
+          <Box
+            className='show__iconMenu'
+            sx={{
+              marginBottom: {
+                xs: '40px',
+              }
+            }}
+          >
+            <EditIconsArea 
+              finish={finish}
+              onChangeIsFinished={onChangeIsFinished}
+              onClickDelete={onClickDelete}
+              onClickToEdit={onClickOpenEditTodoModal}
+            />
+          </Box>
+          <Box
+            className='show__tags'
+            sx={{
+              marginBottom: {
+                xs: '40px',
+              }
+            }}
+          >
+            <TagSection 
+              tags={tags}
+              onClickToSearchTagTodo={onClickToSearchTagTodo}
+            />
+          </Box>
+          <Box
+            className='show__task'
+            sx={{
+              marginBottom: {
+                xs: '40px',
+              }
+            }}
+          >
+            <Box
+              sx={{
+                marginBottom: {
+                  xs: '16px',
+                }
+              }}
+            >
+              <CardMedia
+                component="img"
+                image={taskComment}
+                sx={{
+                  height : {
+                    xs: 'auto'
+                  },
+                  width: {
+                    xs: '320px',
+                  },
+                }}
+              />
+            </Box>
+            <Box>
+              <PrimaryButton
+                onClick={onClickOpenCreateTCModal}
+              >
+                タスクカードを作成
+              </PrimaryButton>
+            </Box>
+          </Box>
+        </Box>
+      </Box>
+      <EditTodoModal 
+        open={openModal}
+        onClose={onClickCloseTodoModal}
+      />
+      <CreateTCModal 
+        open={openCreateTCModal}
+        onClose={onClickCloseCreateTCModal}
+      />
+    </>
+  )
+}
+
+export default ShowSection;
