@@ -93,6 +93,21 @@ func (mr *MockTaskCardRepositoryMockRecorder) FindByTodoIdAndUserId(arg0, arg1, 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByTodoIdAndUserId", reflect.TypeOf((*MockTaskCardRepository)(nil).FindByTodoIdAndUserId), arg0, arg1, arg2)
 }
 
+// GetCounts mocks base method.
+func (m *MockTaskCardRepository) GetCounts(arg0, arg1 int) (int, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetCounts", arg0, arg1)
+	ret0, _ := ret[0].(int)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetCounts indicates an expected call of GetCounts.
+func (mr *MockTaskCardRepositoryMockRecorder) GetCounts(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCounts", reflect.TypeOf((*MockTaskCardRepository)(nil).GetCounts), arg0, arg1)
+}
+
 // Overwrite mocks base method.
 func (m *MockTaskCardRepository) Overwrite(arg0 domain.TaskCard) error {
 	m.ctrl.T.Helper()
