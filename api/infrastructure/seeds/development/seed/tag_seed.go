@@ -10,31 +10,51 @@ import (
 
 func TagsData() (tags domain.Tags) {
 	tag1 := domain.Tag{
-		Value: "shopping",
-		Label: "買い物",
+		Value: "meeting",
+		Label: "会議",
 	}
 
 	tag2 := domain.Tag{
-		Value: "business",
-		Label: "仕事",
+		Value: "document",
+		Label: "資料",
 	}
 
 	tag3 := domain.Tag{
-		Value: "hobby",
-		Label: "趣味",
+		Value: "negotiation",
+		Label: "商談",
 	}
 
 	tag4 := domain.Tag{
-		Value: "study",
-		Label: "学習",
+		Value: "report",
+		Label: "報告",
 	}
 
 	tag5 := domain.Tag{
-		Value: "payment",
-		Label: "支払い",
+		Value: "input",
+		Label: "入力",
 	}
 
-	tags = append(tags, tag1, tag2, tag3, tag4, tag5)
+	tag6 := domain.Tag{
+		Value: "research",
+		Label: "調査",
+	}
+
+	tag7 := domain.Tag{
+		Value: "planning",
+		Label: "計画",
+	}
+
+	tag8 := domain.Tag{
+		Value: "sales",
+		Label: "営業",
+	}
+
+	tag9 := domain.Tag{
+		Value: "contact",
+		Label: "連絡",
+	}
+
+	tags = append(tags, tag1, tag2, tag3, tag4, tag5, tag6, tag7, tag8, tag9)
 	return
 }
 
