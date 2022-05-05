@@ -1,11 +1,11 @@
 import { CardMedia, Grid } from "@mui/material";
 import { Box } from "@mui/system";
-import axios from "axios";
 import { push } from "connected-react-router";
 import { FC, useCallback, useEffect, useLayoutEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import taskComment from "../../../assets/images/taskComment.svg"
+import { useFetchIncompleteTaskCardCount } from "../../../hooks/useFetchIncompleteTaskCardCount";
 import useLoadingState from "../../../hooks/useLoadingState";
 import usePagination from "../../../hooks/usePagination";
 import useReturnTop from "../../../hooks/useReturnTop";
@@ -13,7 +13,6 @@ import { nowLoadingState } from "../../../reducks/loading/actions";
 import { RootState } from "../../../reducks/store/store";
 import { indexTaskCards } from "../../../reducks/taskCards/operations";
 import { TaskCards } from "../../../reducks/taskCards/types";
-import { pushToast } from "../../../reducks/toasts/actions";
 import { PrimaryButton } from "../../atoms/buttons/PrimaryButton";
 import LoadingLayout from "../../molecules/loading/LoadingLayout";
 import DefaultPagination from "../../molecules/pagination/DefaultPagination";
@@ -37,37 +36,12 @@ export const IndexTCSection: FC = () => {
   const loadingState = useLoadingState()
   const {sumPage, setSumPage, queryPage} = usePagination()
   const [openCreateTCModal, setOpenTCModal] = useState(false)
-  const [incompleteTaskCardCount, setIncompleteTaskCardCount] = useState(0)
   const returnTop = useReturnTop()
-
-  const getIncompleteTackCardCount = useCallback((id: number) => {
-    const apiURL = process.env.REACT_APP_API_URL + `taskcard/incompletetaskcount/${id}`
-    axios
-      .get(apiURL,
-          {
-            withCredentials: true,
-            headers:{
-              'Accept': 'application/json',  
-              'Content-Type': 'multipart/form-data'
-            }          
-          }
-        ).then((response) => {
-          const resp: Response = response.data
-          console.log(response)
-          if (resp.status == 200) {
-            setIncompleteTaskCardCount(resp.incompleteTaskCount)
-          } else {
-            dispatch(pushToast({title: response.data.message, severity: "error"}))             
-          }
-        })
-        .catch((error) => {
-          dispatch(pushToast({title: 'データ取得に失敗しました', severity: "error"}))
-        })
-  }, [])
+  const { getIncompleteTackCardCount, incompleteTaskCardCount} = useFetchIncompleteTaskCardCount()
   
   useLayoutEffect(() => {
     dispatch(nowLoadingState(true))
-    getIncompleteTackCardCount(id)
+    getIncompleteTackCardCount()
   }, [])
   
   useEffect(() => {
@@ -87,8 +61,6 @@ export const IndexTCSection: FC = () => {
   const onClickCloseCreateTCModal = useCallback(() => {
     setOpenTCModal(false)
   }, [])
-
-  console.log(incompleteTaskCardCount)
 
   return(
     <>

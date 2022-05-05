@@ -9,6 +9,7 @@ import { useDispatch } from "react-redux";
 import usePagination from "../../../hooks/usePagination";
 import EditTCModal from "./EditTCModal";
 import TextFormat from "../../../utils/TextFormat";
+import { useIncompleteTaskCardCount } from "../../../hooks/useIncompleteTaskCardCount";
 
 type Props = {
   open: boolean,
@@ -22,6 +23,7 @@ export const ShowTCModal: FC<Props> = (props) => {
   const [isFinished, setIsFinished] = useState(false)
   const {setSumPage, queryPage} = usePagination()
   const [openEditModal, setOpenEditModal] = useState(false)
+  const {incompleteTaskCardCount, setIncompleteTaskCardCount} = useIncompleteTaskCardCount()
 
   useEffect(() => {
     setIsFinished(taskCard.isFinished)
@@ -32,14 +34,19 @@ export const ShowTCModal: FC<Props> = (props) => {
       setIsFinished(false)
       dispatch(updateIsFinished(taskCard.id, false))
       taskCard.isFinished = false
+      setIncompleteTaskCardCount(incompleteTaskCardCount + 1)
     } else {
       setIsFinished(true)
       dispatch(updateIsFinished(taskCard.id, true))
       taskCard.isFinished = true
+      setIncompleteTaskCardCount(incompleteTaskCardCount - 1)
     }
   }, [isFinished])
 
   const onClickDelete = useCallback(() => {
+    setTimeout(()=> {
+      setIncompleteTaskCardCount(incompleteTaskCardCount - 1)
+    }, 500)
     dispatch(deleteTaskCard(taskCard.id, taskCard.todoId, setSumPage, queryPage))
     onClose()
   }, [])
