@@ -1,6 +1,7 @@
 import { Box, CardActions, Divider, FormControlLabel, Grid } from "@mui/material";
 import { FC, useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
+import { useIncompleteTaskCardCount } from "../../../hooks/useIncompleteTaskCardCount";
 import usePagination from "../../../hooks/usePagination";
 import { deleteTaskCard, updateIsFinished } from "../../../reducks/taskCards/operations";
 import { TaskCard } from "../../../reducks/taskCards/types";
@@ -18,8 +19,9 @@ export const TaskCardItem: FC<Props> = (props) => {
   const [isFinished, setIsFinished] = useState(false)
   const [openShowTCModal, setOpenShowTCModal] = useState(false)
   const {setSumPage, queryPage} = usePagination()
+  const {incompleteTaskCardCount, setIncompleteTaskCardCount} = useIncompleteTaskCardCount()
 
-    useEffect(() => {
+  useEffect(() => {
     setIsFinished(taskCard.isFinished)
   },[taskCard.isFinished])
 
@@ -28,14 +30,19 @@ export const TaskCardItem: FC<Props> = (props) => {
       setIsFinished(false)
       dispatch(updateIsFinished(taskCard.id, false))
       taskCard.isFinished = false
+      setIncompleteTaskCardCount(incompleteTaskCardCount + 1)
     } else {
       setIsFinished(true)
       dispatch(updateIsFinished(taskCard.id, true))
       taskCard.isFinished = true
+      setIncompleteTaskCardCount(incompleteTaskCardCount - 1)
     }
   }, [isFinished])
 
   const onClickDelete = useCallback(() => {
+    setTimeout(()=> {
+      setIncompleteTaskCardCount(incompleteTaskCardCount - 1)
+    }, 500)
     dispatch(deleteTaskCard(taskCard.id, taskCard.todoId, setSumPage, queryPage))
   }, [taskCard])
 
