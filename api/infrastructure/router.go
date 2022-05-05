@@ -48,6 +48,7 @@ func Init() {
 	r.Methods("POST").Path("/api/taskcard/{id:[0-9]+}").HandlerFunc(taskCardController.Update)
 	r.Methods("POST").Path("/api/taskcard/isfinished/{id:[0-9]+}").HandlerFunc(taskCardController.IsFinished)
 	r.Methods("DELETE").Path("/api/taskcard/{id:[0-9]+}").HandlerFunc(taskCardController.Delete)
+	r.Methods("GET").Path("/api/taskcard/incompletetaskcount/{id:[0-9]+}").HandlerFunc(taskCardController.IncompleteTaskCount)
 	// ----- 画像配信URL ---------
 	r.PathPrefix("/api/img/").Handler(http.StripPrefix("/api/img/", http.FileServer(http.Dir("./assets/dev/img"))))
 	// -----

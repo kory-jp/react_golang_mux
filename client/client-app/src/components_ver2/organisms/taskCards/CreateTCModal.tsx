@@ -5,6 +5,7 @@ import { useParams } from "react-router-dom";
 import DefaultInputTCModal from "./DefaultInputTCModal";
 import usePagination from "../../../hooks/usePagination";
 import useReturnTop from "../../../hooks/useReturnTop";
+import { useIncompleteTaskCardCount } from "../../../hooks/useIncompleteTaskCardCount";
 
 type Props = {
   open: boolean,
@@ -26,6 +27,7 @@ export const CreateTCModal: FC<Props> = (props) => {
   const [memo, setMemo] = useState("")
   const {setSumPage, queryPage} = usePagination()
   const returnTop = useReturnTop()
+  const {incompleteTaskCardCount, setIncompleteTaskCardCount} = useIncompleteTaskCardCount()
 
   const onChangeInputTitle = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     setTitle(event.target.value)
@@ -51,6 +53,7 @@ export const CreateTCModal: FC<Props> = (props) => {
     setMemo('')
     onClose()
     returnTop()
+    setIncompleteTaskCardCount(incompleteTaskCardCount + 1)
   }, [id, title, purpose, content, memo])
 
   return(

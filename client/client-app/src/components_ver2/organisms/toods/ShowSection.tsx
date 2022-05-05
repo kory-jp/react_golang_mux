@@ -10,12 +10,9 @@ import { deleteTodo, showTodo, updateIsFinished } from "../../../reducks/todos/o
 import handleToDateFormat from "../../../utils/handleToDateFormat";
 import { PrimaryChip } from "../../atoms/chip/PrimaryChip";
 import DefaultImage from "../../../assets/images/DefaultImage.jpg"
-import taskComment from "../../../assets/images/taskComment.svg"
 import EditIconsArea from "../../molecules/iconsArea/EditIconsArea";
 import TagSection from "../../molecules/tag/TagSection";
-import { PrimaryButton } from "../../atoms/buttons/PrimaryButton";
 import EditTodoModal from "./EditTodoModal";
-import CreateTCModal from "../taskCards/CreateTCModal";
 import useReturnTop from "../../../hooks/useReturnTop";
 import TextFormat from "../../../utils/TextFormat";
 
@@ -31,7 +28,6 @@ export const ShowSection: FC = () => {
   const [finish, setFinish] = useState(false)
   const tags: Tags | null = todo.tags ? todo.tags : null
   const [openModal ,setOpenModal] = useState(false)
-  const [openCreateTCModal, setOpenTCModal] = useState(false)
   const returnTop = useReturnTop()
 
   useEffect(() => {
@@ -71,15 +67,6 @@ export const ShowSection: FC = () => {
   const onClickCloseTodoModal = useCallback(() => {
     setOpenModal(false)
   }, [])
-
-    // ------
-    const onClickOpenCreateTCModal = useCallback(()=> {
-      setOpenTCModal(true)
-    }, [])
-
-    const onClickCloseCreateTCModal = useCallback(() => {
-      setOpenTCModal(false)
-    }, [])
 
   return (
     <>
@@ -270,51 +257,11 @@ export const ShowSection: FC = () => {
               onClickToSearchTagTodo={onClickToSearchTagTodo}
             />
           </Box>
-          <Box
-            className='show__task'
-            sx={{
-              marginBottom: {
-                xs: '40px',
-              }
-            }}
-          >
-            <Box
-              sx={{
-                marginBottom: {
-                  xs: '16px',
-                }
-              }}
-            >
-              <CardMedia
-                component="img"
-                image={taskComment}
-                sx={{
-                  height : {
-                    xs: 'auto'
-                  },
-                  width: {
-                    xs: '320px',
-                  },
-                }}
-              />
-            </Box>
-            <Box>
-              <PrimaryButton
-                onClick={onClickOpenCreateTCModal}
-              >
-                タスクカードを作成
-              </PrimaryButton>
-            </Box>
-          </Box>
         </Box>
       </Box>
       <EditTodoModal 
         open={openModal}
         onClose={onClickCloseTodoModal}
-      />
-      <CreateTCModal 
-        open={openCreateTCModal}
-        onClose={onClickCloseCreateTCModal}
       />
     </>
   )

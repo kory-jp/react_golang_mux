@@ -189,3 +189,31 @@ func (repo *TaskCardRepository) Erasure(taskCardId int, userId int) (err error) 
 	}
 	return err
 }
+
+func (repo *TaskCardRepository) GetCounts(todoId int, userId int) (incompleteTaskCount int, err error) {
+	row, err := repo.Query(mysql.GetIncompleteTaskCount, todoId, userId)
+	if err != nil {
+		fmt.Println(err)
+		log.Println(err)
+		return 0, err
+	}
+
+	defer row.Close()
+	for row.Next() {
+		err = row.Scan(&incompleteTaskCount)
+		if err != nil {
+			fmt.Println(err)
+			log.Println(err)
+			return 0, err
+		}
+	}
+	err = row.Err()
+	if err != nil {
+		fmt.Println(err)
+		log.Println(err)
+		return 0, err
+	}
+	row.Close()
+
+	return incompleteTaskCount, nil
+}

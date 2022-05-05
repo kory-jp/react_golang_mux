@@ -11,4 +11,5 @@ type TaskCardRepository interface {
 	Overwrite(domain.TaskCard) error
 	ChangeBoolean(int, int, domain.TaskCard) error
 	Erasure(int, int) error
+	GetCounts(int, int) (int, error)
 }

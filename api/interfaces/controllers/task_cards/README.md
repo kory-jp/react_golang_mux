@@ -2,14 +2,15 @@
 
 ## API 一覧
 
-| No. |  API 機能 No. | 種類 | API 名     | 機能概要             |
-| --: | ------------: | :--- | :--------- | :------------------- |
-|   0 |  TASKCARD-000 | API  | Create     | タスクカード新規作成 |
-|   1 |  TASKCARD-001 | API  | Index      | タスクカード一覧取得 |
-|   2 | TASKCARD-0002 | API  | Show       | タスクカード詳細取得 |
-|   3 | TASKCARD-0003 | API  | Update     | タスクカード更新     |
-|   4 | TASKCARD-0004 | API  | Delete     | タスクカード削除     |
-|   5 | TASKCARD-0005 | API  | IsFinished | 完了未完了の更新     |
+| No. |  API 機能 No. | 種類 | API 名              | 機能概要                     |
+| --: | ------------: | :--- | :------------------ | :--------------------------- |
+|   0 |  TASKCARD-000 | API  | Create              | タスクカード新規作成         |
+|   1 |  TASKCARD-001 | API  | Index               | タスクカード一覧取得         |
+|   2 | TASKCARD-0002 | API  | Show                | タスクカード詳細取得         |
+|   3 | TASKCARD-0003 | API  | Update              | タスクカード更新             |
+|   4 | TASKCARD-0004 | API  | Delete              | タスクカード削除             |
+|   5 | TASKCARD-0005 | API  | IsFinished          | 完了未完了の更新             |
+|   5 | TASKCARD-0006 | API  | IncompleteTaskCount | 未完了のタスクカード総数取得 |
 
 ## USER-000
 
@@ -337,6 +338,56 @@ curl -XPOST -b cookie.txt -b 'cookie-name=' -d '{"isFinished":true}' -H 'Content
 | :------- | :----: | ---------: | :--: | :----------------: |
 | status   |  数値  |            |  ○   | 処理結果ステータス |
 | message  | 文字列 |            |  ○   |     メッセージ     |
+
+<br>
+<br>
+
+## USER-006
+
+| API 機能 No. | TASKCARD-006                         |
+| :----------- | :----------------------------------- |
+| API 名       | IncompleteTaskCount                  |
+| 概要         | 未完了のタスクカード総数取得         |
+| URL          | /api/taskcard/incompletetaskcount/id |
+
+<br>
+
+### 入力
+
+| アクセス URL | /api/taskcard/incompletetaskcount/id |
+| :----------- | :----------------------------------- |
+
+### リクエストヘッダーその他
+
+|  フィルード名   |       内容       |
+| :-------------: | :--------------: |
+|     Accept      | application/json |
+|  Content-Type   | application/json |
+| withCredentials |       true       |
+
+#### POST データ
+
+無し
+
+<br>
+
+curl コマンド
+
+```
+curl -XGET -b cookie.txt -b 'cookie-name='  -H 'Content-Type: application/json' -H 'Accept: application/json'  "http://localhost:8000/api/taskcard/incompletetaskcount/1"
+```
+
+<br>
+
+### 出力
+
+#### 返却データ(JSON)
+
+| JSON Key            |   型   | 最大サイズ | 必須 |         値の説明         |
+| :------------------ | :----: | ---------: | :--: | :----------------------: |
+| status              |  数値  |            |  ○   |    処理結果ステータス    |
+| message             | 文字列 |            |  ○   |        メッセージ        |
+| IncompleteTaskCount | 数値型 |            |  ○   | 未完了のタスクカード総数 |
 
 <br>
 <br>

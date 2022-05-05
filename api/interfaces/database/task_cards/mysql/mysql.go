@@ -82,3 +82,14 @@ var DeleteTaskCardState = `
 		and
 			user_id = ?
 `
+
+var GetIncompleteTaskCount = `
+	select count(*) from
+		task_cards
+	where
+		todo_id = ?
+	and
+		user_id = ?
+	and
+		isFinished = 0
+`

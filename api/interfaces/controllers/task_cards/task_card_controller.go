@@ -22,15 +22,16 @@ type TaskCardController struct {
 }
 
 type Response struct {
-	Status    int              `json:"status"`
-	Message   string           `json:"message"`
-	SumPage   float64          `json:"sumPage"`
-	TaskCard  *domain.TaskCard `json:"taskCard"`
-	TaskCards domain.TaskCards `json:"taskCards"`
+	Status              int              `json:"status"`
+	Message             string           `json:"message"`
+	SumPage             float64          `json:"sumPage"`
+	TaskCard            *domain.TaskCard `json:"taskCard"`
+	TaskCards           domain.TaskCards `json:"taskCards"`
+	IncompleteTaskCount int              `json:"incompleteTaskCount"`
 }
 
-func (res *Response) SetResp(status int, mess string, sumPage float64, taskCard *domain.TaskCard, taskCards domain.TaskCards) (resStr string) {
-	response := &Response{status, mess, sumPage, taskCard, taskCards}
+func (res *Response) SetResp(status int, mess string, sumPage float64, taskCard *domain.TaskCard, taskCards domain.TaskCards, incompleteTaskCount int) (resStr string) {
+	response := &Response{status, mess, sumPage, taskCard, taskCards, incompleteTaskCount}
 	r, _ := json.Marshal(response)
 	resStr = string(r)
 	return
@@ -67,7 +68,7 @@ func (controller *TaskCardController) Create(w http.ResponseWriter, r *http.Requ
 	if r.ContentLength == 0 {
 		fmt.Println("NO DATA BODY")
 		log.Println("NO DATA BODY")
-		resStr := new(Response).SetResp(400, "データ取得に失敗しました", 0, nil, nil)
+		resStr := new(Response).SetResp(400, "データ取得に失敗しました", 0, nil, nil, 0)
 		fmt.Fprintln(w, resStr)
 		return
 	}
@@ -76,7 +77,7 @@ func (controller *TaskCardController) Create(w http.ResponseWriter, r *http.Requ
 	if err != nil || userId == 0 {
 		fmt.Println(err)
 		log.Println(err)
-		resStr := new(Response).SetResp(401, "ログインをしてください", 0, nil, nil)
+		resStr := new(Response).SetResp(401, "ログインをしてください", 0, nil, nil, 0)
 		fmt.Fprintln(w, resStr)
 		return
 	}
@@ -85,7 +86,7 @@ func (controller *TaskCardController) Create(w http.ResponseWriter, r *http.Requ
 	if err != nil {
 		fmt.Println(err)
 		log.Println(err)
-		resStr := new(Response).SetResp(400, "データ取得に失敗しました", 0, nil, nil)
+		resStr := new(Response).SetResp(400, "データ取得に失敗しました", 0, nil, nil, 0)
 		fmt.Fprintln(w, resStr)
 		return
 	}
@@ -93,7 +94,7 @@ func (controller *TaskCardController) Create(w http.ResponseWriter, r *http.Requ
 	if err := json.Unmarshal(bytesTaskCard, taskCardType); err != nil {
 		fmt.Println(err)
 		log.Println(err)
-		resStr := new(Response).SetResp(400, "データ取得に失敗しました", 0, nil, nil)
+		resStr := new(Response).SetResp(400, "データ取得に失敗しました", 0, nil, nil, 0)
 		fmt.Fprintln(w, resStr)
 		return
 	}
@@ -103,11 +104,11 @@ func (controller *TaskCardController) Create(w http.ResponseWriter, r *http.Requ
 	if err != nil {
 		fmt.Println(err)
 		log.Println(err)
-		resStr := new(Response).SetResp(400, err.Error(), 0, nil, nil)
+		resStr := new(Response).SetResp(400, err.Error(), 0, nil, nil, 0)
 		fmt.Fprintln(w, resStr)
 		return
 	}
-	resStr := new(Response).SetResp(200, mess.Message, 0, nil, nil)
+	resStr := new(Response).SetResp(200, mess.Message, 0, nil, nil, 0)
 	fmt.Fprintln(w, resStr)
 }
 
@@ -121,7 +122,7 @@ func (controller *TaskCardController) Index(w http.ResponseWriter, r *http.Reque
 	if !ok || err != nil || todoId == 0 {
 		fmt.Println(err)
 		log.Println(err)
-		resStr := new(Response).SetResp(400, "データ取得に失敗しました", 0, nil, nil)
+		resStr := new(Response).SetResp(400, "データ取得に失敗しました", 0, nil, nil, 0)
 		fmt.Fprintln(w, resStr)
 		return
 	}
@@ -130,7 +131,7 @@ func (controller *TaskCardController) Index(w http.ResponseWriter, r *http.Reque
 	if err != nil || page == 0 {
 		fmt.Println(err)
 		log.Println(err)
-		resStr := new(Response).SetResp(400, "データ取得に失敗しました", 0, nil, nil)
+		resStr := new(Response).SetResp(400, "データ取得に失敗しました", 0, nil, nil, 0)
 		fmt.Fprintln(w, resStr)
 		return
 	}
@@ -139,7 +140,7 @@ func (controller *TaskCardController) Index(w http.ResponseWriter, r *http.Reque
 	if err != nil || userId == 0 {
 		fmt.Println(err)
 		log.Println(err)
-		resStr := new(Response).SetResp(401, "ログインをしてください", 0, nil, nil)
+		resStr := new(Response).SetResp(401, "ログインをしてください", 0, nil, nil, 0)
 		fmt.Fprintln(w, resStr)
 		return
 	}
@@ -148,12 +149,12 @@ func (controller *TaskCardController) Index(w http.ResponseWriter, r *http.Reque
 	if err != nil {
 		fmt.Println(err)
 		log.Println(err)
-		resStr := new(Response).SetResp(400, "データ取得に失敗しました", 0, nil, nil)
+		resStr := new(Response).SetResp(400, "データ取得に失敗しました", 0, nil, nil, 0)
 		fmt.Fprintln(w, resStr)
 		return
 	}
 
-	resStr := new(Response).SetResp(200, "タスクカード一覧取得", sumPage, nil, taskCards)
+	resStr := new(Response).SetResp(200, "タスクカード一覧取得", sumPage, nil, taskCards, 0)
 	fmt.Fprintln(w, resStr)
 }
 
@@ -167,7 +168,7 @@ func (controller *TaskCardController) Show(w http.ResponseWriter, r *http.Reques
 	if !ok || err != nil || taskCardId == 0 {
 		fmt.Println(err)
 		log.Println(err)
-		resStr := new(Response).SetResp(400, "データ取得に失敗しました", 0, nil, nil)
+		resStr := new(Response).SetResp(400, "データ取得に失敗しました", 0, nil, nil, 0)
 		fmt.Fprintln(w, resStr)
 		return
 	}
@@ -176,7 +177,7 @@ func (controller *TaskCardController) Show(w http.ResponseWriter, r *http.Reques
 	if err != nil || userId == 0 {
 		fmt.Println(err)
 		log.Println(err)
-		resStr := new(Response).SetResp(401, "ログインをしてください", 0, nil, nil)
+		resStr := new(Response).SetResp(401, "ログインをしてください", 0, nil, nil, 0)
 		fmt.Fprintln(w, resStr)
 		return
 	}
@@ -185,12 +186,12 @@ func (controller *TaskCardController) Show(w http.ResponseWriter, r *http.Reques
 	if err != nil {
 		fmt.Println(err)
 		log.Println(err)
-		resStr := new(Response).SetResp(400, err.Error(), 0, nil, nil)
+		resStr := new(Response).SetResp(400, err.Error(), 0, nil, nil, 0)
 		fmt.Fprintln(w, resStr)
 		return
 	}
 
-	resStr := new(Response).SetResp(200, "タスクカード詳細取得", 0, taskCard, nil)
+	resStr := new(Response).SetResp(200, "タスクカード詳細取得", 0, taskCard, nil, 0)
 	fmt.Fprintln(w, resStr)
 }
 
@@ -201,7 +202,7 @@ func (controller *TaskCardController) Update(w http.ResponseWriter, r *http.Requ
 	if r.ContentLength == 0 {
 		fmt.Println("NO DATA BODY")
 		log.Println("NO DATA BODY")
-		resStr := new(Response).SetResp(400, "データ取得に失敗しました", 0, nil, nil)
+		resStr := new(Response).SetResp(400, "データ取得に失敗しました", 0, nil, nil, 0)
 		fmt.Fprintln(w, resStr)
 		return
 	}
@@ -212,7 +213,7 @@ func (controller *TaskCardController) Update(w http.ResponseWriter, r *http.Requ
 	if !ok || err != nil || taskCardId == 0 {
 		fmt.Println(err)
 		log.Println(err)
-		resStr := new(Response).SetResp(400, "データ取得に失敗しました", 0, nil, nil)
+		resStr := new(Response).SetResp(400, "データ取得に失敗しました", 0, nil, nil, 0)
 		fmt.Fprintln(w, resStr)
 		return
 	}
@@ -221,7 +222,7 @@ func (controller *TaskCardController) Update(w http.ResponseWriter, r *http.Requ
 	if err != nil || userId == 0 {
 		fmt.Println(err)
 		log.Println(err)
-		resStr := new(Response).SetResp(401, "ログインをしてください", 0, nil, nil)
+		resStr := new(Response).SetResp(401, "ログインをしてください", 0, nil, nil, 0)
 		fmt.Fprintln(w, resStr)
 		return
 	}
@@ -230,7 +231,7 @@ func (controller *TaskCardController) Update(w http.ResponseWriter, r *http.Requ
 	if err != nil {
 		fmt.Println(err)
 		log.Println(err)
-		resStr := new(Response).SetResp(400, "データ取得に失敗しました", 0, nil, nil)
+		resStr := new(Response).SetResp(400, "データ取得に失敗しました", 0, nil, nil, 0)
 		fmt.Fprintln(w, resStr)
 		return
 	}
@@ -239,7 +240,7 @@ func (controller *TaskCardController) Update(w http.ResponseWriter, r *http.Requ
 	if err := json.Unmarshal(bytesTaskCard, taskCardType); err != nil {
 		fmt.Println(err)
 		log.Println(err)
-		resStr := new(Response).SetResp(400, "データ取得に失敗しました", 0, nil, nil)
+		resStr := new(Response).SetResp(400, "データ取得に失敗しました", 0, nil, nil, 0)
 		fmt.Fprintln(w, resStr)
 		return
 	}
@@ -250,11 +251,11 @@ func (controller *TaskCardController) Update(w http.ResponseWriter, r *http.Requ
 	if err != nil {
 		fmt.Println(err)
 		log.Println(err)
-		resStr := new(Response).SetResp(400, err.Error(), 0, nil, nil)
+		resStr := new(Response).SetResp(400, err.Error(), 0, nil, nil, 0)
 		fmt.Fprintln(w, resStr)
 		return
 	}
-	resStr := new(Response).SetResp(200, mess.Message, 0, nil, nil)
+	resStr := new(Response).SetResp(200, mess.Message, 0, nil, nil, 0)
 	fmt.Fprintln(w, resStr)
 }
 
@@ -265,7 +266,7 @@ func (controller *TaskCardController) IsFinished(w http.ResponseWriter, r *http.
 	if r.ContentLength == 0 {
 		fmt.Println("NO DATA BODY")
 		log.Println("NO DATA BODY")
-		resStr := new(Response).SetResp(400, "データ取得に失敗しました", 0, nil, nil)
+		resStr := new(Response).SetResp(400, "データ取得に失敗しました", 0, nil, nil, 0)
 		fmt.Fprintln(w, resStr)
 		return
 	}
@@ -276,7 +277,7 @@ func (controller *TaskCardController) IsFinished(w http.ResponseWriter, r *http.
 	if !ok || err != nil || taskCardId == 0 {
 		fmt.Println(err)
 		log.Println(err)
-		resStr := new(Response).SetResp(400, "データ取得に失敗しました", 0, nil, nil)
+		resStr := new(Response).SetResp(400, "データ取得に失敗しました", 0, nil, nil, 0)
 		fmt.Fprintln(w, resStr)
 		return
 	}
@@ -286,7 +287,7 @@ func (controller *TaskCardController) IsFinished(w http.ResponseWriter, r *http.
 	if err != nil {
 		fmt.Println(err)
 		log.Println(err)
-		resStr := new(Response).SetResp(400, "データ取得に失敗しました", 0, nil, nil)
+		resStr := new(Response).SetResp(400, "データ取得に失敗しました", 0, nil, nil, 0)
 		fmt.Fprintln(w, resStr)
 		return
 	}
@@ -294,7 +295,7 @@ func (controller *TaskCardController) IsFinished(w http.ResponseWriter, r *http.
 	if err := json.Unmarshal(bytesTaskCard, taskCardType); err != nil {
 		fmt.Println(err)
 		log.Println(err)
-		resStr := new(Response).SetResp(400, "データ取得に失敗しました", 0, nil, nil)
+		resStr := new(Response).SetResp(400, "データ取得に失敗しました", 0, nil, nil, 0)
 		fmt.Fprintln(w, resStr)
 		return
 	}
@@ -303,7 +304,7 @@ func (controller *TaskCardController) IsFinished(w http.ResponseWriter, r *http.
 	if err != nil || userId == 0 {
 		fmt.Println(err)
 		log.Println(err)
-		resStr := new(Response).SetResp(401, "ログインをしてください", 0, nil, nil)
+		resStr := new(Response).SetResp(401, "ログインをしてください", 0, nil, nil, 0)
 		fmt.Fprintln(w, resStr)
 		return
 	}
@@ -312,11 +313,11 @@ func (controller *TaskCardController) IsFinished(w http.ResponseWriter, r *http.
 	if err != nil {
 		fmt.Println(err)
 		log.Println(err)
-		resStr := new(Response).SetResp(400, err.Error(), 0, nil, nil)
+		resStr := new(Response).SetResp(400, err.Error(), 0, nil, nil, 0)
 		fmt.Fprintln(w, resStr)
 		return
 	}
-	resStr := new(Response).SetResp(200, mess.Message, 0, nil, nil)
+	resStr := new(Response).SetResp(200, mess.Message, 0, nil, nil, 0)
 	fmt.Fprintln(w, resStr)
 }
 
@@ -329,7 +330,7 @@ func (controller *TaskCardController) Delete(w http.ResponseWriter, r *http.Requ
 	if !ok || err != nil || taskCardId == 0 {
 		fmt.Println(err)
 		log.Println(err)
-		resStr := new(Response).SetResp(400, "データ取得に失敗しました", 0, nil, nil)
+		resStr := new(Response).SetResp(400, "データ取得に失敗しました", 0, nil, nil, 0)
 		fmt.Fprintln(w, resStr)
 		return
 	}
@@ -338,7 +339,7 @@ func (controller *TaskCardController) Delete(w http.ResponseWriter, r *http.Requ
 	if err != nil || userId == 0 {
 		fmt.Println(err)
 		log.Println(err)
-		resStr := new(Response).SetResp(401, "ログインをしてください", 0, nil, nil)
+		resStr := new(Response).SetResp(401, "ログインをしてください", 0, nil, nil, 0)
 		fmt.Fprintln(w, resStr)
 		return
 	}
@@ -347,10 +348,44 @@ func (controller *TaskCardController) Delete(w http.ResponseWriter, r *http.Requ
 	if err != nil {
 		fmt.Println(err)
 		log.Println(err)
-		resStr := new(Response).SetResp(400, err.Error(), 0, nil, nil)
+		resStr := new(Response).SetResp(400, err.Error(), 0, nil, nil, 0)
 		fmt.Fprintln(w, resStr)
 		return
 	}
-	resStr := new(Response).SetResp(200, mess.Message, 0, nil, nil)
+	resStr := new(Response).SetResp(200, mess.Message, 0, nil, nil, 0)
+	fmt.Fprintln(w, resStr)
+}
+
+func (controller *TaskCardController) IncompleteTaskCount(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	strTodoId, ok := vars["id"]
+	todoId, err := strconv.Atoi(strTodoId)
+	if !ok || err != nil || todoId == 0 {
+		fmt.Println(err)
+		log.Println(err)
+		resStr := new(Response).SetResp(400, "データ取得に失敗しました", 0, nil, nil, 0)
+		fmt.Fprintln(w, resStr)
+		return
+	}
+
+	userId, err := GetUserId(r)
+	if err != nil || userId == 0 {
+		fmt.Println(err)
+		log.Println(err)
+		resStr := new(Response).SetResp(401, "ログインをしてください", 0, nil, nil, 0)
+		fmt.Fprintln(w, resStr)
+		return
+	}
+
+	mess, incompleteTaskCount, err := controller.Interactor.GetIncompleteTaskCount(todoId, userId)
+	if err != nil {
+		fmt.Println(err)
+		log.Println(err)
+		resStr := new(Response).SetResp(400, "データ取得に失敗しました", 0, nil, nil, 0)
+		fmt.Fprintln(w, resStr)
+		return
+	}
+
+	resStr := new(Response).SetResp(200, mess.Message, 0, nil, nil, incompleteTaskCount)
 	fmt.Fprintln(w, resStr)
 }

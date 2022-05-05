@@ -148,3 +148,26 @@ func (interactor *TaskCardInteractor) DeleteTaskCard(taskCardId int, userId int)
 	}
 	return mess, nil
 }
+
+func (interactor *TaskCardInteractor) GetIncompleteTaskCount(todoId int, userId int) (mess *TaskCardMessage, incompleteTaskCount int, err error) {
+	if todoId == 0 || userId == 0 {
+		err = errors.New("データ取得に失敗しました")
+		fmt.Println(err)
+		log.Println(err)
+		return nil, 0, err
+	}
+
+	incompleteTaskCount, err = interactor.TaskCardRepository.GetCounts(todoId, userId)
+	if err != nil {
+		err = errors.New("データ取得に失敗しました")
+		fmt.Println(err)
+		log.Println(err)
+		return nil, 0, err
+	}
+
+	mess = &TaskCardMessage{
+		Message: "未完了タスクカード総数取得",
+	}
+
+	return mess, incompleteTaskCount, nil
+}
