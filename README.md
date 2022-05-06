@@ -50,7 +50,8 @@
   |_client //react-tyepscript
   |_nginx/nginx.conf
   |_mysql/Dockerfile
-      |_conf.d/my.conf
+  |    |_conf.d/my.conf
+  |_.github
 ```
 
 <br>
@@ -79,12 +80,14 @@ Golang 主要パッケージ
 - rs/cors
 - ini.v1
 - stretchr/testify
-
-その他
-
-- docker(開発環境構築)
 - .air(Golang のホットリロード)
 - deleve(Golang におけるデバッグ)
+
+インフラ関連
+
+- docker(開発環境構築)
+- GitHub(バージョン管理)
+- GitHub Actions (CI)
 
 <br>
 <br>
