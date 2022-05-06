@@ -26,4 +26,9 @@ func main() {
 		fmt.Println(err)
 		return
 	}
+
+	if err := seed.TaskCardsSeed(con); err != nil {
+		fmt.Println(err)
+		return
+	}
 }

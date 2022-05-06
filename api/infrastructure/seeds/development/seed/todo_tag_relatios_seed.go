@@ -3,7 +3,6 @@ package seed
 import (
 	"fmt"
 	"strconv"
-	"time"
 
 	"github.com/kory-jp/react_golang_mux/api/domain"
 
@@ -73,10 +72,9 @@ func TodoTagRelationsSeed(con *infrastructure.SqlHandler) (err error) {
 			todo_tag_relations(
 				todo_id,
 				tag_id
-				created_at
 			)
-		values (%s, "%s", "%s")
-		 `, strconv.Itoa(t.TodoID), strconv.Itoa(t.TagID), time.Now().Format("2006/01/02 15:04:05"))
+		values (%s, "%s")
+		 `, strconv.Itoa(t.TodoID), strconv.Itoa(t.TagID))
 		_, err = con.Conn.Exec(cmd)
 	}
 	return

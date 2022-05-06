@@ -2,7 +2,6 @@ package seed
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/kory-jp/react_golang_mux/api/domain"
 	"github.com/kory-jp/react_golang_mux/api/infrastructure"
@@ -65,11 +64,10 @@ func TagsSeed(con *infrastructure.SqlHandler) (err error) {
 			insert into
 				tags(
 					value,
-					label,
-					created_at
+					label
 				)
-			values ("%s", "%s", "%s")
-		`, t.Value, t.Label, time.Now().Format("2006/01/02 15:04:05"))
+			values ("%s", "%s")
+		`, t.Value, t.Label)
 		_, err = con.Conn.Exec(cmd)
 	}
 	return
