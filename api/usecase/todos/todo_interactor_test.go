@@ -52,7 +52,7 @@ func TestAdd(t *testing.T) {
 				m.EXPECT().TransStore(tx, args).Return(int64(1), nil)
 			},
 			wantMess: usecase.TodoMessage{
-				Message: "保存しました!",
+				Message: "保存しました",
 			},
 		},
 		{
