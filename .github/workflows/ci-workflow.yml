@@ -17,7 +17,6 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Unit Test
-        run: cd ${{ github.workspace }}
         run: cd api && sh test.sh
 
       - name: Success
