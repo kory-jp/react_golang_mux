@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -57,21 +58,6 @@ func NewTodoController(sqlHandler database.SqlHandler) *TodoController {
 	}
 }
 
-func GetUserId(r *http.Request) (userId int, err error) {
-	session, err := controllers.Store.Get(r, "session")
-	if err != nil {
-		log.Println(err)
-		fmt.Println(err)
-		return 0, err
-	}
-	if session.Values["userId"] == nil || session.Values["userId"] == 0 {
-		return 0, err
-	}
-
-	userId = session.Values["userId"].(int)
-	return userId, nil
-}
-
 // --- Todo新規追加 ----
 func (controller *TodoController) Create(w http.ResponseWriter, r *http.Request) {
 	if r.ContentLength == 0 {
@@ -81,83 +67,11 @@ func (controller *TodoController) Create(w http.ResponseWriter, r *http.Request)
 		fmt.Fprintln(w, resStr)
 		return
 	}
-	var file multipart.File
-	var fileHeader *multipart.FileHeader
-	var err error
-	var uploadFileName string
-	err = r.ParseMultipartForm(32 << 20)
+	uploadFileName, err := MakeImagePath(r)
 	if err != nil {
-		fmt.Println(err)
-		log.Println(err)
-		resStr := new(Response).SetResp(400, "画像の容量が大きく保存できません", nil, nil, 0)
+		resStr := new(Response).SetResp(400, err.Error(), nil, nil, 0)
 		fmt.Fprintln(w, resStr)
 		return
-	}
-	if file, fileHeader, err = r.FormFile("image"); err != nil {
-		if err == http.ErrMissingFile {
-			fmt.Println("画像が投稿されていません")
-		} else if err != nil {
-			fmt.Println(err)
-			log.Println(err)
-			resStr := new(Response).SetResp(400, "画像の取り込み失敗しました", nil, nil, 0)
-			fmt.Fprintln(w, resStr)
-			return
-		}
-	} else {
-		defer file.Close()
-		// 画像を保存するimgディレクトリが存在しない場合は作成する
-		// devModeの画像保存先とtestModeの画像の保存先を"api/assets/dev/img"を共通化
-		// devModeからtestModeでカレントディレクトリが異なるので、os.Getwdでそれぞれパスを指定する
-		p, _ := os.Getwd()
-		if string(p) == "/app/api" {
-			fmt.Println("dev")
-			err = os.MkdirAll("./assets/dev/img", os.ModePerm)
-			if err != nil {
-				fmt.Println(err)
-				log.Println(err)
-				resStr := new(Response).SetResp(400, "サーバーで障害が発生しました", nil, nil, 0)
-				fmt.Fprintln(w, resStr)
-				return
-			}
-		} else {
-			err = os.MkdirAll("../../../assets/dev/img", os.ModePerm)
-			if err != nil {
-				fmt.Println(err)
-				log.Println(err)
-				resStr := new(Response).SetResp(400, "サーバーで障害が発生しました", nil, nil, 0)
-				fmt.Fprintln(w, resStr)
-				return
-			}
-		}
-
-		// サーバー側に保存するために空ファイルを作成
-		var saveImage *os.File
-		uploadFileName = fmt.Sprintf("%d%s", time.Now().UnixNano(), fileHeader.Filename)
-		var imageFilePath string
-		if string(p) == "/app/api" {
-			imageFilePath = "./assets/dev/img/" + uploadFileName
-		} else {
-			imageFilePath = "../../../assets/dev/img/" + uploadFileName
-		}
-		formatPath := filepath.Clean(imageFilePath)
-		saveImage, err = os.Create(formatPath)
-		if err != nil {
-			fmt.Println(err)
-			log.Println(err)
-			resStr := new(Response).SetResp(400, "サーバーで障害が発生しました", nil, nil, 0)
-			fmt.Fprintln(w, resStr)
-			return
-		}
-		defer saveImage.Close()
-		size, err := io.Copy(saveImage, file)
-		if err != nil {
-			fmt.Println(err)
-			log.Println(err)
-			resStr := new(Response).SetResp(400, "サーバーで障害が発生しました", nil, nil, 0)
-			fmt.Fprintln(w, resStr)
-			return
-		}
-		fmt.Println("書き込んだByte数=>", size)
 	}
 
 	userId, err := GetUserId(r)
@@ -348,82 +262,11 @@ func (controller *TodoController) Update(w http.ResponseWriter, r *http.Request)
 		fmt.Fprintln(w, resStr)
 		return
 	}
-	var file multipart.File
-	var fileHeader *multipart.FileHeader
-	var err error
-	var uploadFileName string
-	err = r.ParseMultipartForm(32 << 20)
+
+	uploadFileName, err := MakeImagePath(r)
 	if err != nil {
-		fmt.Println(err)
-		log.Println(err)
-		resStr := new(Response).SetResp(400, "画像の容量が大きく保存できません", nil, nil, 0)
+		resStr := new(Response).SetResp(400, err.Error(), nil, nil, 0)
 		fmt.Fprintln(w, resStr)
-		return
-	}
-	if file, fileHeader, err = r.FormFile("image"); err != nil {
-		if err == http.ErrMissingFile {
-			fmt.Println("画像が投稿されていません")
-		} else if err != nil {
-			fmt.Println(err)
-			log.Println(err)
-			resStr := new(Response).SetResp(400, "画像の取り込みに失敗しました", nil, nil, 0)
-			fmt.Fprintln(w, resStr)
-			return
-		}
-	} else {
-		defer file.Close()
-
-		p, _ := os.Getwd()
-		if string(p) == "/app/api" {
-			fmt.Println("dev")
-			err = os.MkdirAll("./assets/dev/img", os.ModePerm)
-			if err != nil {
-				fmt.Println(err)
-				log.Println(err)
-				resStr := new(Response).SetResp(400, "サーバーで障害が発生しました", nil, nil, 0)
-				fmt.Fprintln(w, resStr)
-				return
-			}
-		} else {
-			err = os.MkdirAll("../../../assets/dev/img", os.ModePerm)
-			if err != nil {
-				fmt.Println(err)
-				log.Println(err)
-				resStr := new(Response).SetResp(400, "サーバーで障害が発生しました", nil, nil, 0)
-				fmt.Fprintln(w, resStr)
-				return
-			}
-		}
-
-		var saveImage *os.File
-		uploadFileName = fmt.Sprintf("%d%s", time.Now().UnixNano(), fileHeader.Filename)
-		var imageFilePath string
-		if string(p) == "/app/api" {
-			imageFilePath = "./assets/dev/img/" + uploadFileName
-		} else {
-			imageFilePath = "../../../assets/dev/img/" + uploadFileName
-		}
-		formatPath := filepath.Clean(imageFilePath)
-		saveImage, err = os.Create(formatPath)
-		if err != nil {
-			//  "サーバ側でファイル確保できませんでした
-			fmt.Println(err)
-			log.Println(err)
-			resStr := new(Response).SetResp(400, "サーバーで障害が発生しました", nil, nil, 0)
-			fmt.Fprintln(w, resStr)
-			return
-		}
-		defer saveImage.Close()
-		size, err := io.Copy(saveImage, file)
-		if err != nil {
-			// アップロードしたファイルの書き込みに失敗しました。"
-			fmt.Println(err)
-			log.Println(err)
-			resStr := new(Response).SetResp(400, "サーバーで障害が発生しました", nil, nil, 0)
-			fmt.Fprintln(w, resStr)
-			return
-		}
-		fmt.Println("書き込んだByte数=>", size)
 	}
 
 	userId, err := GetUserId(r)
@@ -628,4 +471,97 @@ func (controller *TodoController) DeleteInIndex(w http.ResponseWriter, r *http.R
 	}
 	resStr := new(Response).SetResp(200, mess.Message, todos, nil, sumPage)
 	fmt.Fprintln(w, resStr)
+}
+
+func GetUserId(r *http.Request) (userId int, err error) {
+	session, err := controllers.Store.Get(r, "session")
+	if err != nil {
+		log.Println(err)
+		fmt.Println(err)
+		return 0, err
+	}
+	if session.Values["userId"] == nil || session.Values["userId"] == 0 {
+		return 0, err
+	}
+
+	userId = session.Values["userId"].(int)
+	return userId, nil
+}
+
+func MakeImagePath(r *http.Request) (uploadFileName string, err error) {
+	var file multipart.File
+	var fileHeader *multipart.FileHeader
+	err = r.ParseMultipartForm(32 << 20)
+	if err != nil {
+		fmt.Println(err)
+		log.Println(err)
+		// resStr := new(Response).SetResp(400, "画像の容量が大きく保存できません", nil, nil, 0)
+		err = errors.New("画像の容量が大きく保存できません")
+		return "", err
+	}
+	if file, fileHeader, err = r.FormFile("image"); err != nil {
+		if err == http.ErrMissingFile {
+			fmt.Println("画像が投稿されていません")
+			return uploadFileName, nil
+		} else if err != nil {
+			fmt.Println(err)
+			log.Println(err)
+			err = errors.New("画像の取り込み失敗しました")
+			return "", err
+		}
+	} else {
+		defer file.Close()
+		// 画像を保存するimgディレクトリが存在しない場合は作成する
+		// devModeの画像保存先とtestModeの画像の保存先を"api/assets/dev/img"を共通化
+		// devModeからtestModeでカレントディレクトリが異なるので、os.Getwdでそれぞれパスを指定する
+		p, _ := os.Getwd()
+		if string(p) == "/app/api" {
+			// --- dev ----
+			err = os.MkdirAll("./assets/dev/img", os.ModePerm)
+			if err != nil {
+				fmt.Println(err)
+				log.Println(err)
+				err = errors.New("サーバーで障害が発生しました")
+				return "", err
+			}
+		} else {
+			// --- test ---
+			err = os.MkdirAll("../../../assets/dev/testImg", os.ModePerm)
+			if err != nil {
+				fmt.Println(err)
+				log.Println(err)
+				err = errors.New("サーバーで障害が発生しました")
+				return "", err
+			}
+		}
+
+		// サーバー側に保存するために空ファイルを作成
+		var saveImage *os.File
+		uploadFileName = fmt.Sprintf("%d%s", time.Now().UnixNano(), fileHeader.Filename)
+		var imageFilePath string
+		if string(p) == "/app/api" {
+			imageFilePath = "./assets/dev/img/" + uploadFileName
+		} else {
+			imageFilePath = "../../../assets/dev/testImg/" + uploadFileName
+		}
+		formatPath := filepath.Clean(imageFilePath)
+		saveImage, err = os.Create(formatPath)
+		if err != nil {
+			fmt.Println(err)
+			log.Println(err)
+			err = errors.New("サーバーで障害が発生しました")
+			return "", err
+
+		}
+		defer saveImage.Close()
+		size, err := io.Copy(saveImage, file)
+		if err != nil {
+			fmt.Println(err)
+			log.Println(err)
+			err = errors.New("サーバーで障害が発生しました")
+			return "", err
+		}
+		fmt.Println("書き込んだByte数=>", size)
+	}
+	return uploadFileName, nil
 }
