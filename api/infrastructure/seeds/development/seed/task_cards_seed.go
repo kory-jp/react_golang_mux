@@ -108,6 +108,33 @@ func TaskCardsDate() (taskCards domain.TaskCards) {
 		Memo:    "レジュメは藤田部長へ一度確認をお願いする",
 	}
 
+	tc12 := domain.TaskCard{
+		UserID:  1,
+		TodoID:  11,
+		Title:   "今月の活動の整理",
+		Purpose: "今月は営業活動の他に業務改善活動、面接対応も担当しており限られた時間で報告する上で要点をまとめたい",
+		Content: "業務活動記録の見直し \n 営業達成率 \n 誓約件数の集計 \n その他の業務に掛けた時間の集計",
+		Memo:    "明日は会議前日は１日外出するので、前日までに事務作業は終わらせる",
+	}
+
+	tc13 := domain.TaskCard{
+		UserID:  1,
+		TodoID:  11,
+		Title:   "来月の活動予定を確認",
+		Purpose: "会議では来月の活動予定が確認されるが、半期の目標売上に対して実績が20%ほど届いていないので、今後の目標達成までの活動方針を伝える必要がある",
+		Content: "現時点までの活動の反省 \n 目標達成までのスケジュールの修正 \n 開拓されていない営業ルートの確認",
+		Memo:    "共に営業活動をしている佐野と相談しながら調整",
+	}
+
+	tc14 := domain.TaskCard{
+		UserID:  1,
+		TodoID:  9,
+		Title:   "実地調査",
+		Purpose: "実際に神奈川商事の営業地域に訪れて、データだけではわからない傾向や流行を調査しプレゼンに活かす",
+		Content: "実際に足を運び、地域の行列店や話題のスポットを体験してみる",
+		Memo:    "",
+	}
+
 	taskCards = append(
 		taskCards,
 		tc1,
@@ -121,6 +148,9 @@ func TaskCardsDate() (taskCards domain.TaskCards) {
 		tc9,
 		tc10,
 		tc11,
+		tc12,
+		tc13,
+		tc14,
 	)
 	return
 }
