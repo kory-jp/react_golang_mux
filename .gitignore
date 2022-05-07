@@ -37,6 +37,7 @@ api/env/
 api/tmp/main
 api/tmp/air.log
 api/assets/dev/img/
+api/assets/dev/testImg/
 api/__debug_bin
 
 
