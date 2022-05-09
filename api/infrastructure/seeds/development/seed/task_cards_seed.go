@@ -135,6 +135,24 @@ func TaskCardsDate() (taskCards domain.TaskCards) {
 		Memo:    "",
 	}
 
+	tc15 := domain.TaskCard{
+		UserID:  1,
+		TodoID:  8,
+		Title:   "各データを集計して傾向を図表化",
+		Purpose: "数値において前期からの変化を明確にして、改善目標を数値化",
+		Content: "フィードバックバックから数値をエクセルに入力",
+		Memo:    "",
+	}
+
+	tc16 := domain.TaskCard{
+		UserID:  1,
+		TodoID:  7,
+		Title:   "イベントに出展する自社商品の候補決定",
+		Purpose: "イベントコンセプトを明確にするために出展商品の方向性を確定させる",
+		Content: "社内会議でコンセプトを共有して、多数決により決定",
+		Memo:    "社内会議の日程をまず決定",
+	}
+
 	taskCards = append(
 		taskCards,
 		tc1,
@@ -151,6 +169,8 @@ func TaskCardsDate() (taskCards domain.TaskCards) {
 		tc12,
 		tc13,
 		tc14,
+		tc15,
+		tc16,
 	)
 	return
 }
