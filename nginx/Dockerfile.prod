@@ -1,0 +1,6 @@
+FROM ngix
+ENV TZ=Asia/Tokyo
+RUN rm -f /etc/nginx/conf.d/*
+VOLUME ./nginx.conf:/etc/nginx/nginx.conf
+EXPOSE 8080
+CMD ["/usr/sbin/nginx", "-g", "daemon off;"]
