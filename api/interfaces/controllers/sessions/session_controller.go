@@ -7,7 +7,8 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"os"
+
+	"github.com/kory-jp/react_golang_mux/api/config"
 
 	"github.com/gorilla/sessions"
 	"github.com/kory-jp/react_golang_mux/api/domain"
@@ -43,7 +44,8 @@ func NewSessionController(sqlHandler database.SqlHandler) *SessionController {
 	}
 }
 
-var Store = sessions.NewCookieStore([]byte(os.Getenv("SESSION_KEY")))
+// var Store = sessions.NewCookieStore([]byte(os.Getenv("SESSION_KEY")))
+var Store = sessions.NewCookieStore([]byte(config.Config.SessionKey))
 
 func (controller *SessionController) Login(w http.ResponseWriter, r *http.Request) {
 	_, err := r.Cookie("cookie-name")
