@@ -1,4 +1,4 @@
-FROM ngix
+FROM nginx
 ENV TZ=Asia/Tokyo
 RUN rm -f /etc/nginx/conf.d/*
 VOLUME ./nginx.conf:/etc/nginx/nginx.conf
