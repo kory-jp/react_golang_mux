@@ -13,6 +13,7 @@ import (
 	"strconv"
 	"testing"
 
+	"github.com/kory-jp/react_golang_mux/api/config"
 	usecase "github.com/kory-jp/react_golang_mux/api/usecase/todos"
 	mock_usecase "github.com/kory-jp/react_golang_mux/api/usecase/todos/mock"
 
@@ -26,7 +27,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var store = sessions.NewCookieStore([]byte(os.Getenv("SESSION_KEY")))
+// var store = sessions.NewCookieStore([]byte(os.Getenv("SESSION_KEY")))
+var store = sessions.NewCookieStore([]byte(config.Config.SessionKey))
 var response *controllers.Response
 
 func TestCreate(t *testing.T) {
