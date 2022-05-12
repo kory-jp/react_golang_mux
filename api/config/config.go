@@ -2,7 +2,9 @@ package config
 
 import (
 	"log"
+	"os"
 
+	"github.com/joho/godotenv"
 	"github.com/kory-jp/react_golang_mux/api/utils"
 	"gopkg.in/ini.v1"
 )
@@ -15,7 +17,7 @@ type ConfigList struct {
 	Password  string
 	DBHost    string
 	DBPort    string
-	DBname    string
+	DBName    string
 	Static    string
 }
 
@@ -31,15 +33,31 @@ func LoadConfig() {
 	if err != nil {
 		log.Fatalln(err)
 	}
+
+	env := os.Getenv("GO_ENV")
+	if env == "production" {
+		err := godotenv.Load("env/production.env")
+		if err != nil {
+			log.Println(err)
+			log.Panicln(err)
+		}
+	} else {
+		err := godotenv.Load("env/development.env")
+		if err != nil {
+			log.Println(err)
+			log.Panicln(err)
+		}
+	}
+
 	Config = ConfigList{
-		Port:      cfg.Section("api").Key("port").MustString("8000"),
+		Port:      os.Getenv("API_PORT"),
 		LogFile:   cfg.Section("api").Key("logfile").String(),
 		SQLDriver: cfg.Section("db").Key("driver").String(),
-		UserName:  cfg.Section("db").Key("user_name").String(),
-		Password:  cfg.Section("db").Key("password").String(),
-		DBHost:    cfg.Section("db").Key("host").String(),
-		DBPort:    cfg.Section("db").Key("port").String(),
-		DBname:    cfg.Section("db").Key("db_name").String(),
+		UserName:  os.Getenv("USER_NAME"),
+		Password:  os.Getenv("PASSWORD"),
+		DBHost:    os.Getenv("HOST"),
+		DBPort:    os.Getenv("DB_PORT"),
+		DBName:    os.Getenv("DB_NAME"),
 		Static:    cfg.Section("api").Key("static").String(),
 	}
 }

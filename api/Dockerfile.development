@@ -1,6 +1,7 @@
 FROM golang:alpine
 WORKDIR /app/api
-RUN export GOPATH= && export GO111MODULE=on 
+RUN export GOPATH= && export GO111MODULE=on
+ENV GO_ENV developemnt
 COPY ./ /app/api
 RUN apk upgrade --update && \
   apk --no-cache add git gcc musl-dev

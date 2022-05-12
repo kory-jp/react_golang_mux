@@ -23,7 +23,7 @@ func NewSqlHandler() *SqlHandler {
 		config.Config.Password,
 		config.Config.DBHost,
 		config.Config.DBPort,
-		config.Config.DBname,
+		config.Config.DBName,
 	)
 	conn, err := sql.Open(config.Config.SQLDriver, DSN)
 	if err != nil {
