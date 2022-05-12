@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/joho/godotenv"
 	"github.com/kory-jp/react_golang_mux/api/utils"
 	"gopkg.in/ini.v1"
 )
@@ -18,7 +19,6 @@ type ConfigList struct {
 	DBHost     string
 	DBPort     string
 	DBname     string
-	Static     string
 }
 
 var Config ConfigList
@@ -29,31 +29,35 @@ func init() {
 }
 
 func LoadConfig() {
-	var cfg *ini.File
-	var err error
+	cfg, err := ini.Load("ini/config.ini")
+	if err != nil {
+		log.Println(err)
+		log.Panicln(err)
+	}
 	env := os.Getenv("GO_ENV")
 	if env == "production" {
-		cfg, err = ini.Load("ini/production_config.ini")
+		err := godotenv.Load("env/production.env")
 		if err != nil {
-			log.Fatalln(err)
+			log.Println(err)
+			log.Panicln(err)
 		}
 	} else {
-		cfg, err = ini.Load("ini/development_config.ini")
+		err := godotenv.Load("env/development.env")
 		if err != nil {
-			log.Fatalln(err)
+			log.Println(err)
+			log.Panicln(err)
 		}
 	}
 
 	Config = ConfigList{
-		Port:       cfg.Section("api").Key("port").MustString("8000"),
+		Port:       os.Getenv("API_PORT"),
 		LogFile:    cfg.Section("api").Key("logfile").String(),
-		SessionKey: cfg.Section("api").Key("session_key").String(),
+		SessionKey: os.Getenv("SESSION_KEY"),
 		SQLDriver:  cfg.Section("db").Key("driver").String(),
-		UserName:   cfg.Section("db").Key("user_name").String(),
-		Password:   cfg.Section("db").Key("password").String(),
-		DBHost:     cfg.Section("db").Key("host").String(),
-		DBPort:     cfg.Section("db").Key("port").String(),
-		DBname:     cfg.Section("db").Key("db_name").String(),
-		Static:     cfg.Section("api").Key("static").String(),
+		UserName:   os.Getenv("USER_NAME"),
+		Password:   os.Getenv("PASSWORD"),
+		DBHost:     os.Getenv("HOST"),
+		DBPort:     os.Getenv("DB_PORT"),
+		DBname:     os.Getenv("DB_NAME"),
 	}
 }
