@@ -1,8 +1,11 @@
 package infrastructure
 
 import (
+	"fmt"
 	"log"
 	"net/http"
+	"os"
+	"strings"
 
 	sessions "github.com/kory-jp/react_golang_mux/api/interfaces/controllers/sessions"
 	tags "github.com/kory-jp/react_golang_mux/api/interfaces/controllers/tags"
@@ -16,6 +19,7 @@ import (
 
 func Init() {
 	log.SetFlags(log.Ltime | log.Llongfile)
+	fmt.Println(os.Getenv("ALLOWED_METHODS"))
 
 	r := mux.NewRouter()
 	todoController := todos.NewTodoController(NewSqlHandler())
@@ -47,10 +51,10 @@ func Init() {
 	r.PathPrefix("/api/img/").Handler(http.StripPrefix("/api/img/", http.FileServer(http.Dir("./assets/dev/img"))))
 	// -----
 	c := cors.New(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:8080"},
+		AllowedOrigins:   []string{os.Getenv("ALLOWED_ORIGINS")},
 		AllowCredentials: true,
-		AllowedMethods:   []string{"POST", "GET", "PUT", "DELETE"},
-		AllowedHeaders:   []string{"Accept", "Content-Type"},
+		AllowedMethods:   strings.Split(os.Getenv("ALLOWED_METHODS"), " "),
+		AllowedHeaders:   strings.Split(os.Getenv("ALLOWED_HEADERS"), " "),
 	})
 	handler := c.Handler(r)
 	http.ListenAndServe(":8000", handler)

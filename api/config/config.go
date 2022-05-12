@@ -18,7 +18,6 @@ type ConfigList struct {
 	DBHost    string
 	DBPort    string
 	DBName    string
-	Static    string
 }
 
 var Config ConfigList
@@ -52,12 +51,11 @@ func LoadConfig() {
 	Config = ConfigList{
 		Port:      os.Getenv("API_PORT"),
 		LogFile:   cfg.Section("api").Key("logfile").String(),
-		SQLDriver: cfg.Section("db").Key("driver").String(),
+		SQLDriver: os.Getenv("DRIVER"),
 		UserName:  os.Getenv("USER_NAME"),
 		Password:  os.Getenv("PASSWORD"),
 		DBHost:    os.Getenv("HOST"),
 		DBPort:    os.Getenv("DB_PORT"),
 		DBName:    os.Getenv("DB_NAME"),
-		Static:    cfg.Section("api").Key("static").String(),
 	}
 }

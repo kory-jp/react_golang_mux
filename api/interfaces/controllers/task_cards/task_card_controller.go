@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -47,21 +48,6 @@ func NewTaskCardController(sqlHandler database.SqlHandler) *TaskCardController {
 	}
 }
 
-func GetUserId(r *http.Request) (userId int, err error) {
-	session, err := controllers.Store.Get(r, "session")
-	if err != nil {
-		log.Println(err)
-		fmt.Println(err)
-		return 0, err
-	}
-	if session.Values["userId"] == nil || session.Values["userId"] == 0 {
-		return 0, err
-	}
-
-	userId = session.Values["userId"].(int)
-	return userId, nil
-}
-
 // --- 新規作成 ---
 // ---
 func (controller *TaskCardController) Create(w http.ResponseWriter, r *http.Request) {
@@ -77,7 +63,7 @@ func (controller *TaskCardController) Create(w http.ResponseWriter, r *http.Requ
 	if err != nil || userId == 0 {
 		fmt.Println(err)
 		log.Println(err)
-		resStr := new(Response).SetResp(401, "ログインをしてください", 0, nil, nil, 0)
+		resStr := new(Response).SetResp(401, err.Error(), 0, nil, nil, 0)
 		fmt.Fprintln(w, resStr)
 		return
 	}
@@ -140,7 +126,7 @@ func (controller *TaskCardController) Index(w http.ResponseWriter, r *http.Reque
 	if err != nil || userId == 0 {
 		fmt.Println(err)
 		log.Println(err)
-		resStr := new(Response).SetResp(401, "ログインをしてください", 0, nil, nil, 0)
+		resStr := new(Response).SetResp(401, err.Error(), 0, nil, nil, 0)
 		fmt.Fprintln(w, resStr)
 		return
 	}
@@ -177,7 +163,7 @@ func (controller *TaskCardController) Show(w http.ResponseWriter, r *http.Reques
 	if err != nil || userId == 0 {
 		fmt.Println(err)
 		log.Println(err)
-		resStr := new(Response).SetResp(401, "ログインをしてください", 0, nil, nil, 0)
+		resStr := new(Response).SetResp(401, err.Error(), 0, nil, nil, 0)
 		fmt.Fprintln(w, resStr)
 		return
 	}
@@ -222,7 +208,7 @@ func (controller *TaskCardController) Update(w http.ResponseWriter, r *http.Requ
 	if err != nil || userId == 0 {
 		fmt.Println(err)
 		log.Println(err)
-		resStr := new(Response).SetResp(401, "ログインをしてください", 0, nil, nil, 0)
+		resStr := new(Response).SetResp(401, err.Error(), 0, nil, nil, 0)
 		fmt.Fprintln(w, resStr)
 		return
 	}
@@ -304,7 +290,7 @@ func (controller *TaskCardController) IsFinished(w http.ResponseWriter, r *http.
 	if err != nil || userId == 0 {
 		fmt.Println(err)
 		log.Println(err)
-		resStr := new(Response).SetResp(401, "ログインをしてください", 0, nil, nil, 0)
+		resStr := new(Response).SetResp(401, err.Error(), 0, nil, nil, 0)
 		fmt.Fprintln(w, resStr)
 		return
 	}
@@ -339,7 +325,7 @@ func (controller *TaskCardController) Delete(w http.ResponseWriter, r *http.Requ
 	if err != nil || userId == 0 {
 		fmt.Println(err)
 		log.Println(err)
-		resStr := new(Response).SetResp(401, "ログインをしてください", 0, nil, nil, 0)
+		resStr := new(Response).SetResp(401, err.Error(), 0, nil, nil, 0)
 		fmt.Fprintln(w, resStr)
 		return
 	}
@@ -372,7 +358,7 @@ func (controller *TaskCardController) IncompleteTaskCount(w http.ResponseWriter,
 	if err != nil || userId == 0 {
 		fmt.Println(err)
 		log.Println(err)
-		resStr := new(Response).SetResp(401, "ログインをしてください", 0, nil, nil, 0)
+		resStr := new(Response).SetResp(401, err.Error(), 0, nil, nil, 0)
 		fmt.Fprintln(w, resStr)
 		return
 	}
@@ -388,4 +374,20 @@ func (controller *TaskCardController) IncompleteTaskCount(w http.ResponseWriter,
 
 	resStr := new(Response).SetResp(200, mess.Message, 0, nil, nil, incompleteTaskCount)
 	fmt.Fprintln(w, resStr)
+}
+
+func GetUserId(r *http.Request) (userId int, err error) {
+	session, err := controllers.Store.Get(r, "session")
+	if err != nil {
+		log.Println(err)
+		fmt.Println(err)
+		return 0, err
+	}
+	if session.Values["userId"] == nil || session.Values["userId"] == 0 {
+		err = errors.New("ログインをしてください")
+		return 0, err
+	}
+
+	userId = session.Values["userId"].(int)
+	return userId, nil
 }
