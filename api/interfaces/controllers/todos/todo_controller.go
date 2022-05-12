@@ -78,7 +78,7 @@ func (controller *TodoController) Create(w http.ResponseWriter, r *http.Request)
 	if err != nil || userId == 0 {
 		fmt.Println(err)
 		log.Println(err)
-		resStr := new(Response).SetResp(401, "ログインをしてください", nil, nil, 0)
+		resStr := new(Response).SetResp(401, err.Error(), nil, nil, 0)
 		fmt.Fprintln(w, resStr)
 		return
 	}
@@ -143,7 +143,7 @@ func (controller *TodoController) Index(w http.ResponseWriter, r *http.Request) 
 	if err != nil || userId == 0 {
 		fmt.Println(err)
 		log.Println(err)
-		resStr := new(Response).SetResp(401, "ログインをしてください", nil, nil, 0)
+		resStr := new(Response).SetResp(401, err.Error(), nil, nil, 0)
 		fmt.Fprintln(w, resStr)
 		return
 	}
@@ -176,7 +176,7 @@ func (controller *TodoController) Show(w http.ResponseWriter, r *http.Request) {
 	if err != nil || userId == 0 {
 		fmt.Println(err)
 		log.Println(err)
-		resStr := new(Response).SetResp(401, "ログインをしてください", nil, nil, 0)
+		resStr := new(Response).SetResp(401, err.Error(), nil, nil, 0)
 		fmt.Fprintln(w, resStr)
 		return
 	}
@@ -237,7 +237,7 @@ func (controller *TodoController) Search(w http.ResponseWriter, r *http.Request)
 	if err != nil || userId == 0 {
 		fmt.Println(err)
 		log.Println(err)
-		resStr := new(Response).SetResp(401, "ログインをしてください", nil, nil, 0)
+		resStr := new(Response).SetResp(401, err.Error(), nil, nil, 0)
 		fmt.Fprintln(w, resStr)
 		return
 	}
@@ -273,7 +273,7 @@ func (controller *TodoController) Update(w http.ResponseWriter, r *http.Request)
 	if err != nil || userId == 0 {
 		fmt.Println(err)
 		log.Println(err)
-		resStr := new(Response).SetResp(401, "ログインをしてください", nil, nil, 0)
+		resStr := new(Response).SetResp(401, err.Error(), nil, nil, 0)
 		fmt.Fprintln(w, resStr)
 		return
 	}
@@ -387,7 +387,7 @@ func (controller *TodoController) IsFinished(w http.ResponseWriter, r *http.Requ
 	if err != nil || userId == 0 {
 		fmt.Println(err)
 		log.Println(err)
-		resStr := new(Response).SetResp(401, "ログインをしてください", nil, nil, 0)
+		resStr := new(Response).SetResp(401, err.Error(), nil, nil, 0)
 		fmt.Fprintln(w, resStr)
 		return
 	}
@@ -418,7 +418,7 @@ func (controller *TodoController) Delete(w http.ResponseWriter, r *http.Request)
 	if err != nil || userId == 0 {
 		fmt.Println(err)
 		log.Println(err)
-		resStr := new(Response).SetResp(401, "ログインをしてください", nil, nil, 0)
+		resStr := new(Response).SetResp(401, err.Error(), nil, nil, 0)
 		fmt.Fprintln(w, resStr)
 		return
 	}
@@ -459,7 +459,7 @@ func (controller *TodoController) DeleteInIndex(w http.ResponseWriter, r *http.R
 	if err != nil || userId == 0 {
 		fmt.Println(err)
 		log.Println(err)
-		resStr := new(Response).SetResp(401, "ログインをしてください", nil, nil, 0)
+		resStr := new(Response).SetResp(401, err.Error(), nil, nil, 0)
 		fmt.Fprintln(w, resStr)
 		return
 	}
@@ -481,6 +481,7 @@ func GetUserId(r *http.Request) (userId int, err error) {
 		return 0, err
 	}
 	if session.Values["userId"] == nil || session.Values["userId"] == 0 {
+		err = errors.New("ログインをしてください")
 		return 0, err
 	}
 

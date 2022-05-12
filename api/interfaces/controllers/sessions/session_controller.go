@@ -152,6 +152,9 @@ func (controller *SessionController) Authenticate(w http.ResponseWriter, r *http
 			http.SetCookie(w, cookie)
 			resStr := new(Response).SetResp(200, "ログイン状態確認完了", user)
 			fmt.Fprintln(w, resStr)
+		} else {
+			resStr := new(Response).SetResp(401, "認証に失敗しました", nil)
+			fmt.Fprintln(w, resStr)
 		}
 	} else {
 		resStr := new(Response).SetResp(401, "ログインしてください", nil)
@@ -176,6 +179,7 @@ func (controller *SessionController) Logout(w http.ResponseWriter, r *http.Reque
 	}
 	session.Values["token"] = nil
 	session.Values["userId"] = nil
+	session.Save(r, w)
 	cookie := http.Cookie{
 		Name:     "cookie-name",
 		Value:    "",
