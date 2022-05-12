@@ -11,17 +11,11 @@ import (
 	users "github.com/kory-jp/react_golang_mux/api/interfaces/controllers/users"
 
 	"github.com/gorilla/mux"
-	"github.com/joho/godotenv"
 	"github.com/rs/cors"
 )
 
 func Init() {
 	log.SetFlags(log.Ltime | log.Llongfile)
-	err := godotenv.Load("env/dev.env")
-	if err != nil {
-		log.Println(err)
-		log.Panicln(err)
-	}
 
 	r := mux.NewRouter()
 	todoController := todos.NewTodoController(NewSqlHandler())
