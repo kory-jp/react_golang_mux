@@ -1,7 +1,6 @@
 package infrastructure
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -19,7 +18,6 @@ import (
 
 func Init() {
 	log.SetFlags(log.Ltime | log.Llongfile)
-	fmt.Println(os.Getenv("ALLOWED_METHODS"))
 
 	r := mux.NewRouter()
 	todoController := todos.NewTodoController(NewSqlHandler())

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"math/big"
 	"net/http"
 	"os"
 
@@ -110,6 +111,7 @@ func (controller *SessionController) Login(w http.ResponseWriter, r *http.Reques
 
 func (controller *SessionController) Authenticate(w http.ResponseWriter, r *http.Request) {
 	session, err := Store.Get(r, "session")
+	fmt.Println("sess", session)
 	if err != nil {
 		fmt.Println(err)
 		log.Println(err)
@@ -118,6 +120,7 @@ func (controller *SessionController) Authenticate(w http.ResponseWriter, r *http
 		return
 	}
 	cookie, err := r.Cookie("cookie-name")
+	fmt.Println(r.Cookie("session"))
 	if err != nil {
 		fmt.Println(err)
 		log.Println(err)
@@ -134,6 +137,7 @@ func (controller *SessionController) Authenticate(w http.ResponseWriter, r *http
 				return
 			}
 			token, err := MakeRandomStr(10)
+			fmt.Println("token", token)
 			if err != nil {
 				fmt.Println(err)
 				log.Println(err)
@@ -192,15 +196,14 @@ func (controller *SessionController) Logout(w http.ResponseWriter, r *http.Reque
 
 func MakeRandomStr(digit uint32) (token string, err error) {
 	const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-
 	b := make([]byte, digit)
-	if _, err := rand.Read(b); err != nil {
-		log.Println(err)
-		return "", err
-	}
-
-	for _, v := range b {
-		token += string(letters[int(v)%len(letters)])
+	for range b {
+		randNum, err := rand.Int(rand.Reader, big.NewInt(248))
+		if err != nil {
+			return "", err
+		}
+		RangeRandomNumbersInput := int(randNum.Int64())
+		token += string(letters[RangeRandomNumbersInput%len(letters)])
 	}
 	return token, nil
 }
