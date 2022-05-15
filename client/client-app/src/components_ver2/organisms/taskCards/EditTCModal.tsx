@@ -25,7 +25,7 @@ export const EditTCModal: FC<Props> = (props) => {
     setPurpose(taskCard.purpose)
     setContent(taskCard.content)
     setMemo(taskCard.memo)
-  }, [])
+  }, [taskCard.content, taskCard.memo, taskCard.purpose, taskCard.title])
 
   const onChangeInputTitle = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     setTitle(event.target.value)
@@ -46,7 +46,7 @@ export const EditTCModal: FC<Props> = (props) => {
   const onClickUpdateTaskCard = useCallback(() => {
     dispatch(updateTaskCard(taskCard.id, taskCard.todoId, title, purpose, content, memo, setSumPage, queryPage))
     onClose()
-  }, [taskCard, title, purpose, content, memo])
+  }, [dispatch, onClose, setSumPage, queryPage, taskCard, title, purpose, content, memo])
 
   return(
     <>

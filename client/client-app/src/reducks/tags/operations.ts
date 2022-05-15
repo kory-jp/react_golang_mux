@@ -24,7 +24,7 @@ export const indexTags = () => {
         }
       ).then((response) => {
         const resp: Response = response.data
-        if (resp.status == 200) {
+        if (resp.status === 200) {
           dispatch(indexTagsAction(resp.tags))
         } else {
           dispatch(pushToast({title: resp.message, severity: "error"}))

@@ -17,7 +17,7 @@ export const RegistrationSection: FC = () => {
 
   useEffect(() => {
     dispatch(isLoggedOut())
-  },[])
+  },[dispatch])
 
   const inputName = useCallback((event: React.ChangeEvent<HTMLInputElement>)=> {
     setName(event.target.value)
@@ -38,12 +38,12 @@ export const RegistrationSection: FC = () => {
   const onClickRegistration = useCallback(() => {
     dispatch(saveUserInfo(name, email, password, passwordConfirmation))
     returnTop()
-  },[name, email, password, passwordConfirmation])
+  },[dispatch, returnTop, name, email, password, passwordConfirmation])
 
   const onClickToLogin = useCallback(() => {
     dispatch(push("/"))
     returnTop()
-  },[])
+  },[dispatch, returnTop])
 
   return (
     <>

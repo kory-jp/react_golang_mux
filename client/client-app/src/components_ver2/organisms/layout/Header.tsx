@@ -23,17 +23,17 @@ export const Header: FC = () => {
 
   useEffect(() => {
     dispatch(isLoggedIn())
-  },[])
+  },[dispatch])
 
   const onClickToTop = useCallback(() => {
     dispatch(push("/todo"))
     returnTop()
-  }, [])
+  }, [dispatch, returnTop])
 
   const onClickLogout = useCallback(() => {
     dispatch(logout())
     returnTop()
-  }, [])
+  }, [dispatch, returnTop])
 
   const onClickOpenDrawer = useCallback(() => {
     setOpen(true)

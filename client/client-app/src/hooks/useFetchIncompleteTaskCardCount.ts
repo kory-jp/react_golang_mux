@@ -1,5 +1,4 @@
 import axios from "axios"
-import { useState } from "react"
 import { useDispatch } from "react-redux"
 import { useParams } from "react-router-dom"
 import { pushToast } from "../reducks/toasts/actions"
@@ -34,7 +33,7 @@ export const useFetchIncompleteTaskCardCount = () => {
           }
         ).then((response) => {
           const resp: Response = response.data
-          if (resp.status == 200) {
+          if (resp.status === 200) {
             setIncompleteTaskCardCount(resp.incompleteTaskCount)
           } else {
             dispatch(pushToast({title: response.data.message, severity: "error"}))             

@@ -49,7 +49,7 @@ export const EditTodoModal: FC<Props> = (props) => {
           }
         }
         ).then((response) => {
-          if (response.data.status == 200) {
+          if (response.data.status === 200) {
             const todo = response.data.todo
             setTitle(todo.title)
             setContent(todo.content)
@@ -71,12 +71,12 @@ export const EditTodoModal: FC<Props> = (props) => {
             dispatch(nowLoadingState(false));
           }, 800);
         });
-  }, [])
+  }, [dispatch])
 
   useEffect(() => {
     getTodoInfo(id)
     dispatch(indexTags())
-  }, [getTodoInfo])
+  }, [dispatch, getTodoInfo, id])
 
   const options = useSelector((state: RootState) => state.tags)
 
@@ -137,14 +137,14 @@ export const EditTodoModal: FC<Props> = (props) => {
       formData.append('tagIds', tagId)
     }
     return formData
-  }, [title, content, importance, urgency, tags, image, imagePath])
+  }, [id, title, content, importance, urgency, tags, image, imagePath])
 
 
   const formData = createFormData()
   const onClickEditTodo = useCallback(() => {
     dispatch(updateTodo(id, formData))
     onClose()
-  }, [formData])
+  }, [dispatch, onClose, id, formData])
 
 
   return(

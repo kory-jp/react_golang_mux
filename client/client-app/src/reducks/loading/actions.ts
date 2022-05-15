@@ -1,5 +1,5 @@
 import { ActionTypes } from "../store/actionTypes"
-import { Loading, LoadingActionTypes } from "./types"
+import { LoadingActionTypes } from "./types"
 
 export const nowLoadingState = (loadingState: boolean): LoadingActionTypes => {
   return {

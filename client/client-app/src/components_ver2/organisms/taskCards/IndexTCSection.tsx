@@ -23,12 +23,6 @@ type Params = {
   id: string | undefined
 }
 
-type Response = {
-  status: number,
-  message: string,
-  incompleteTaskCount: number,
-}
-
 export const IndexTCSection: FC = () => {
   const dispatch = useDispatch()
   const params: Params = useParams();
@@ -41,18 +35,21 @@ export const IndexTCSection: FC = () => {
   
   useLayoutEffect(() => {
     dispatch(nowLoadingState(true))
+  }, [dispatch])
+
+  useEffect(()=> {
     getIncompleteTackCardCount()
-  }, [])
+  }, [getIncompleteTackCardCount])
   
   useEffect(() => {
     dispatch(indexTaskCards(id, setSumPage, queryPage))
-  }, [id, setSumPage, queryPage])
+  }, [dispatch, setSumPage, id, queryPage])
   const taskCards: TaskCards = useSelector((state: RootState) => state.taskCards)
 
   const onChangeCurrentPage = useCallback((event: React.ChangeEvent<unknown>, page: number) => {
     dispatch(push(`/todo/show/${id}?page=${page}`))
     returnTop()
-  }, [])
+  }, [dispatch, returnTop, id])
 
   const onClickOpenCreateTCModal = useCallback(()=> {
     setOpenTCModal(true)
