@@ -22,14 +22,14 @@ export const SearchIndexSection: FC = () => {
 
   useEffect(()=> {
     dispatch(search(tagId, importance, urgency, queryPage, setSumPage))
-  },[tagId, importance, urgency, queryPage])
+  },[dispatch, setSumPage, tagId, importance, urgency, queryPage])
 
   const todos: Todos = useSelector((state: RootState) => state.todos)
   
   const onChangeCurrentPage = useCallback((event: React.ChangeEvent<unknown>, page: number) => {
     dispatch(push(`/todo/search?tagId=${tagId}&importance=${importance}&urgency=${urgency}&page=${page}`))
     returnTop()
-  }, [tagId, importance, urgency])
+  }, [dispatch, returnTop, tagId, importance, urgency])
 
   return(
     <>

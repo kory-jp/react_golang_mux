@@ -43,7 +43,7 @@ export const saveUserInfo = (name: string, email: string, password: string, pass
         }
       ).then((response) => {
         const resp: Response = response.data
-        if (resp.status == 200){
+        if (resp.status === 200){
           const user: User =response.data.user
           dispatch(getUserState(user))
           dispatch(pushToast({title: resp.message, severity: "success"}))
@@ -83,7 +83,7 @@ export const login = (email: string, password: string) => {
         }
       ).then((response) => {
         const resp: Response = response.data
-        if (resp.status == 200){
+        if (resp.status === 200){
           const user: User =resp.user
           dispatch(getUserState(user))
           dispatch(push("/todo"))
@@ -112,7 +112,7 @@ export const isLoggedIn = () => {
         }
       ).then((response) => {
         const resp: Response = response.data
-        if (resp.status == 200) {
+        if (resp.status === 200) {
           const user: User = resp.user
           dispatch(getUserState(user))
         } else {
@@ -142,7 +142,7 @@ export const isLoggedOut = () => {
       }
       ).then((response) => {
         const resp: Response = response.data
-        if (resp.status == 200) {
+        if (resp.status === 200) {
           dispatch(push("/todo"))
         }
       }).catch((error) => {
@@ -165,7 +165,7 @@ export const logout = () => {
         }
       ).then((response) => {
         const resp: Response = response.data
-        if (resp.status == 200) {
+        if (resp.status === 200) {
           dispatch(deleteUserState({
             id: 0,
             name: "",

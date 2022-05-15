@@ -1,4 +1,4 @@
-import { CardMedia, Divider, Grid } from "@mui/material";
+import { CardMedia, Divider } from "@mui/material";
 import { Box } from "@mui/system";
 import { push } from "connected-react-router";
 import { FC, useCallback, useEffect, useState } from "react";
@@ -32,7 +32,7 @@ export const ShowSection: FC = () => {
 
   useEffect(() => {
     dispatch(showTodo(id))
-  }, [id])
+  }, [dispatch, id])
 
   useEffect(()=> {
     setFinish(todo.isFinished)
@@ -42,7 +42,7 @@ export const ShowSection: FC = () => {
 
   const onClickDelete = useCallback(() => {
     dispatch(deleteTodo(id))
-  }, [id])
+  }, [dispatch, id])
 
   // --- todo isFinished ----
   const onChangeIsFinished = useCallback(() => {
@@ -53,12 +53,12 @@ export const ShowSection: FC = () => {
       setFinish(true)
       dispatch(updateIsFinished(id, true))
     }
-  }, [id, finish])
+  }, [dispatch, id, finish])
 
   const onClickToSearchTagTodo = useCallback((tagId: number) => {
     dispatch(push(`/todo/search?tagId=${tagId}&importance=0&urgency=0&page=1`))
     returnTop()
-  },[])
+  },[dispatch, returnTop])
 
   const onClickOpenEditTodoModal = useCallback(() => {
     setOpenModal(true)

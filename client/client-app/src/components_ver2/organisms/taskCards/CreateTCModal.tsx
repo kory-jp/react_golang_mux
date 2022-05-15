@@ -54,7 +54,7 @@ export const CreateTCModal: FC<Props> = (props) => {
     onClose()
     returnTop()
     setIncompleteTaskCardCount(incompleteTaskCardCount + 1)
-  }, [id, title, purpose, content, memo])
+  }, [dispatch, onClose, returnTop, setIncompleteTaskCardCount, setSumPage, incompleteTaskCardCount, queryPage,id, title, purpose, content, memo])
 
   return(
     <>

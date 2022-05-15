@@ -30,7 +30,7 @@ export const createTodo = (formdata: FormData, setSumPage: React.Dispatch<React.
       )
       .then((response) => {
         const resp: Response = response.data
-        if (resp.status == 200) {
+        if (resp.status === 200) {
           dispatch(pushToast({title: resp.message, severity: "success"}))
           dispatch(indexTodos(setSumPage, queryPage))
         } else {
@@ -59,7 +59,7 @@ export const indexTodos = (setSumPage: React.Dispatch<React.SetStateAction<numbe
       }
       ).then((response) => {
         const resp: Response = response.data
-        if (resp.status == 200) {
+        if (resp.status === 200) {
           dispatch(indexTodosAction(resp.todos))
           setSumPage(Number(resp.sumPage))
         } else {
@@ -92,7 +92,7 @@ export const showTodo = (id: number) => {
       }
       ).then((response) => {
         const resp: Response = response.data
-        if (resp.status == 200) {
+        if (resp.status === 200) {
           dispatch(showTodoAction(resp.todo))
         } else {
           dispatch(pushToast({title: resp.message, severity: "error"}))
@@ -124,7 +124,7 @@ export const search = (tagId: number, importance: number, urgency: number, query
       }
       ).then((response) => {
         const resp: Response = response.data
-        if (resp.status == 200) {
+        if (resp.status === 200) {
           dispatch(indexTodosAction(resp.todos))
           setSumPage(Number(resp.sumPage))
         } else {
@@ -158,7 +158,7 @@ export const updateTodo = (id: number, formdata: FormData) => {
       )
       .then((response) => {
         const resp: Response = response.data
-        if (resp.status == 200) {
+        if (resp.status === 200) {
           dispatch(pushToast({title: resp.message, severity: "success"}))
           dispatch(showTodo(id))          
         } else {
@@ -186,7 +186,7 @@ export const updateIsFinished = (id: number, isFinished: boolean) => {
           } 
         }).then((response) => {
           const resp: Response = response.data
-          if (resp.status == 200) {
+          if (resp.status === 200) {
             dispatch(pushToast({title: resp.message, severity: "success"}))            
           } else {
             dispatch(pushToast({title: resp.message, severity: "error"}))
@@ -212,7 +212,7 @@ export const deleteTodo = (id: number) => {
         }
       ).then((response) => {
         const resp: Response = response.data
-        if (resp.status == 200) {
+        if (resp.status === 200) {
           dispatch(push("/todo"))
           dispatch(pushToast({title: resp.message, severity: "success"}))          
         } else {
@@ -245,7 +245,7 @@ export const deleteTodoInIndex = (
                                       }
                                      ).then((response) => {
                                        const resp: Response = response.data
-                                      if (resp.status == 200) {
+                                      if (resp.status === 200) {
                                         dispatch(pushToast({title: resp.message, severity: "success"}))
                                         dispatch(indexTodosAction(resp.todos))
                                         setSumPage(Number(resp.sumPage))

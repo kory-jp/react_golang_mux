@@ -1,4 +1,3 @@
-import { TodayOutlined } from "@mui/icons-material";
 import axios from "axios";
 import { Dispatch } from "react";
 import { nowLoadingState } from "../loading/actions";
@@ -43,7 +42,7 @@ export const createTaskCard = (
         }
       ).then((response) => {
         const resp: Response = response.data
-        if (resp.status == 200){
+        if (resp.status === 200){
           dispatch(pushToast({title: resp.message, severity: "success"}))
           dispatch(indexTaskCards(todoId, setSumPage, queryPage))
         } else {
@@ -71,7 +70,7 @@ export const indexTaskCards = (todoId: number, setSumPage: React.Dispatch<React.
       }
       ).then((response) => {
         const resp: Response = response.data
-        if (resp.status == 200) {
+        if (resp.status === 200) {
           dispatch(indexTaskCardsAction(resp.taskCards))
           setSumPage(Number(resp.sumPage))
         } else {
@@ -104,7 +103,7 @@ export const ShowTaskCard = (tcId: number) => {
       }
       ).then((response) => {
         const resp: Response = response.data
-        if (resp.status == 200) {
+        if (resp.status === 200) {
           dispatch(showTaskCardAction(resp.taskCard))
         } else {
           dispatch(pushToast({title: resp.message, severity: "error"}))
@@ -152,7 +151,7 @@ export const updateTaskCard = (
         }
       ).then((response) => {
         const resp: Response = response.data
-        if (resp.status == 200){
+        if (resp.status === 200){
           dispatch(pushToast({title: resp.message, severity: "success"}))
           dispatch(indexTaskCards(todoId, setSumPage, queryPage))
         } else {
@@ -182,7 +181,7 @@ export const updateIsFinished = (id: number, isFinished: boolean) => {
         }
       ).then((response) => {
         const resp: Response = response.data
-        if (resp.status == 200){
+        if (resp.status === 200){
           dispatch(pushToast({title: resp.message, severity: "success"}))
         } else {
           dispatch(pushToast({title: resp.message, severity: "error"}))
@@ -210,7 +209,7 @@ export const deleteTaskCard = (id: number, todoId: number, setSumPage: React.Dis
         }
       ).then((response) => {
         const resp: Response = response.data
-        if (resp.status == 200){
+        if (resp.status === 200){
           dispatch(pushToast({title: resp.message, severity: "success"}))
           dispatch(indexTaskCards(todoId, setSumPage, queryPage))
         } else {

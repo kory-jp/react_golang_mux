@@ -1,4 +1,4 @@
-import { Box, CardActions, Divider, FormControlLabel, Grid } from "@mui/material";
+import { Box, CardActions, Divider } from "@mui/material";
 import { FC, useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useIncompleteTaskCardCount } from "../../../hooks/useIncompleteTaskCardCount";
@@ -37,14 +37,14 @@ export const TaskCardItem: FC<Props> = (props) => {
       taskCard.isFinished = true
       setIncompleteTaskCardCount(incompleteTaskCardCount - 1)
     }
-  }, [isFinished])
+  }, [dispatch, incompleteTaskCardCount, setIncompleteTaskCardCount, taskCard, isFinished])
 
   const onClickDelete = useCallback(() => {
     setTimeout(()=> {
       setIncompleteTaskCardCount(incompleteTaskCardCount - 1)
     }, 500)
     dispatch(deleteTaskCard(taskCard.id, taskCard.todoId, setSumPage, queryPage))
-  }, [taskCard])
+  }, [dispatch, setSumPage, setIncompleteTaskCardCount, incompleteTaskCardCount, queryPage, taskCard])
 
   const onClickOpenShowTCModal = useCallback(() => {
     setOpenShowTCModal(true)

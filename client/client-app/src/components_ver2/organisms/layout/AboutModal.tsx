@@ -1,5 +1,5 @@
 import { CardMedia, Divider, Grid, Link, Modal } from "@mui/material";
-import { Box, maxWidth } from "@mui/system";
+import { Box } from "@mui/system";
 import { FC } from "react";
 import CloseIcon from '@mui/icons-material/Close';
 import Dialog from "../../../assets/images/Dialog.svg"

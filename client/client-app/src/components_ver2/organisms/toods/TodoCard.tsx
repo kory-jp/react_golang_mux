@@ -1,7 +1,5 @@
-import { Button, Card, CardActions, CardContent, CardMedia, Checkbox, Chip, FormControlLabel, Grid, Typography } from "@mui/material";
+import { Card, CardActions, CardContent, CardMedia, Typography } from "@mui/material";
 import { Dispatch, FC, SetStateAction, useCallback, useEffect, useState } from "react";
-import DeleteIcon from '@mui/icons-material/Delete';
-import StickyNote2Icon from '@mui/icons-material/StickyNote2';
 import { useDispatch } from "react-redux";
 
 import DefaultImage from "../../../assets/images/DefaultImage.jpg"
@@ -11,7 +9,6 @@ import { push } from "connected-react-router";
 import { Tags } from "../../../reducks/tags/types";
 import { Box } from "@mui/system";
 import handleToDateFormat from "../../../utils/handleToDateFormat";
-import { PrimaryChip } from "../../atoms/chip/PrimaryChip";
 import MoreIconsArea from "../../molecules/iconsArea/MoreIconsArea";
 import TagSection from "../../molecules/tag/TagSection";
 import useReturnTop from "../../../hooks/useReturnTop";
@@ -32,12 +29,12 @@ export const TodoCard: FC<Props> = (props) => {
 
   useEffect(() => {
     setFinish(todo.isFinished)
-  }, [])
+  }, [todo.isFinished])
 
   const onclickToShowTodo = useCallback(() => {
     dispatch(push(`/todo/show/${todo.id}`))
     returnTop()
-  }, [])
+  }, [dispatch, returnTop, todo.id])
 
   const onChangeIsFinished = useCallback(() => {
     if (finish) {
@@ -47,16 +44,16 @@ export const TodoCard: FC<Props> = (props) => {
       setFinish(true)
       dispatch(updateIsFinished(todo.id, true))
     }
-  }, [todo, finish])
+  }, [dispatch, todo, finish])
 
   const onClickDelete = useCallback(() => {
     dispatch(deleteTodoInIndex(todo.id, setSumPage, queryPage))
-  }, [todo])
+  }, [dispatch, setSumPage, queryPage, todo])
 
   const onClickToSearchTagTodo = useCallback((tagId: number) => {
     dispatch(push(`/todo/search?tagId=${tagId}&importance=0&urgency=0&page=1`))
     returnTop()
-  },[])
+  },[dispatch, returnTop])
 
   return(
     <>
