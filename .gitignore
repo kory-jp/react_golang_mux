@@ -45,3 +45,4 @@ api/__debug_bin
 
 ## other
 .vscode/
+infra/
