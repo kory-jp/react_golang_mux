@@ -38,7 +38,9 @@ export const saveUserInfo = (name: string, email: string, password: string, pass
           withCredentials: true,
           headers: {
             'Accept': 'application/json',  
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+            'Access-Control-Request-Private-Network': 'ture',
           }
         }
       ).then((response) => {
@@ -78,7 +80,9 @@ export const login = (email: string, password: string) => {
           withCredentials: true,
           headers: {
             'Accept': 'application/json',  
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+            'Access-Control-Request-Private-Network': 'ture',
           }
         }
       ).then((response) => {
@@ -107,7 +111,9 @@ export const isLoggedIn = () => {
           withCredentials: true,
           headers: {
             'Accept': 'application/json',  
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+            'Access-Control-Request-Private-Network': 'ture',
           }
         }
       ).then((response) => {
@@ -137,7 +143,9 @@ export const isLoggedOut = () => {
         withCredentials: true,
         headers: {
           'Accept': 'application/json',  
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest',
+          'Access-Control-Request-Private-Network': 'ture',
         }
       }
       ).then((response) => {
@@ -160,7 +168,9 @@ export const logout = () => {
           withCredentials: true,
           headers: {
             'Accept': 'application/json',  
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+            'Access-Control-Request-Private-Network': 'ture',
           }
         }
       ).then((response) => {
