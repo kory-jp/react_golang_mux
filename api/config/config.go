@@ -6,7 +6,6 @@ import (
 
 	"github.com/joho/godotenv"
 	"github.com/kory-jp/react_golang_mux/api/utils"
-	"gopkg.in/ini.v1"
 )
 
 type ConfigList struct {
@@ -28,14 +27,9 @@ func init() {
 }
 
 func LoadConfig() {
-	cfg, err := ini.Load("config.ini")
-	if err != nil {
-		log.Fatalln(err)
-	}
-
 	env := os.Getenv("GO_ENV")
 	if env == "production" {
-		err := godotenv.Load("env/production.env")
+		err := godotenv.Load("production.env")
 		if err != nil {
 			log.Println(err)
 			log.Panicln(err)
@@ -50,7 +44,7 @@ func LoadConfig() {
 
 	Config = ConfigList{
 		Port:      os.Getenv("API_PORT"),
-		LogFile:   cfg.Section("api").Key("logfile").String(),
+		LogFile:   os.Getenv("LOG_FILE"),
 		SQLDriver: os.Getenv("DRIVER"),
 		UserName:  os.Getenv("USER_NAME"),
 		Password:  os.Getenv("PASSWORD"),

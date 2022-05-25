@@ -49,7 +49,7 @@ func Init() {
 	r.PathPrefix("/api/img/").Handler(http.StripPrefix("/api/img/", http.FileServer(http.Dir("./assets/dev/img"))))
 	// -----
 	c := cors.New(cors.Options{
-		AllowedOrigins:   []string{os.Getenv("ALLOWED_ORIGINS")},
+		AllowedOrigins:   strings.Split(os.Getenv("ALLOWED_ORIGINS"), " "),
 		AllowCredentials: true,
 		AllowedMethods:   strings.Split(os.Getenv("ALLOWED_METHODS"), " "),
 		AllowedHeaders:   strings.Split(os.Getenv("ALLOWED_HEADERS"), " "),
