@@ -144,7 +144,7 @@ export const isLoggedOut = () => {
         const resp: Response = response.data
         if (resp.status === 200) {
           dispatch(push("/todo"))
-        }
+        } 
       }).catch((error) => {
         console.log(error)
       })

@@ -1,3 +1,5 @@
+USE react_golang_mux;
+
 CREATE TABLE IF NOT EXISTS users (
 	id integer PRIMARY KEY AUTO_INCREMENT,
 	name varchar(19) NOT NULL,
@@ -57,7 +59,7 @@ CREATE TABLE IF NOT EXISTS task_cards (
   INDEX td_ind (todo_id),
   FOREIGN KEY (todo_id)
 		REFERENCES todos(id)
-    ON DELETE CASCADE
+    ON DELETE CASCADE,
 	INDEX usr_ind (user_id),
 	FOREIGN KEY (user_id)
 		REFERENCES users(id)
