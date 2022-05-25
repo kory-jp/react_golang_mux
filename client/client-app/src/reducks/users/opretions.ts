@@ -41,6 +41,7 @@ export const saveUserInfo = (name: string, email: string, password: string, pass
             'Content-Type': 'application/json',
             'X-Requested-With': 'XMLHttpRequest',
             'Access-Control-Request-Private-Network': 'ture',
+            'Access-Control-Allow-Private-Network': 'true',
           }
         }
       ).then((response) => {
@@ -83,6 +84,7 @@ export const login = (email: string, password: string) => {
             'Content-Type': 'application/json',
             'X-Requested-With': 'XMLHttpRequest',
             'Access-Control-Request-Private-Network': 'ture',
+            'Access-Control-Allow-Private-Network': 'true',
           }
         }
       ).then((response) => {
@@ -114,6 +116,7 @@ export const isLoggedIn = () => {
             'Content-Type': 'application/json',
             'X-Requested-With': 'XMLHttpRequest',
             'Access-Control-Request-Private-Network': 'ture',
+            'Access-Control-Allow-Private-Network': 'true',
           }
         }
       ).then((response) => {
@@ -146,6 +149,7 @@ export const isLoggedOut = () => {
           'Content-Type': 'application/json',
           'X-Requested-With': 'XMLHttpRequest',
           'Access-Control-Request-Private-Network': 'ture',
+          'Access-Control-Allow-Private-Network': 'true',
         }
       }
       ).then((response) => {
@@ -171,6 +175,7 @@ export const logout = () => {
             'Content-Type': 'application/json',
             'X-Requested-With': 'XMLHttpRequest',
             'Access-Control-Request-Private-Network': 'ture',
+            'Access-Control-Allow-Private-Network': 'true',
           }
         }
       ).then((response) => {
