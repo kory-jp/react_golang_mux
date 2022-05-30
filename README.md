@@ -89,12 +89,12 @@ Golang 主要パッケージ
 - GitHub(バージョン管理)
 - GitHub Actions (CI)
 - AWS
-- VPC
-- Internet Gateway
-- ACM
-- ALB
-- Fargate
-- ECR
+  - VPC
+  - Internet Gateway
+  - ACM
+  - ALB
+  - Fargate
+  - ECR
 
 <br>
 <br>
