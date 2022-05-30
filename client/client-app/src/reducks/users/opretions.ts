@@ -40,8 +40,6 @@ export const saveUserInfo = (name: string, email: string, password: string, pass
             'Accept': 'application/json',  
             'Content-Type': 'application/json',
             'X-Requested-With': 'XMLHttpRequest',
-            'Access-Control-Request-Private-Network': 'ture',
-            'Access-Control-Allow-Private-Network': 'true',
           }
         }
       ).then((response) => {
@@ -83,8 +81,6 @@ export const login = (email: string, password: string) => {
             'Accept': 'application/json',  
             'Content-Type': 'application/json',
             'X-Requested-With': 'XMLHttpRequest',
-            'Access-Control-Request-Private-Network': 'ture',
-            'Access-Control-Allow-Private-Network': 'true',
           }
         }
       ).then((response) => {
@@ -115,8 +111,6 @@ export const isLoggedIn = () => {
             'Accept': 'application/json',  
             'Content-Type': 'application/json',
             'X-Requested-With': 'XMLHttpRequest',
-            'Access-Control-Request-Private-Network': 'ture',
-            'Access-Control-Allow-Private-Network': 'true',
           }
         }
       ).then((response) => {
@@ -148,8 +142,6 @@ export const isLoggedOut = () => {
           'Accept': 'application/json',  
           'Content-Type': 'application/json',
           'X-Requested-With': 'XMLHttpRequest',
-          'Access-Control-Request-Private-Network': 'ture',
-          'Access-Control-Allow-Private-Network': 'true',
         }
       }
       ).then((response) => {
@@ -159,6 +151,7 @@ export const isLoggedOut = () => {
         } 
       }).catch((error) => {
         console.log(error)
+        dispatch(pushToast({title: '処理に失敗しました', severity: "error"}))
       })
   }
 }
@@ -174,8 +167,6 @@ export const logout = () => {
             'Accept': 'application/json',  
             'Content-Type': 'application/json',
             'X-Requested-With': 'XMLHttpRequest',
-            'Access-Control-Request-Private-Network': 'ture',
-            'Access-Control-Allow-Private-Network': 'true',
           }
         }
       ).then((response) => {

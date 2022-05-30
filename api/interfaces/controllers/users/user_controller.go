@@ -34,7 +34,6 @@ func (res *Response) SetResp(status int, mess string, user *domain.User) (resStr
 func NewUserController(sqlHandler database.SqlHandler) *UserController {
 	return &UserController{
 		Interactor: usecase.UserInteractor{
-			// UserRepository: &database.UserRepository{
 			UserRepository: &users.UserRepository{
 				SqlHandler: sqlHandler,
 			},

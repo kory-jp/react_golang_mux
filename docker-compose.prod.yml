@@ -17,8 +17,10 @@ services:
   client_prod:
     build: 
       context: ./client/
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.production
     container_name: client_container
+    stdin_open: true
+    tty: true
     ports:
       - 3000:3000
   api_prod:
@@ -28,16 +30,17 @@ services:
     container_name: api_container
     environment:
       HOST: db_container
-      ALLOWED_ORIGINS: http://127.0.0.1:3000
+      ALLOWED_ORIGINS: http://127.0.0.1
     depends_on:
       - mysql_prod
+    stdin_open: true
     tty: true
     ports:
       - 8000:8000
   nginx_prod:
     build: 
       context: ./nginx/
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.production
     container_name: web_container
     depends_on:
       - api_prod
