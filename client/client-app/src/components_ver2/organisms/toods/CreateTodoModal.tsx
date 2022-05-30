@@ -95,7 +95,7 @@ export const CreateTodoModal: FC<Props> = (props) => {
   const onClickNewTodo = useCallback(() => {
     dispatch(createTodo(formData, setSumPage, queryPage))
     onClose()
-  }, [formData])
+  }, [dispatch, onClose, setSumPage, queryPage, formData])
 
 
   return(

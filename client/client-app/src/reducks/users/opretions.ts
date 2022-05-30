@@ -38,12 +38,13 @@ export const saveUserInfo = (name: string, email: string, password: string, pass
           withCredentials: true,
           headers: {
             'Accept': 'application/json',  
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
           }
         }
       ).then((response) => {
         const resp: Response = response.data
-        if (resp.status == 200){
+        if (resp.status === 200){
           const user: User =response.data.user
           dispatch(getUserState(user))
           dispatch(pushToast({title: resp.message, severity: "success"}))
@@ -78,12 +79,13 @@ export const login = (email: string, password: string) => {
           withCredentials: true,
           headers: {
             'Accept': 'application/json',  
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
           }
         }
       ).then((response) => {
         const resp: Response = response.data
-        if (resp.status == 200){
+        if (resp.status === 200){
           const user: User =resp.user
           dispatch(getUserState(user))
           dispatch(push("/todo"))
@@ -107,12 +109,13 @@ export const isLoggedIn = () => {
           withCredentials: true,
           headers: {
             'Accept': 'application/json',  
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
           }
         }
       ).then((response) => {
         const resp: Response = response.data
-        if (resp.status == 200) {
+        if (resp.status === 200) {
           const user: User = resp.user
           dispatch(getUserState(user))
         } else {
@@ -137,16 +140,18 @@ export const isLoggedOut = () => {
         withCredentials: true,
         headers: {
           'Accept': 'application/json',  
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest',
         }
       }
       ).then((response) => {
         const resp: Response = response.data
-        if (resp.status == 200) {
+        if (resp.status === 200) {
           dispatch(push("/todo"))
-        }
+        } 
       }).catch((error) => {
         console.log(error)
+        dispatch(pushToast({title: '処理に失敗しました', severity: "error"}))
       })
   }
 }
@@ -160,12 +165,13 @@ export const logout = () => {
           withCredentials: true,
           headers: {
             'Accept': 'application/json',  
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
           }
         }
       ).then((response) => {
         const resp: Response = response.data
-        if (resp.status == 200) {
+        if (resp.status === 200) {
           dispatch(deleteUserState({
             id: 0,
             name: "",

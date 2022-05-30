@@ -21,7 +21,7 @@ export const SearchSection: FC = () => {
 
   useEffect(() => {
     dispatch(indexTags())
-  }, [])
+  }, [dispatch])
 
   const options: Tags = useSelector((state: RootState) => state.tags)
   const { importanceOptions, urgencyOptions } = makeOptions()
@@ -41,7 +41,7 @@ export const SearchSection: FC = () => {
   const onClickToSearchPage = useCallback(() => {
     dispatch(push(`/todo/search?tagId=${tag}&importance=${importance}&urgency=${urgency}`))
     returnTop()
-  },[tag, importance, urgency])
+  },[dispatch, returnTop, tag, importance, urgency])
 
   return(
     <>

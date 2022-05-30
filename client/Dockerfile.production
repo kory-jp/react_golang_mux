@@ -1,6 +1,7 @@
 FROM node:16-alpine as builder
 RUN mkdir -p /app/client
 WORKDIR /app/client
+ENV REACT_APP_API_URL=http://127.0.0.1:8000/api/
 
 COPY ./client-app/package.json .
 COPY ./client-app/yarn.lock .

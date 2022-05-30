@@ -18,13 +18,13 @@ export const IndexSection: FC = () => {
   
   useEffect(() => {
     dispatch(indexTodos(setSumPage, queryPage))
-  }, [setSumPage, queryPage])
+  }, [dispatch, setSumPage, queryPage])
   const todos: Todos = useSelector((state: RootState) => state.todos)
 
   const onChangeCurrentPage = useCallback((event: React.ChangeEvent<unknown>, page: number) => {
     dispatch(push(`/todo?page=${page}`))
     returnTop()
-  }, [])
+  }, [dispatch, returnTop])
 
   return(
     <>

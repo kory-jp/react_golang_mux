@@ -28,7 +28,7 @@ const Toast: ()=> JSX.Element = () => {
       dispatch(shiftToast())
     }
     showToast()
-  }, [toasts])
+  }, [toasts, dispatch, open])
 
   const handleClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === 'clickaway') {

@@ -1,6 +1,6 @@
 import { Divider, Modal } from "@mui/material";
 import { Box } from "@mui/system";
-import { Dispatch, FC, useCallback, useEffect, useState } from "react";
+import { FC, useCallback, useEffect, useState } from "react";
 import CloseIcon from '@mui/icons-material/Close';
 import { TaskCard } from "../../../reducks/taskCards/types";
 import EditIconsArea from "../../molecules/iconsArea/EditIconsArea";
@@ -41,7 +41,7 @@ export const ShowTCModal: FC<Props> = (props) => {
       taskCard.isFinished = true
       setIncompleteTaskCardCount(incompleteTaskCardCount - 1)
     }
-  }, [isFinished])
+  }, [isFinished, dispatch, incompleteTaskCardCount, setIncompleteTaskCardCount, taskCard])
 
   const onClickDelete = useCallback(() => {
     setTimeout(()=> {
@@ -49,7 +49,7 @@ export const ShowTCModal: FC<Props> = (props) => {
     }, 500)
     dispatch(deleteTaskCard(taskCard.id, taskCard.todoId, setSumPage, queryPage))
     onClose()
-  }, [])
+  }, [dispatch, incompleteTaskCardCount, onClose, queryPage, setIncompleteTaskCardCount, setSumPage, taskCard.id, taskCard.todoId])
 
   const onClickOpenEditModal = useCallback(() => {
     setOpenEditModal(true)

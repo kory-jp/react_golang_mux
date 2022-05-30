@@ -1,0 +1,49 @@
+version: '3'
+services:
+  mysql_prod:
+    build:
+      context: ./mysql/
+      dockerfile: Dockerfile
+    container_name: db_container
+    environment:
+      MYSQL_USER: root_user
+      MYSQL_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: react_golang_mux
+      TZ: 'Asia/Tokyo'
+    ports:
+      - 3306:3306
+    restart: always
+  client_prod:
+    build: 
+      context: ./client/
+      dockerfile: Dockerfile.production
+    container_name: client_container
+    stdin_open: true
+    tty: true
+    ports:
+      - 3000:3000
+  api_prod:
+    build: 
+      context: ./api/
+      dockerfile: Dockerfile
+    container_name: api_container
+    environment:
+      HOST: db_container
+      ALLOWED_ORIGINS: http://127.0.0.1
+    depends_on:
+      - mysql_prod
+    stdin_open: true
+    tty: true
+    ports:
+      - 8000:8000
+  nginx_prod:
+    build: 
+      context: ./nginx/
+      dockerfile: Dockerfile.production
+    container_name: web_container
+    depends_on:
+      - api_prod
+      - client_prod
+    ports:
+      - 80:80

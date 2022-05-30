@@ -1,6 +1,5 @@
 import { TextField } from "@mui/material";
 import { FC } from "react";
-import { MultiValueGeneric } from "react-select/dist/declarations/src/components/MultiValue";
 
 type Props = {
   label: string,

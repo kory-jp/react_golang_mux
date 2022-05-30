@@ -3,7 +3,7 @@ services:
   mysql:
     build:
       context: ./mysql/
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.development
     container_name: mysql_container
     environment:
       MYSQL_USER: root
@@ -22,7 +22,7 @@ services:
       # ?Git位置を指定
       context: ./client/
       # dockerfileの位置を指定
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.development
     container_name: react_container
     tty: true
     volumes:
@@ -34,7 +34,7 @@ services:
   api:
     build:
       context: ./api/
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.development
     container_name: go_container
     volumes:
       - ./api:/app/api
@@ -57,7 +57,7 @@ services:
     environment:
       - TZ=Asia/Tokyo
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/development_nginx.conf:/etc/nginx/nginx.conf
     depends_on:
       - api
       - client
