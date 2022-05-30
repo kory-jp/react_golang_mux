@@ -85,9 +85,16 @@ Golang 主要パッケージ
 
 インフラ関連
 
-- docker(開発環境構築)
+- docker(開発環境+本番環境構築)
 - GitHub(バージョン管理)
 - GitHub Actions (CI)
+- AWS
+- VPC
+- Internet Gateway
+- ACM
+- ALB
+- Fargate
+- ECR
 
 <br>
 <br>
@@ -110,6 +117,12 @@ Golang 主要パッケージ
 
 <br>
 <br>
+
+### インフラ: Fatgate/GitHubAction
+
+- バージョン管理は GitHub、開発環境構築には Docker を利用しており、コードの品質管理や本番環境構築の場面においてもそれらの技術を流用していきたかったため
+- CI において以前作成したポートフォリオにおいては Circle CI を利用していたが、すべて GitHub 上で完結できる点に GitHubAction の魅力を感じた
+- 現在のトレンドとして、コンテナを用いたデプロイが主流なので知見を取得することは有用であると判断したため
 
 ## アーキテクチャ設計
 
@@ -137,6 +150,13 @@ _client(react)/Atomic Design を採用_
 - メンテナンスが容易になる
 
 [参考サイト 3](https://www.codegrid.net/articles/2017-atomic-design-1/)
+
+<br>
+<br>
+
+## インフラ構成図
+
+![infra](https://user-images.githubusercontent.com/66899822/170907397-0b994132-0a25-4343-b8a0-c8305d4b07c1.png)
 
 <br>
 <br>
@@ -185,6 +205,13 @@ Todo が 5 以上投稿されるとページネーションにより、データ
 コマンドを実行することでテストデータを自動作成
 
 一部、ファイルに対してテストコードを作成
+
+<br>
+<br>
+
+## モデルデザイン
+
+![ER](https://user-images.githubusercontent.com/66899822/165665661-25880a7c-fa77-4c79-af0a-bf6999ac69f3.png)
 
 <br>
 <br>
@@ -330,13 +357,6 @@ TEST ALL COMPLETED
 - 失敗した場合
 
 エラーログの詳細が表示
-
-<br>
-<br>
-
-## モデルデザイン
-
-![ER](https://user-images.githubusercontent.com/66899822/165665661-25880a7c-fa77-4c79-af0a-bf6999ac69f3.png)
 
 <br>
 <br>
