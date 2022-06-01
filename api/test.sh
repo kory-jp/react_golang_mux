@@ -1,6 +1,7 @@
 #!/bin/sh
 # 実行コマンド: sh test.sh
 # clean architectureの上位レイアからテスト実行
+echo "TEST START"
 
 resultUU=`go test ./usecase/users/`
 if [ ${resultUU:0:2} != "ok" ]
