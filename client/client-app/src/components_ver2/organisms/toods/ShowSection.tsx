@@ -38,7 +38,12 @@ export const ShowSection: FC = () => {
     setFinish(todo.isFinished)
   },[todo])
 
-  const imagePath = process.env.REACT_APP_API_URL + `img/${todo.imagePath}`
+  let imagePath: string = ""
+  if (process.env.NODE_ENV === "production") {
+    imagePath = todo.imagePath ? todo.imagePath : ""
+  } else {
+    imagePath = todo.imagePath ? process.env.REACT_APP_API_URL + `img/${todo.imagePath}` : ""
+  }
 
   const onClickDelete = useCallback(() => {
     dispatch(deleteTodo(id))

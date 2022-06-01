@@ -62,7 +62,6 @@ export const CreateTodoModal: FC<Props> = (props) => {
   },[])
 
   const onClickInputImage = useCallback((event: ChangeEvent<HTMLInputElement>)=> {
-    console.log('img OK?')
     if (event.target.files === null) {
       return;
     }
@@ -94,6 +93,13 @@ export const CreateTodoModal: FC<Props> = (props) => {
 
   const onClickNewTodo = useCallback(() => {
     dispatch(createTodo(formData, setSumPage, queryPage))
+    setTitle("")
+    setContent("")
+    setTags([])
+    setImportance(undefined)
+    setUrgency(undefined)
+    setImage(undefined)
+    setPreview('')
     onClose()
   }, [dispatch, onClose, setSumPage, queryPage, formData])
 

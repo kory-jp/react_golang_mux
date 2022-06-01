@@ -6,6 +6,8 @@ import (
 	"os"
 	"strings"
 
+	"github.com/kory-jp/react_golang_mux/api/infrastructure/aws"
+
 	sessions "github.com/kory-jp/react_golang_mux/api/interfaces/controllers/sessions"
 	tags "github.com/kory-jp/react_golang_mux/api/interfaces/controllers/tags"
 	taskCards "github.com/kory-jp/react_golang_mux/api/interfaces/controllers/task_cards"
@@ -20,7 +22,7 @@ func Init() {
 	log.SetFlags(log.Ltime | log.Llongfile)
 
 	r := mux.NewRouter()
-	todoController := todos.NewTodoController(NewSqlHandler())
+	todoController := todos.NewTodoController(NewSqlHandler(), aws.NewS3())
 	userController := users.NewUserController(NewSqlHandler())
 	sessionController := sessions.NewSessionController(NewSqlHandler())
 	tagController := tags.NewTagController(NewSqlHandler())

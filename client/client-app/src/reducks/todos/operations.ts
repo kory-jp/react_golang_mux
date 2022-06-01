@@ -16,6 +16,7 @@ type Response = {
 
 export const createTodo = (formdata: FormData, setSumPage: React.Dispatch<React.SetStateAction<number>>, queryPage: number) => {
   return async(dispatch: Dispatch<{}>) => {
+    dispatch(nowLoadingState(true))
     const apiURL = process.env.REACT_APP_API_URL + "new"
     axios
       .post(apiURL,
@@ -41,6 +42,11 @@ export const createTodo = (formdata: FormData, setSumPage: React.Dispatch<React.
         console.log(error)
         dispatch(pushToast({title: '保存に失敗しました', severity: "error"}))
       })
+      .finally(() => {
+        setTimeout(() => {
+          dispatch(nowLoadingState(false));
+        }, 800);
+      });
   }
 }
 
@@ -144,6 +150,7 @@ export const search = (tagId: number, importance: number, urgency: number, query
 
 export const updateTodo = (id: number, formdata: FormData) => {
   return async(dispatch: Dispatch<{}>) => {
+    dispatch(nowLoadingState(true))
     const apiURL = process.env.REACT_APP_API_URL + `todos/update/${id}`
     axios
       .post(apiURL,
@@ -169,6 +176,11 @@ export const updateTodo = (id: number, formdata: FormData) => {
         console.log(error)
         dispatch(pushToast({title: '更新に失敗しました', severity: "error"}))
       })
+      .finally(() => {
+        setTimeout(() => {
+          dispatch(nowLoadingState(false));
+        }, 800);
+      });
   }
 }
 
