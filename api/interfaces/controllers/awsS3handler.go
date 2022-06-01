@@ -1,4 +1,4 @@
-package awshandlers
+package awsS3handlers
 
 import "net/http"
 

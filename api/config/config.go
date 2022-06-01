@@ -40,10 +40,19 @@ func LoadConfig() {
 			log.Panicln(err)
 		}
 	} else {
-		err := godotenv.Load("env/development.env")
-		if err != nil {
-			log.Println(err)
-			log.Panicln(err)
+		p, _ := os.Getwd()
+		if string(p) == "/app/api" {
+			err := godotenv.Load("env/development.env")
+			if err != nil {
+				log.Println(err)
+				log.Panicln(err)
+			}
+		} else {
+			err := godotenv.Load("../../../env/development.env")
+			if err != nil {
+				log.Println(err)
+				log.Panicln(err)
+			}
 		}
 	}
 

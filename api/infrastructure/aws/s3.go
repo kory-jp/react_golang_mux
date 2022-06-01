@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"time"
 
-	awshandlers "github.com/kory-jp/react_golang_mux/api/interfaces/controllers"
+	awsS3handlers "github.com/kory-jp/react_golang_mux/api/interfaces/controllers"
 
 	"github.com/kory-jp/react_golang_mux/api/config"
 
@@ -42,7 +42,7 @@ type S3Result struct {
 	Result *s3manager.UploadOutput
 }
 
-func (s3 *S3) ImageUploader(r *http.Request) (awshandlers.Result, error) {
+func (s3 *S3) ImageUploader(r *http.Request) (awsS3handlers.Result, error) {
 	res := S3Result{}
 	var file multipart.File
 	var fileHeader *multipart.FileHeader
