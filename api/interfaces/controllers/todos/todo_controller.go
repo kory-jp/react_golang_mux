@@ -14,7 +14,7 @@ import (
 	"strconv"
 	"time"
 
-	awshandlers "github.com/kory-jp/react_golang_mux/api/interfaces/controllers"
+	awsS3handlers "github.com/kory-jp/react_golang_mux/api/interfaces/controllers"
 
 	"github.com/kory-jp/react_golang_mux/api/config"
 
@@ -31,7 +31,7 @@ import (
 
 type TodoController struct {
 	Interactor usecase.TodoInteractor
-	S3         awshandlers.S3
+	S3         awsS3handlers.S3
 }
 
 type Response struct {
@@ -49,7 +49,7 @@ func (res *Response) SetResp(status int, mess string, todos domain.Todos, todo *
 	return
 }
 
-func NewTodoController(sqlHandler database.SqlHandler, s3 awshandlers.S3) *TodoController {
+func NewTodoController(sqlHandler database.SqlHandler, s3 awsS3handlers.S3) *TodoController {
 	return &TodoController{
 		Interactor: usecase.TodoInteractor{
 			TodoRepository: &todos.TodoRepository{

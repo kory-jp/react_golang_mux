@@ -13,6 +13,8 @@ import (
 	"strconv"
 	"testing"
 
+	mock_awsS3handlers "github.com/kory-jp/react_golang_mux/api/interfaces/controllers/mock"
+
 	usecase "github.com/kory-jp/react_golang_mux/api/usecase/todos"
 	mock_usecase "github.com/kory-jp/react_golang_mux/api/usecase/todos/mock"
 
@@ -848,9 +850,10 @@ func setMock(t *testing.T) (ctrl *controllers.TodoController, todoRepository *mo
 	defer c.Finish()
 	// --- api/interfaces/database/sqlhandlerのモック ---
 	sqlhandler := mock_database.NewMockSqlHandler(c)
+	awsS3handler := mock_awsS3handlers.NewMockS3(c)
 	transaction = mock_transaction.NewMockSqlHandler(c)
 	todoRepository = mock_usecase.NewMockTodoRepository(c)
-	ctrl = controllers.NewTodoController(sqlhandler)
+	ctrl = controllers.NewTodoController(sqlhandler, awsS3handler)
 	Interactor := usecase.TodoInteractor{}
 	Interactor.Transaction = transaction
 	Interactor.TodoRepository = todoRepository
