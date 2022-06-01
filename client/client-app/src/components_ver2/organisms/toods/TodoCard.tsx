@@ -24,7 +24,12 @@ export const TodoCard: FC<Props> = (props) => {
   const tags: Tags | null = todo.tags ? todo.tags : null
   const dispatch = useDispatch()
   const [finish, setFinish] = useState(false)
-  const imagePath = process.env.REACT_APP_API_URL + `img/${todo.imagePath}`
+  let imagePath: string = ""
+  if (process.env.NODE_ENV === "production") {
+    imagePath = todo.imagePath ? todo.imagePath : ""
+  } else {
+    imagePath = todo.imagePath ? process.env.REACT_APP_API_URL + `img/${todo.imagePath}` : ""
+  }
   const returnTop = useReturnTop()
 
   useEffect(() => {

@@ -3,6 +3,7 @@ module github.com/kory-jp/react_golang_mux/api
 go 1.16
 
 require (
+	github.com/aws/aws-sdk-go v1.44.24 // indirect
 	github.com/go-playground/validator/v10 v10.10.0
 	github.com/go-sql-driver/mysql v1.6.0
 	github.com/golang/mock v1.6.0

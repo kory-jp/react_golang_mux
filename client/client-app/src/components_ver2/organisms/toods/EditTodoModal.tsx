@@ -57,7 +57,12 @@ export const EditTodoModal: FC<Props> = (props) => {
             setUrgency(todo.urgency)
             setTags(todo.tags)
             setImagePath(todo.imagePath)
-            const imagePath = todo.imagePath? process.env.REACT_APP_API_URL + `img/${todo.imagePath}` : ''            
+            let imagePath: string = ""
+            if (process.env.NODE_ENV === "production") {
+              imagePath = todo.imagePath ? todo.imagePath : ""
+            } else {
+              imagePath = todo.imagePath ? process.env.REACT_APP_API_URL + `img/${todo.imagePath}` : " "
+            }
             setPreview(imagePath)
           } else {
             dispatch(pushToast({title: response.data.message, severity: "error"}))               

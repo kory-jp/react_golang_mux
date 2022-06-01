@@ -14,6 +14,10 @@ import (
 	"strconv"
 	"time"
 
+	awshandlers "github.com/kory-jp/react_golang_mux/api/interfaces/controllers"
+
+	"github.com/kory-jp/react_golang_mux/api/config"
+
 	"github.com/kory-jp/react_golang_mux/api/usecase/transaction"
 
 	controllers "github.com/kory-jp/react_golang_mux/api/interfaces/controllers/sessions"
@@ -27,6 +31,7 @@ import (
 
 type TodoController struct {
 	Interactor usecase.TodoInteractor
+	S3         awshandlers.S3
 }
 
 type Response struct {
@@ -44,7 +49,7 @@ func (res *Response) SetResp(status int, mess string, todos domain.Todos, todo *
 	return
 }
 
-func NewTodoController(sqlHandler database.SqlHandler) *TodoController {
+func NewTodoController(sqlHandler database.SqlHandler, s3 awshandlers.S3) *TodoController {
 	return &TodoController{
 		Interactor: usecase.TodoInteractor{
 			TodoRepository: &todos.TodoRepository{
@@ -55,6 +60,7 @@ func NewTodoController(sqlHandler database.SqlHandler) *TodoController {
 			},
 			Transaction: transaction.SqlHandler(sqlHandler),
 		},
+		S3: s3,
 	}
 }
 
@@ -67,11 +73,26 @@ func (controller *TodoController) Create(w http.ResponseWriter, r *http.Request)
 		fmt.Fprintln(w, resStr)
 		return
 	}
-	uploadFileName, err := MakeImagePath(r)
-	if err != nil {
-		resStr := new(Response).SetResp(400, err.Error(), nil, nil, 0)
-		fmt.Fprintln(w, resStr)
-		return
+	var uploadFileName string
+	var err error
+	if config.Config.Env == "production" {
+		result, err := controller.S3.ImageUploader(r)
+		if err != nil {
+			resStr := new(Response).SetResp(400, err.Error(), nil, nil, 0)
+			fmt.Fprintln(w, resStr)
+			return
+		}
+		if result != nil {
+			uploadFileName = result.Location()
+		}
+		fmt.Println(uploadFileName)
+	} else {
+		uploadFileName, err = MakeImagePath(r)
+		if err != nil {
+			resStr := new(Response).SetResp(400, err.Error(), nil, nil, 0)
+			fmt.Fprintln(w, resStr)
+			return
+		}
 	}
 
 	userId, err := GetUserId(r)
@@ -263,10 +284,25 @@ func (controller *TodoController) Update(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	uploadFileName, err := MakeImagePath(r)
-	if err != nil {
-		resStr := new(Response).SetResp(400, err.Error(), nil, nil, 0)
-		fmt.Fprintln(w, resStr)
+	var uploadFileName string
+	var err error
+	if config.Config.Env == "production" {
+		result, err := controller.S3.ImageUploader(r)
+		if err != nil {
+			resStr := new(Response).SetResp(400, err.Error(), nil, nil, 0)
+			fmt.Fprintln(w, resStr)
+			return
+		}
+		if result != nil {
+			uploadFileName = result.Location()
+		}
+	} else {
+		uploadFileName, err = MakeImagePath(r)
+		if err != nil {
+			resStr := new(Response).SetResp(400, err.Error(), nil, nil, 0)
+			fmt.Fprintln(w, resStr)
+			return
+		}
 	}
 
 	userId, err := GetUserId(r)

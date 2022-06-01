@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS todos (
 	user_id integer NOT NULL,
 	title varchar(49) NOT NULL,
 	content text NOT NULL,
-	image_path varchar(100),
+	image_path varchar(300),
 	isFinished boolean NOT NULL,
 	importance integer NOT NULL,
 	urgency integer NOT NULL,
