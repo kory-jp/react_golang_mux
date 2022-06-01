@@ -16,8 +16,6 @@ import (
 
 	awsS3handlers "github.com/kory-jp/react_golang_mux/api/interfaces/controllers"
 
-	"github.com/kory-jp/react_golang_mux/api/config"
-
 	"github.com/kory-jp/react_golang_mux/api/usecase/transaction"
 
 	controllers "github.com/kory-jp/react_golang_mux/api/interfaces/controllers/sessions"
@@ -75,7 +73,7 @@ func (controller *TodoController) Create(w http.ResponseWriter, r *http.Request)
 	}
 	var uploadFileName string
 	var err error
-	if config.Config.Env == "production" {
+	if os.Getenv("GO_ENV") == "production" {
 		result, err := controller.S3.ImageUploader(r)
 		if err != nil {
 			resStr := new(Response).SetResp(400, err.Error(), nil, nil, 0)
@@ -286,7 +284,7 @@ func (controller *TodoController) Update(w http.ResponseWriter, r *http.Request)
 
 	var uploadFileName string
 	var err error
-	if config.Config.Env == "production" {
+	if os.Getenv("GO_ENV") == "production" {
 		result, err := controller.S3.ImageUploader(r)
 		if err != nil {
 			resStr := new(Response).SetResp(400, err.Error(), nil, nil, 0)
