@@ -22,7 +22,7 @@ const customStyles = {
     background: "#605D5D",
     color: '#FFF',
     fontSize: '14px',
-    minWidth: "280px",
+    minWidth: "200px",
   }),
   option: (base: any) => ({
     color: '#000',

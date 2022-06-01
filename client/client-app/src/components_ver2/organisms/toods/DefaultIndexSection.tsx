@@ -45,7 +45,7 @@ export const DefaultIndexSection: FC<Props> = (props) => {
                           width: {
                             xs: '100%',
                             md: 'auto',
-                          }
+                          },
                         }}
                       >
                         <TodoCard 

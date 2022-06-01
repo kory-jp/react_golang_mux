@@ -71,7 +71,7 @@ export const SearchSection: FC = () => {
         >
           <Grid item>
             <TagSelection 
-              placeholder={'タグを選択してください'}
+              placeholder={'タグを選択してください　'}
               isMulti={false}
               options={options}
               onChange={onChangeSelectTags}
@@ -96,7 +96,7 @@ export const SearchSection: FC = () => {
           <Grid item>
             <Box
               sx={{
-                minWidth: '280px',
+                minWidth: '200px',
               }}
             >
               <PrimaryButton
