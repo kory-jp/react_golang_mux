@@ -59,7 +59,7 @@ func TestLogin(t *testing.T) {
 			},
 			response: controllers.Response{
 				Status:  200,
-				Message: "ログインに成功しました",
+				Message: "ログインしました",
 			},
 			haveCookie: true,
 		},
