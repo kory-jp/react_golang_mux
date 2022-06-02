@@ -30,6 +30,11 @@ export const LoginSection:FC = () => {
     returnTop()
   },[dispatch, returnTop, email, password])
 
+  const onClickLoginGuestUser = useCallback(() => {
+    dispatch(login("sam@exm.com", "password"))
+    returnTop()
+  }, [dispatch, returnTop])
+
   const onClickToRegistration = useCallback(() => {
     dispatch(push("/registration"))
     returnTop()
@@ -111,7 +116,15 @@ export const LoginSection:FC = () => {
               ログイン
             </PrimaryButton>
           </Box>
-
+          <Box
+            marginBottom='40px'
+          >
+            <PrimaryButton
+              onClick={onClickLoginGuestUser}
+            >
+              ゲストユーザーの方はこちら
+            </PrimaryButton>
+          </Box>
           <Box
             textAlign='center'
           >
