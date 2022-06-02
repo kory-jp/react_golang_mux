@@ -78,7 +78,7 @@ func (controller *SessionController) Login(w http.ResponseWriter, r *http.Reques
 	} else {
 		session, _ := Store.New(r, "session")
 		session.Values["userId"] = user.ID
-		resStr := new(Response).SetResp(200, "ログインに成功しました", user)
+		resStr := new(Response).SetResp(200, "ログインしました", user)
 		session.Save(r, w)
 		fmt.Fprintln(w, resStr)
 	}
