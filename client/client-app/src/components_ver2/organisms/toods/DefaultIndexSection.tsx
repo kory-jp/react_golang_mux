@@ -32,7 +32,8 @@ export const DefaultIndexSection: FC<Props> = (props) => {
                   spacing={4}
                   sx={{
                     justifyContent: {
-                      md: 'space-between'
+                      sm: 'space-evenly',
+                      lg: 'space-between',
                     }
                   }}
                 >

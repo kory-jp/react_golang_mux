@@ -96,7 +96,7 @@ export const SearchSection: FC = () => {
           <Grid item>
             <Box
               sx={{
-                minWidth: '200px',
+                minWidth: '227px',
               }}
             >
               <PrimaryButton

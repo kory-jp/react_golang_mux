@@ -13,6 +13,8 @@ import { TagReducer } from "../tags/reducers";
 import { Tags } from "../tags/types";
 import { TaskCards } from "../taskCards/types";
 import { TaskCardReducer } from "../taskCards/reducers";
+import { Skeleton } from "../skeleton/types";
+import { SkeletonReducer } from "../skeleton/reducers";
 
 const composeEnhancers = (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 
@@ -21,6 +23,7 @@ export type RootState = {
   todo: Todo
   todos: Todos
   loading: Loading
+  skeleton: Skeleton
   tags: Tags
   taskCards: TaskCards
 }
@@ -34,6 +37,7 @@ export default function createInitStore(history: any ) {
       user: UserReducer,
       toasts: ToastReducer,
       loading: LoadingReducer,
+      skeleton: SkeletonReducer,
       tags: TagReducer,
       taskCards: TaskCardReducer
     }),
