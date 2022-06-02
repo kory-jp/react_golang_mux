@@ -36,6 +36,7 @@ export const  ShowTodoTemplate: FC = () => {
             >
               <Grid
                 item
+                xs={12}
                 md={6}
               >
                 <ShowSection />

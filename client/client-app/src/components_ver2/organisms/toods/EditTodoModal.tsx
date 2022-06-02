@@ -2,6 +2,7 @@ import axios from "axios";
 import { ChangeEvent, FC, useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
+import useReturnTop from "../../../hooks/useReturnTop";
 import { nowLoadingState } from "../../../reducks/loading/actions";
 import { RootState } from "../../../reducks/store/store";
 import { indexTags } from "../../../reducks/tags/operations";
@@ -35,6 +36,7 @@ export const EditTodoModal: FC<Props> = (props) => {
   const params: Params = useParams();
   const id: number = Number(params.id)
   const { importanceOptions, urgencyOptions } = makeOptions()
+  const returnTop = useReturnTop()
 
   const getTodoInfo = useCallback((id: number) => {
       dispatch(nowLoadingState(true))
@@ -148,8 +150,9 @@ export const EditTodoModal: FC<Props> = (props) => {
   const formData = createFormData()
   const onClickEditTodo = useCallback(() => {
     dispatch(updateTodo(id, formData))
+    returnTop()
     onClose()
-  }, [dispatch, onClose, id, formData])
+  }, [dispatch, returnTop, onClose, id, formData])
 
 
   return(
