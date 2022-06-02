@@ -6,6 +6,7 @@ export const ActionTypes = {
   indexTodos: "INDEXTODOS",
   showTodo: "SHOWTODO",
   nowLoading: "NOWLOADING",
+  skeleton: "SKELETON",
   indexTags: "INDEXTAGS",
   indexTaskCards: "INDEXTASKCARDS",
   showTaskCard: "SHOWTASKCARD",

@@ -32,7 +32,8 @@ export const DefaultIndexSection: FC<Props> = (props) => {
                   spacing={4}
                   sx={{
                     justifyContent: {
-                      md: 'space-between'
+                      sm: 'space-evenly',
+                      lg: 'space-between',
                     }
                   }}
                 >
@@ -45,7 +46,7 @@ export const DefaultIndexSection: FC<Props> = (props) => {
                           width: {
                             xs: '100%',
                             md: 'auto',
-                          }
+                          },
                         }}
                       >
                         <TodoCard 

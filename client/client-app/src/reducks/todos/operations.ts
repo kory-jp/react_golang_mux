@@ -2,6 +2,7 @@ import axios from "axios";
 import { push } from "connected-react-router";
 import { Dispatch } from "react";
 import { nowLoadingState } from "../loading/actions";
+import { skeletonState } from "../skeleton/actions";
 import { pushToast } from "../toasts/actions";
 import { indexTodosAction, showTodoAction } from "./actions";
 import { Todo, Todos } from "./types";
@@ -85,7 +86,7 @@ export const indexTodos = (setSumPage: React.Dispatch<React.SetStateAction<numbe
 
 export const showTodo = (id: number) => {
   return async(dispatch: Dispatch<{}>) => {
-    dispatch(nowLoadingState(true))
+    dispatch(skeletonState(true))
     const apiURL = process.env.REACT_APP_API_URL + `todos/${id}`
     axios
       .get(apiURL,
@@ -109,7 +110,7 @@ export const showTodo = (id: number) => {
       })
       .finally(() => {
         setTimeout(() => {
-          dispatch(nowLoadingState(false));
+          dispatch(skeletonState(false))
         }, 800);
       });
   }
@@ -150,7 +151,7 @@ export const search = (tagId: number, importance: number, urgency: number, query
 
 export const updateTodo = (id: number, formdata: FormData) => {
   return async(dispatch: Dispatch<{}>) => {
-    dispatch(nowLoadingState(true))
+    dispatch(skeletonState(true))
     const apiURL = process.env.REACT_APP_API_URL + `todos/update/${id}`
     axios
       .post(apiURL,
@@ -169,18 +170,15 @@ export const updateTodo = (id: number, formdata: FormData) => {
           dispatch(pushToast({title: resp.message, severity: "success"}))
           dispatch(showTodo(id))          
         } else {
-          dispatch(pushToast({title: resp.message, severity: "error"}))          
+          dispatch(pushToast({title: resp.message, severity: "error"}))
+          dispatch(skeletonState(false))         
         }
       })
       .catch((error)=> {
         console.log(error)
         dispatch(pushToast({title: '更新に失敗しました', severity: "error"}))
+        dispatch(skeletonState(false)) 
       })
-      .finally(() => {
-        setTimeout(() => {
-          dispatch(nowLoadingState(false));
-        }, 800);
-      });
   }
 }
 
