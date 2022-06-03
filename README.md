@@ -231,7 +231,7 @@ Todo が 5 以上投稿されるとページネーションにより、データ
 <br>
 <br>
 
-## ローカルでの起動方法
+## ローカルでの開発環境での起動方法
 
 - クローン
 
@@ -262,13 +262,28 @@ REACT_APP_API_URL="http://localhost:8000/api/"
 golang 側
 
 ```
-touch api/env/dev.env
+touch api/env/development.env
 ```
 
-api/env/dev.env へキー(環境変数)を入力
+api/env/development.env へキー(環境変数)を入力
 
 ```
-SESSION_KEY = ********
+API_PORT = 8000
+LOG_FILE = apiapp.log
+DRIVER = mysql
+USER_NAME = root
+PASSWORD = root
+HOST = mysql_container
+DB_PORT = 3306
+DB_NAME = react_golang_mux
+ALLOWED_ORIGINS = http://localhost:8080
+ALLOWED_METHODS = "POST GET PUT DELETE"
+ALLOWED_HEADERS = "Origin Accept Content-Type X-Requested-With Access-Control-Allow-Origin"
+SESSION_KEY = sample-session-key
+AWS_BUCKET  = development
+AWS_ACCESS_KEY_ID = development
+AWS_SECRET_ACCESS_KEY = development
+AWS_REGION = sample-region
 ```
 
 - docker 起動
