@@ -1,4 +1,5 @@
 FROM golang:1.18.2-alpine3.14 as build
+RUN export GOPATH= && export GO111MODULE=on
 WORKDIR /app/api
 COPY go.mod go.sum ./
 RUN go mod download
