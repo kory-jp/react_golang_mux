@@ -6,9 +6,14 @@ services:
       dockerfile: Dockerfile
     container_name: db_container
     environment:
-      MYSQL_USER: root_user
-      MYSQL_PASSWORD: root
-      MYSQL_ROOT_PASSWORD: root
+      # MySQLに接続するユーザの名前です。ユーザを作成する場合はMYSQL_PASSWORDの設定も必要
+      # MYSQL_DATABASEで設定したデータベースに対してGRANT ALLの権限が付与
+      MYSQL_USER: ${USER_NAME}
+      # MySQL_USERで設定したユーザーのパスワード
+      MYSQL_PASSWORD: ${PASSWORD}
+      # MySQLのrootユーザーのパスワード
+      MYSQL_ROOT_PASSWORD: ${ROOT_PASSWORD}
+      # データベース名
       MYSQL_DATABASE: react_golang_mux
       TZ: 'Asia/Tokyo'
     ports:

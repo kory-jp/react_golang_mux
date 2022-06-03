@@ -29,6 +29,7 @@ yarn-error.log*
 # mysql
 mysql/mysql_data
 mysql/logs
+.env
 
 
 ## api
