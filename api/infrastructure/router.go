@@ -6,10 +6,11 @@ import (
 	"os"
 	"strings"
 
+	tags "github.com/kory-jp/react_golang_mux/api/interfaces/controllers/tags"
+
 	"github.com/kory-jp/react_golang_mux/api/infrastructure/aws"
 
 	sessions "github.com/kory-jp/react_golang_mux/api/interfaces/controllers/sessions"
-	tags "github.com/kory-jp/react_golang_mux/api/interfaces/controllers/tags"
 	taskCards "github.com/kory-jp/react_golang_mux/api/interfaces/controllers/task_cards"
 	todos "github.com/kory-jp/react_golang_mux/api/interfaces/controllers/todos"
 	users "github.com/kory-jp/react_golang_mux/api/interfaces/controllers/users"
