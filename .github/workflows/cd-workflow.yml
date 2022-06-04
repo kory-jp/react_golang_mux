@@ -33,6 +33,12 @@ jobs:
 
       - name: api push to ECR
         id: build-image-api
+        uses: actions/cache@v2
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         run: |
