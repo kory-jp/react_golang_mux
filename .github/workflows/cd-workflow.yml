@@ -95,7 +95,7 @@ jobs:
 
       - name: Deploy to ECS
         run: |
-          aws ecs update-service --service ${{ secrets.AWS_ECS_SERVIE }} --cluster ${{ secrets.AWS_ECS_CLUSTER }} ---force-new-deployment
+          aws ecs update-service --service ${{ secrets.AWS_ECS_SERVIE }} --cluster ${{ secrets.AWS_ECS_CLUSTER }} --force-new-deployment
 
       # - name: Success
       #   uses: rtCamp/action-slack-notify@v2.0.2
