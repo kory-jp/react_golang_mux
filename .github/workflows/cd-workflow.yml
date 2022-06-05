@@ -20,16 +20,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      # - name: Set up Go 1.18.2
-      #   uses: actions/setup-go@v2
-      #   with:
-      #     go-version: 1.18.2
-      # - uses: actions/cache@v3
-      #   with:
-      #     path: ~/go/pkg/mod
-      #     key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-      #     restore-keys: |
-      #       ${{ runner.os }}-go-
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -47,6 +37,24 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         run: |
           cd api
+          mkdir env
+          touch env/production.env
+          echo API_PORT=${{ secrets.API_API_PORT }} >> env/production.env
+          echo LOG_FILE={{ secrets.API_LOG_FILE }} >> env/production.env
+          echo DRIVER={{ secrets.API_DRIVER }} >> env/production.env
+          echo USER_NAME={{ secrets.API_USER_NAME }} >> env/production.env
+          echo PASSWORD={{ secrets.API_PASSWORD }} >> env/production.env
+          echo HOST={{ secrets.API_HOST }} >> env/production.env
+          echo DB_PORT={{ secrets.API_DB_PORT }} >> env/production.env
+          echo DB_NAME={{ secrets.API_DB_NAME }} >> env/production.env
+          echo ALLOWED_ORIGINS={{ secrets.API_ALLOWED_ORIGINS }} >> env/production.env
+          echo ALLOWED_METHODS={{ secrets.API_ALLOWED_METHODS }} >> env/production.env
+          echo ALLOWED_HEADERS={{ secrets.API_ALLOWED_HEADERS }} >> env/production.env
+          echo SESSION_KEY={{ secrets.API_SESSION_KEY }} >> env/production.env
+          echo AWS_BUCKET={{ secrets.API_AWS_BUCKET }} >> env/production.env
+          echo AWS_ACCESS_KEY_ID={{ secrets.API_AWS_ACCESS_KEY_ID }} >> env/production.env
+          echo AWS_SECRET_ACCESS_KEY={{ secrets.API_AWS_SECRET_ACCESS_KEY }} >> env/production.env
+          echo AWS_REGION={{ secrets.API_AWS_REGION }} >> env/production.env
           docker build -t $ECR_REGISTRY/${{ secrets.AWS_API_REPOSITORY }}:$IMAGE_TAG . --no-cache
           docker tag $ECR_REGISTRY/${{ secrets.AWS_API_REPOSITORY }}:$IMAGE_TAG $ECR_REGISTRY/${{ secrets.AWS_API_REPOSITORY }}:latest
           docker push $ECR_REGISTRY/${{ secrets.AWS_API_REPOSITORY }}:$IMAGE_TAG
