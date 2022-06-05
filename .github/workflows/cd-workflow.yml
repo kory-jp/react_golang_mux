@@ -56,7 +56,8 @@ jobs:
           echo AWS_SECRET_ACCESS_KEY={{ secrets.API_AWS_SECRET_ACCESS_KEY }} >> env/production.env
           echo AWS_REGION={{ secrets.API_AWS_REGION }} >> env/production.env
           docker build -t $ECR_REGISTRY/${{ secrets.AWS_API_REPOSITORY }}:$IMAGE_TAG . --no-cache
-          docker tag $ECR_REGISTRY/${{ secrets.AWS_API_REPOSITORY }}:latest
+          docker tag $ECR_REGISTRY/${{ secrets.AWS_API_REPOSITORY }}:$IMAGE_TAG $ECR_REGISTRY/${{ secrets.AWS_API_REPOSITORY }}:latest
+          docker push $ECR_REGISTRY/${{ secrets.AWS_API_REPOSITORY }}:$IMAGE_TAG
           docker push $ECR_REGISTRY/${{ secrets.AWS_API_REPOSITORY }}:latest
 
       # - name: client push to ECR
