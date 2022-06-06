@@ -135,7 +135,7 @@ _client(react)/Atomic Design を採用_
 
 ## インフラ構成図
 
-![infra](https://user-images.githubusercontent.com/66899822/172092734-e3c6bfd7-598c-4398-aa45-0f7320215cbb.png)
+![infra](https://user-images.githubusercontent.com/66899822/172095100-5ef7e0da-fcc0-4597-8a6b-60c2cf0cb7cb.png)
 
 <br>
 <br>
