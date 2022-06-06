@@ -71,7 +71,7 @@ jobs:
           docker build -t $ECR_REGISTRY/${{ secrets.AWS_CLIENT_REPOSITORY }}:$IMAGE_TAG . --no-cache
           docker tag $ECR_REGISTRY/${{ secrets.AWS_CLIENT_REPOSITORY }}:$IMAGE_TAG $ECR_REGISTRY/${{ secrets.AWS_CLIENT_REPOSITORY }}:latest
           docker push $ECR_REGISTRY/${{ secrets.AWS_CLIENT_REPOSITORY }}:$IMAGE_TAG
-          docker push $ECR_REGISTRY/${{ secrets.AWS_CLIENT_REPOSITORY }}:$latest
+          docker push $ECR_REGISTRY/${{ secrets.AWS_CLIENT_REPOSITORY }}:latest
 
       # - name: nginx push to ECR
       #   id: build-image-nginx
@@ -82,7 +82,7 @@ jobs:
       #     docker build -t $ECR_REGISTRY/${{ secrets.AWS_NGINX_REPOSITORY }}:$IMAGE_TAG . --no-cache
       #     docker tag $ECR_REGISTRY/${{ secrets.AWS_NGINX_REPOSITORY }}:$IMAGE_TAG $ECR_REGISTRY/${{ secrets.AWS_NGINX_REPOSITORY }}:latest
       #     docker push $ECR_REGISTRY/${{ secrets.AWS_NGINX_REPOSITORY }}:$IMAGE_TAG
-      #     docker push $ECR_REGISTRY/${{ secrets.AWS_NGINX_REPOSITORY }}:$latest
+      #     docker push $ECR_REGISTRY/${{ secrets.AWS_NGINX_REPOSITORY }}:latest
 
       # - name: mysql push to ECR
       #   id: build-image-mysql
@@ -93,7 +93,7 @@ jobs:
       #     docker build -t $ECR_REGISTRY/${{ secrets.AWS_MYSQL_REPOSITORY }}:$IMAGE_TAG . --no-cache
       #     docker tag $ECR_REGISTRY/${{ secrets.AWS_MYSQL_REPOSITORY }}:$IMAGE_TAG $ECR_REGISTRY/${{ secrets.AWS_MYSQL_REPOSITORY }}:latest
       #     docker push $ECR_REGISTRY/${{ secrets.AWS_MYSQL_REPOSITORY }}:$IMAGE_TAG
-      #     docker push $ECR_REGISTRY/${{ secrets.AWS_MYSQL_REPOSITORY }}:$latest
+      #     docker push $ECR_REGISTRY/${{ secrets.AWS_MYSQL_REPOSITORY }}:latest
 
       - name: Deploy to ECS
         run: |
