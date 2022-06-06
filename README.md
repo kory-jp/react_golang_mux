@@ -23,6 +23,12 @@
 
 ## こだわったところ
 
+- `Client(React)`側において`Redux/TypeScript`において状態管理
+
+`React`を用いた開発における必ず上がる課題として状態管理があるかと思います。現在、便利な`Hooks`なども出てきてはおりますが、現場ではやはりまだ使用率の高く知識を活かせる可能性が高い`Redux`を用いて状態管理をおこなっております。一方、`Redux+TypeScript`を用いる場合によく用いられる`typescript-fsa`や`Redux-Toolkit`は使用せずに型指定した状態(`state`)の受け渡しの流れをより意識できるのではないかと考え素の`TypeScript`で`Redux`の構築を図りました。
+
+</br>
+
 - API(golang)を`Clean Architecture`にて設計
 
 以前に `Ruby on Rails` にて作成したポートフォリオは `Rails`の設計である `MVC`に準じてアプリケーションを作成しました。
