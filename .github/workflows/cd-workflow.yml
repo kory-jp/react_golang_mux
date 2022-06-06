@@ -1,11 +1,10 @@
 name: Deploy work flow for Amazon ECS
 
 on:
-  [push]
-  # pull_request:
-  #   branches:
-  #     - main
-  #   types: [closed]
+  pull_request:
+    branches:
+      - main
+    types: [closed]
 
 env:
   IMAGE_TAG: ${{ github.sha }}
@@ -99,26 +98,26 @@ jobs:
         run: |
           aws ecs update-service --service ${{ secrets.AWS_ECS_SERVIE }} --cluster ${{ secrets.AWS_ECS_CLUSTER }} --force-new-deployment
 
-      # - name: Success
-      #   uses: rtCamp/action-slack-notify@v2.0.2
-      #   if: success()
-      #   env:
-      #     SLACK_TITLE: Deploy flow / success
-      #     SLACK_COLOR: good
-      #     SLACK_MESSAGE: Message for success
+      - name: Success
+        uses: rtCamp/action-slack-notify@v2.0.2
+        if: success()
+        env:
+          SLACK_TITLE: Deploy flow / success
+          SLACK_COLOR: good
+          SLACK_MESSAGE: Message for success
 
-      # - name: Failure
-      #   uses: rtCamp/action-slack-notify@v2.0.2
-      #   if: failure()
-      #   env:
-      #     SLACK_TITLE: Deploy flow / failure
-      #     SLACK_COLOR: danger
-      #     SLACK_MESSAGE: Message for failure
+      - name: Failure
+        uses: rtCamp/action-slack-notify@v2.0.2
+        if: failure()
+        env:
+          SLACK_TITLE: Deploy flow / failure
+          SLACK_COLOR: danger
+          SLACK_MESSAGE: Message for failure
 
-      # - name: Cancel
-      #   uses: rtCamp/action-slack-notify@v2.0.2
-      #   if: cancelled()
-      #   env:
-      #     SLACK_TITLE: Deploy flow / cancel
-      #     SLACK_COLOR: danger
-      #     SLACK_MESSAGE: Message for cancel
+      - name: Cancel
+        uses: rtCamp/action-slack-notify@v2.0.2
+        if: cancelled()
+        env:
+          SLACK_TITLE: Deploy flow / cancel
+          SLACK_COLOR: danger
+          SLACK_MESSAGE: Message for cancel
