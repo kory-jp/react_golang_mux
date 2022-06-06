@@ -35,28 +35,6 @@
 </br>
 </br>
 
-## 環境構築
-
-下記のサイトをもとに、`golang`の開発効率の向上を図るため`.air`によるホットリロードを実現
-
-`MySQL`において発行された`SQL`を `log` ディレクトリ以下に記録
-
-[参考サイト 1](https://qiita.com/takuya911/items/2447c97525d4c48b72a2)
-
-- ディレクトリ構成
-
-```
-./-- api //golang
-  |_client //react-tyepscript
-  |_nginx/nginx.conf
-  |_mysql/Dockerfile
-  |    |_conf.d/my.conf
-  |_.github
-```
-
-<br>
-<br>
-
 ## 使用技術
 
 バックエンド
@@ -87,7 +65,7 @@ Golang 主要パッケージ
 
 - docker(開発環境+本番環境構築)
 - GitHub(バージョン管理)
-- GitHub Actions (CI)
+- GitHub Actions (CI/CD)
 - AWS
   - VPC
   - Internet Gateway
@@ -120,6 +98,7 @@ Golang 主要パッケージ
 - バージョン管理は GitHub、開発環境構築には Docker を利用しており、コードの品質管理や本番環境構築の場面においてもそれらの技術を流用していきたかったため
 - CI において以前作成したポートフォリオにおいては Circle CI を利用していたが、すべて GitHub 上で完結できる点に GitHubAction の魅力を感じた
 - 現在のトレンドとして、コンテナを用いたデプロイが主流なので知見を取得することは有用であると判断したため
+- コンテナを用いたデプロイはデプロイ作業に時間がかかるために、`GitHub Actions`の`CD`機能を用いて自動化を図り開発体験の向上を目指した
 
 <br>
 <br>
@@ -156,7 +135,7 @@ _client(react)/Atomic Design を採用_
 
 ## インフラ構成図
 
-![infra](https://user-images.githubusercontent.com/66899822/170907397-0b994132-0a25-4343-b8a0-c8305d4b07c1.png)
+![infra](https://user-images.githubusercontent.com/66899822/172092734-e3c6bfd7-598c-4398-aa45-0f7320215cbb.png)
 
 <br>
 <br>
@@ -212,21 +191,6 @@ Todo が 5 以上投稿されるとページネーションにより、データ
 ## モデルデザイン
 
 ![ER](https://user-images.githubusercontent.com/66899822/165665661-25880a7c-fa77-4c79-af0a-bf6999ac69f3.png)
-
-<br>
-<br>
-
-## 基本操作
-
-`/`からテストユーザーのメールアドレスとパスワードでログイン。
-または`/registration`からユーザー名、メールアドレス、パスワードを入力してユーザー登録とログインが可能
-
-ログインすると過去に投稿した Todo 一覧(`todo`)が表示される
-ヘッダー部分には新規 Todo 投稿画面(`todo/new`)へのリンクとログアウトボタンを設置
-
-一覧画面から各 Todo の詳細情報のページに遷移することや、完了未完了の操作、削除の操作が可能
-
-詳細画面(`todo/show/:id`)からはより詳細の Todo 情報を確認でき編集や削除の操作も可能
 
 <br>
 <br>
@@ -366,6 +330,15 @@ sh test.sh
 
 ```
 $sh test.sh
+TEST START
+TEST USECASE USERS OK
+TEST USECASE TODOS OK
+TEST USECASE SESSIONS OK
+TEST USECASE TASK_CARDS OK
+TEST CONTROLLER USERS OK
+TEST CONTROLLER TODOS OK
+TEST CONTROLLER SESSIONS OK
+TEST CONTROLLER TASK_CARDS OK
 TEST ALL COMPLETED
 ```
 
