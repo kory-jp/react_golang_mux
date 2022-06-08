@@ -99,7 +99,7 @@ Golang 主要パッケージ
 
 - Figma
 
-*事前にFigmaによりサイトデザインを構築してからViewにまつわるデザイン構築に取り掛かりました。また、ロゴ等に関してもFigmaを用いて作成しました。
+\*事前に Figma によりサイトデザインを構築してから View にまつわるデザイン構築に取り掛かりました。また、ロゴ等に関しても Figma を用いて作成しました。
 
 <img width="360" alt="DC98ADE5-C3F6-4A48-BF0B-D22C0C03A4C1" src="https://user-images.githubusercontent.com/66899822/172099177-48383f0e-1dd4-4327-923b-626d76a2b98c.png">
 
@@ -161,7 +161,7 @@ _client(react)/Atomic Design を採用_
 
 ## インフラ構成図
 
-![infra](https://user-images.githubusercontent.com/66899822/172095100-5ef7e0da-fcc0-4597-8a6b-60c2cf0cb7cb.png)
+![infra](https://user-images.githubusercontent.com/66899822/172576971-19272822-a456-4803-87a1-a17e31748453.png)
 
 <br>
 <br>
