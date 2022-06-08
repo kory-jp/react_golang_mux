@@ -27,7 +27,7 @@ services:
     stdin_open: true
     tty: true
     ports:
-      - 3000:3000
+      - 80:80
   api_prod:
     build: 
       context: ./api/
@@ -42,13 +42,3 @@ services:
     tty: true
     ports:
       - 8000:8000
-  nginx_prod:
-    build: 
-      context: ./nginx/
-      dockerfile: Dockerfile.production
-    container_name: web_container
-    depends_on:
-      - api_prod
-      - client_prod
-    ports:
-      - 80:80
