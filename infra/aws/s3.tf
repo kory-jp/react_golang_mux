@@ -7,11 +7,11 @@ resource "aws_s3_bucket_lifecycle_configuration" "bucket-config" {
   bucket = aws_s3_bucket.alb_log.id
 
   rule {
-    id = "log"
+    id     = "log"
     status = "Enabled"
     expiration {
       days = "90"
-    }    
+    }
   }
 }
 
