@@ -28,7 +28,7 @@ data "aws_iam_policy_document" "alb_log" {
 
     principals {
       type        = "AWS"
-      identifiers = [var.identifier]
+      identifiers = ["582318560864"]
     }
   }
 }
