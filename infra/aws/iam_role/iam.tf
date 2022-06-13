@@ -4,7 +4,7 @@ variable "identifier" {}
 
 resource "aws_iam_role" "default" {
   name = var.name
-  assume_role_policy = data.aws.iam_policy_document.assume_role.json
+  assume_role_policy = data.aws_iam_policy_document.assume_role.json
 }
 
 data "aws_iam_policy_document" "assume_role" {
@@ -13,7 +13,7 @@ data "aws_iam_policy_document" "assume_role" {
 
     principals {
       type = "Service"
-      identifiers = [var.identifiers] 
+      identifiers = [var.identifier] 
     }
   }
 }
