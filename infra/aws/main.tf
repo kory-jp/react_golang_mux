@@ -36,6 +36,10 @@ variable "identifier" {
   type = string
 }
 
+variable "domain" {
+  type = string
+}
+
 
 #---------------------------
 #  IAM Policy
