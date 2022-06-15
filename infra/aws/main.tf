@@ -24,6 +24,10 @@ provider "aws" {
 #  Variable
 #---------------------------
 
+variable "aws_account_id" {
+  type = string
+}
+
 variable "name" {
   type = string
 }
@@ -40,6 +44,17 @@ variable "domain" {
   type = string
 }
 
+variable "client_image_name" {
+  type = string
+}
+
+variable "api_image_name" {
+  type = string
+}
+
+variable "db_image_name" {
+  type = string
+}
 
 #---------------------------
 #  IAM Policy
