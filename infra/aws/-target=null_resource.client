@@ -1,0 +1,91 @@
+[0m[1maws_ecr_repository.client: Refreshing state... [id=terr_pres_client][0m
+[0m[1maws_ecr_repository.db: Refreshing state... [id=terr_pres_db][0m
+[0m[1maws_ecr_repository.api: Refreshing state... [id=terr_pres_api][0m
+
+Terraform used the selected providers to generate the following execution
+plan. Resource actions are indicated with the following symbols:
+  [31m-[0m destroy
+[0m
+Terraform will perform the following actions:
+
+[1m  # aws_ecr_repository.api[0m will be [1m[31mdestroyed[0m[0m
+[0m  [31m-[0m[0m resource "aws_ecr_repository" "api" {
+      [31m-[0m [0m[1m[0marn[0m[0m                  = "arn:aws:ecr:ap-northeast-1:300574054196:repository/terr_pres_api" [90m->[0m [0m[90mnull[0m[0m
+      [31m-[0m [0m[1m[0mid[0m[0m                   = "terr_pres_api" [90m->[0m [0m[90mnull[0m[0m
+      [31m-[0m [0m[1m[0mimage_tag_mutability[0m[0m = "MUTABLE" [90m->[0m [0m[90mnull[0m[0m
+      [31m-[0m [0m[1m[0mname[0m[0m                 = "terr_pres_api" [90m->[0m [0m[90mnull[0m[0m
+      [31m-[0m [0m[1m[0mregistry_id[0m[0m          = "300574054196" [90m->[0m [0m[90mnull[0m[0m
+      [31m-[0m [0m[1m[0mrepository_url[0m[0m       = "300574054196.dkr.ecr.ap-northeast-1.amazonaws.com/terr_pres_api" [90m->[0m [0m[90mnull[0m[0m
+      [31m-[0m [0m[1m[0mtags[0m[0m                 = {} [90m->[0m [0m[90mnull[0m[0m
+      [31m-[0m [0m[1m[0mtags_all[0m[0m             = {} [90m->[0m [0m[90mnull[0m[0m
+
+      [31m-[0m [0mencryption_configuration {
+          [31m-[0m [0m[1m[0mencryption_type[0m[0m = "AES256" [90m->[0m [0m[90mnull[0m[0m
+        }
+
+      [31m-[0m [0mimage_scanning_configuration {
+          [31m-[0m [0m[1m[0mscan_on_push[0m[0m = true [90m->[0m [0m[90mnull[0m[0m
+        }
+    }
+
+[1m  # aws_ecr_repository.client[0m will be [1m[31mdestroyed[0m[0m
+[0m  [31m-[0m[0m resource "aws_ecr_repository" "client" {
+      [31m-[0m [0m[1m[0marn[0m[0m                  = "arn:aws:ecr:ap-northeast-1:300574054196:repository/terr_pres_client" [90m->[0m [0m[90mnull[0m[0m
+      [31m-[0m [0m[1m[0mid[0m[0m                   = "terr_pres_client" [90m->[0m [0m[90mnull[0m[0m
+      [31m-[0m [0m[1m[0mimage_tag_mutability[0m[0m = "MUTABLE" [90m->[0m [0m[90mnull[0m[0m
+      [31m-[0m [0m[1m[0mname[0m[0m                 = "terr_pres_client" [90m->[0m [0m[90mnull[0m[0m
+      [31m-[0m [0m[1m[0mregistry_id[0m[0m          = "300574054196" [90m->[0m [0m[90mnull[0m[0m
+      [31m-[0m [0m[1m[0mrepository_url[0m[0m       = "300574054196.dkr.ecr.ap-northeast-1.amazonaws.com/terr_pres_client" [90m->[0m [0m[90mnull[0m[0m
+      [31m-[0m [0m[1m[0mtags[0m[0m                 = {} [90m->[0m [0m[90mnull[0m[0m
+      [31m-[0m [0m[1m[0mtags_all[0m[0m             = {} [90m->[0m [0m[90mnull[0m[0m
+
+      [31m-[0m [0mencryption_configuration {
+          [31m-[0m [0m[1m[0mencryption_type[0m[0m = "AES256" [90m->[0m [0m[90mnull[0m[0m
+        }
+
+      [31m-[0m [0mimage_scanning_configuration {
+          [31m-[0m [0m[1m[0mscan_on_push[0m[0m = true [90m->[0m [0m[90mnull[0m[0m
+        }
+    }
+
+[1m  # aws_ecr_repository.db[0m will be [1m[31mdestroyed[0m[0m
+[0m  [31m-[0m[0m resource "aws_ecr_repository" "db" {
+      [31m-[0m [0m[1m[0marn[0m[0m                  = "arn:aws:ecr:ap-northeast-1:300574054196:repository/terr_pres_db" [90m->[0m [0m[90mnull[0m[0m
+      [31m-[0m [0m[1m[0mid[0m[0m                   = "terr_pres_db" [90m->[0m [0m[90mnull[0m[0m
+      [31m-[0m [0m[1m[0mimage_tag_mutability[0m[0m = "MUTABLE" [90m->[0m [0m[90mnull[0m[0m
+      [31m-[0m [0m[1m[0mname[0m[0m                 = "terr_pres_db" [90m->[0m [0m[90mnull[0m[0m
+      [31m-[0m [0m[1m[0mregistry_id[0m[0m          = "300574054196" [90m->[0m [0m[90mnull[0m[0m
+      [31m-[0m [0m[1m[0mrepository_url[0m[0m       = "300574054196.dkr.ecr.ap-northeast-1.amazonaws.com/terr_pres_db" [90m->[0m [0m[90mnull[0m[0m
+      [31m-[0m [0m[1m[0mtags[0m[0m                 = {} [90m->[0m [0m[90mnull[0m[0m
+      [31m-[0m [0m[1m[0mtags_all[0m[0m             = {} [90m->[0m [0m[90mnull[0m[0m
+
+      [31m-[0m [0mencryption_configuration {
+          [31m-[0m [0m[1m[0mencryption_type[0m[0m = "AES256" [90m->[0m [0m[90mnull[0m[0m
+        }
+
+      [31m-[0m [0mimage_scanning_configuration {
+          [31m-[0m [0m[1m[0mscan_on_push[0m[0m = true [90m->[0m [0m[90mnull[0m[0m
+        }
+    }
+
+[1m  # null_resource.client[0m will be [1m[31mdestroyed[0m[0m
+[0m  [31m-[0m[0m resource "null_resource" "client" {
+      [31m-[0m [0m[1m[0mid[0m[0m = "1319120568500491978" [90m->[0m [0m[90mnull[0m[0m
+    }
+
+[0m[1mPlan:[0m 0 to add, 0 to change, 4 to destroy.
+[0m[33m╷[0m[0m
+[33m│[0m [0m[1m[33mWarning: [0m[0m[1mResource targeting is in effect[0m
+[33m│[0m [0m
+[33m│[0m [0m[0mYou are creating a plan with the -target option, which means that the result of this plan may not represent all of the changes requested by the current configuration.
+[33m│[0m [0m
+[33m│[0m [0mThe -target option is not for routine use, and is provided only for exceptional situations such as recovering from errors or mistakes, or when Terraform specifically
+[33m│[0m [0msuggests to use it as part of an error message.
+[33m╵[0m[0m
+[0m[1m
+Do you really want to destroy all resources?[0m
+  Terraform will destroy all your managed infrastructure, as shown above.
+  There is no undo. Only 'yes' will be accepted to confirm.
+
+  [1mEnter a value:[0m [0m
+Destroy cancelled.

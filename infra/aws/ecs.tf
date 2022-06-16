@@ -12,12 +12,20 @@ resource "aws_ecs_cluster" "terr_pres_cluster" {
 
 resource "aws_ecs_task_definition" "terr_pres_task" {
   family                   = "terr_pres_task"
-  cpu                      = "256"
-  memory                   = "512"
+  cpu                      = "512"
+  memory                   = "1024"
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
-  container_definitions    = file("./containers/container_definitions.json")
-  execution_role_arn       = aws_iam_role.ecs_task.arn
+  container_definitions = templatefile("./containers/app_container_definition.json", {
+    db_image_uri        = aws_ecr_repository.db.repository_url
+    api_image_uri       = aws_ecr_repository.api.repository_url
+    client_image_uri    = aws_ecr_repository.client.repository_url
+    mysql_database      = var.mysql_database
+    mysql_password      = var.mysql_password
+    mysql_root_password = var.mysql_root_password
+    mysql_user          = var.mysql_user
+  })
+  execution_role_arn = aws_iam_role.ecs_task.arn
 }
 
 # ------------------------
@@ -31,7 +39,7 @@ resource "aws_ecs_service" "terr_pres_service" {
   desired_count                     = 1
   launch_type                       = "FARGATE"
   platform_version                  = "1.4.0"
-  health_check_grace_period_seconds = 60
+  health_check_grace_period_seconds = 3600
 
   network_configuration {
     assign_public_ip = false
@@ -45,7 +53,7 @@ resource "aws_ecs_service" "terr_pres_service" {
 
   load_balancer {
     target_group_arn = aws_lb_target_group.terr_pres_tg.arn
-    container_name   = "example"
+    container_name   = "client"
     container_port   = 80
   }
 

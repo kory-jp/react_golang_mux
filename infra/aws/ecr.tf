@@ -39,6 +39,8 @@ resource "null_resource" "client" {
     command = "aws ecr get-login-password --region ap-northeast-1 | docker login --username AWS --password-stdin ${var.aws_account_id}.dkr.ecr.ap-northeast-1.amazonaws.com"
   }
 
+  # --- client ---
+
   provisioner "local-exec" {
     command = "docker build -t ${var.client_image_name} ../../client"
   }
@@ -50,12 +52,8 @@ resource "null_resource" "client" {
   provisioner "local-exec" {
     command = "docker push ${aws_ecr_repository.client.repository_url}"
   }
-}
 
-resource "null_resource" "api" {
-  provisioner "local-exec" {
-    command = "aws ecr get-login-password --region ap-northeast-1 | docker login --username AWS --password-stdin ${var.aws_account_id}.dkr.ecr.ap-northeast-1.amazonaws.com"
-  }
+  # --- api ---
 
   provisioner "local-exec" {
     command = "docker build -t ${var.api_image_name} ../../api"
@@ -68,12 +66,8 @@ resource "null_resource" "api" {
   provisioner "local-exec" {
     command = "docker push ${aws_ecr_repository.api.repository_url}"
   }
-}
 
-resource "null_resource" "db" {
-  provisioner "local-exec" {
-    command = "aws ecr get-login-password --region ap-northeast-1 | docker login --username AWS --password-stdin ${var.aws_account_id}.dkr.ecr.ap-northeast-1.amazonaws.com"
-  }
+  # --- mysql ---
 
   provisioner "local-exec" {
     command = "docker build -t ${var.db_image_name} ../../mysql"
