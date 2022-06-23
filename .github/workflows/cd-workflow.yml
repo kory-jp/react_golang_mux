@@ -1,11 +1,10 @@
 name: Deploy work flow for Amazon ECS
 
-on: [push]
-# on:
-#   pull_request:
-#     branches:
-#       - main
-#     types: [closed]
+on:
+  pull_request:
+    branches:
+      - main
+    types: [closed]
 
 env:
   IMAGE_TAG: ${{ github.sha }}
