@@ -77,7 +77,7 @@ data "aws_iam_policy_document" "allow_access_from_s3_user" {
     effect  = "Allow"
     principals {
       type        = "AWS"
-      identifiers = [ "arn:aws:iam::${var.aws_account_id}:user${var.s3_path}${var.s3_user}" ]
+      identifiers = ["arn:aws:iam::${var.aws_account_id}:user${var.s3_path}${var.s3_user}"]
     }
     resources = [
       "arn:aws:s3:::${var.s3_images_bucket_name}/*"

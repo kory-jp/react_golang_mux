@@ -84,6 +84,26 @@ variable "s3_images_bucket_name" {
   type = string
 }
 
+variable "fargate_service_name" {
+  type = string
+}
+
+variable "ecs_cluster_name" {
+  type = string
+}
+
+variable "ecs_task_api_container_name" {
+  type = string
+}
+
+variable "ecs_task_client_container_name" {
+  type = string
+}
+
+variable "ecs_task_db_container_name" {
+  type = string
+}
+
 #---------------------------
 #  IAM Policy
 #---------------------------
