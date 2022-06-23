@@ -16,7 +16,9 @@
 [参考サイト](https://president-ac.jp/blog/taskmanagement/)　
 </br>
 </br>
-[作成したポートフォリオサイト](https://prestd-ecs.tk/)
+[作成したポートフォリオサイト](https://president-todo.net/)
+
+\*平日の 9:30~20:00 の間で起動しており、それ以外の時間帯はサービスを落としております。
 
 <br>
 <br>
@@ -84,6 +86,7 @@ Golang 主要パッケージ
 - docker(開発環境+本番環境構築)
 - GitHub(バージョン管理)
 - GitHub Actions (CI/CD)
+- Terraform(IaC)
 - AWS
   - VPC
   - Internet Gateway
@@ -119,12 +122,23 @@ Golang 主要パッケージ
 - `TypeScript`を併用することで型によるさらなる安全性の向上
 - `Vue` との比較で、より深く `JavaScript` の理解が必要な `React` にキャリア初期から触れることで自己成長につながるのではないかと考えたため
 
-### インフラ: Fatgate/GitHubAction
+### インフラ
 
-- バージョン管理は GitHub、開発環境構築には Docker を利用しており、コードの品質管理や本番環境構築の場面においてもそれらの技術を流用していきたかったため
+#### Docker/Fargate(AWS)
+
+- 開発環境と本番環境での環境差異の解消
+- ローカルでも仮想本番環境を実現できてデプロイ作業の負担軽減
+- 近年、コンテナデプロイが増加している傾向だったので、知見を得るために挑戦
+
+#### Terraform(IaC)
+
+- インフラをコード化することで、インフラ理解がより深まりまた学習記録として残せる
+- 今回の Fargate/RDS と料金が高額なリソースを仕様しており、即時に立ち上げ/破壊が可能なので節約につながる
+
+#### GitHubAction(CI/CD)
+
 - CI において以前作成したポートフォリオにおいては Circle CI を利用していたが、すべて GitHub 上で完結できる点に GitHubAction の魅力を感じた
-- 現在のトレンドとして、コンテナを用いたデプロイが主流なので知見を取得することは有用であると判断したため
-- コンテナを用いたデプロイはデプロイ作業に時間がかかるために、`GitHub Actions`の`CD`機能を用いて自動化を図り開発体験の向上を目指した
+- コンテナを用いたデプロイはデプロイ作業に時間がかかるために、GitHub Actions の CD 機能を用いて自動化を図り開発体験の向上を目指した
 
 <br>
 <br>
@@ -161,7 +175,7 @@ _client(react)/Atomic Design を採用_
 
 ## インフラ構成図
 
-![infra](https://user-images.githubusercontent.com/66899822/172576971-19272822-a456-4803-87a1-a17e31748453.png)
+![infra_ver2](https://user-images.githubusercontent.com/66899822/175237186-23c3ddd5-cbc0-4dc7-a603-4a0d24120b5c.png)
 
 <br>
 <br>

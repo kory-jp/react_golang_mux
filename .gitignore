@@ -45,7 +45,7 @@ api/__debug_bin
 
 ## infra
 **/.terraform/*
-infra/infra.dio
+infra/*.dio
 infra/*.png
 *.tfstate
 *.tfstate.*
