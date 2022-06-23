@@ -1,112 +1,113 @@
-# name: Deploy work flow for Amazon ECS
+name: Deploy work flow for Amazon ECS
 
+on: [push]
 # on:
 #   pull_request:
 #     branches:
 #       - main
 #     types: [closed]
 
-# env:
-#   IMAGE_TAG: ${{ github.sha }}
-#   SLACK_WEBHOOK: ${{ secrets.SLACK_INCOMING_WEBHOOK_URL }}
+env:
+  IMAGE_TAG: ${{ github.sha }}
+  SLACK_WEBHOOK: ${{ secrets.SLACK_INCOMING_WEBHOOK_URL }}
 
-# jobs:
-#   deoploy:
-#     name: deoploy
-#     runs-on: ubuntu-latest
-#     timeout-minutes: 30
+jobs:
+  deoploy:
+    name: deoploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
 
-#     steps:
-#       - name: Checkout
-#         uses: actions/checkout@v2
-#       - name: Configure AWS credentials
-#         uses: aws-actions/configure-aws-credentials@v1
-#         with:
-#           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-#           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-#           aws-region: ${{ secrets.AWS_REGION }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
-#       - name: Login to ECR
-#         id: login-ecr
-#         uses: aws-actions/amazon-ecr-login@v1
+      - name: Login to ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
 
-#       - name: api push to ECR
-#         id: build-image-api
-#         env:
-#           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-#         run: |
-#           cd api
-#           mkdir env
-#           touch env/production.env
-#           echo "API_PORT=${{ secrets.API_API_PORT }}" >> env/production.env
-#           echo "LOG_FILE=${{ secrets.API_LOG_FILE }}" >> env/production.env
-#           echo "DRIVER=${{ secrets.API_DRIVER }}" >> env/production.env
-#           echo "USER_NAME=${{ secrets.API_USER_NAME }}" >> env/production.env
-#           echo "PASSWORD=${{ secrets.API_PASSWORD }}" >> env/production.env
-#           echo "HOST=${{ secrets.API_HOST }}" >> env/production.env
-#           echo "DB_PORT=${{ secrets.API_DB_PORT }}" >> env/production.env
-#           echo "DB_NAME=${{ secrets.API_DB_NAME }}" >> env/production.env
-#           echo "ALLOWED_ORIGINS=${{ secrets.API_ALLOWED_ORIGINS }}" >> env/production.env
-#           echo "ALLOWED_METHODS=${{ secrets.API_ALLOWED_METHODS }}" >> env/production.env
-#           echo "ALLOWED_HEADERS=${{ secrets.API_ALLOWED_HEADERS }}" >> env/production.env
-#           echo "SESSION_KEY=${{ secrets.API_SESSION_KEY }}" >> env/production.env
-#           echo "AWS_BUCKET=${{ secrets.API_AWS_BUCKET }}" >> env/production.env
-#           echo "AWS_ACCESS_KEY_ID=${{ secrets.API_AWS_ACCESS_KEY_ID }}" >> env/production.env
-#           echo "AWS_SECRET_ACCESS_KEY=${{ secrets.API_AWS_SECRET_ACCESS_KEY }}" >> env/production.env
-#           echo "AWS_REGION=${{ secrets.API_AWS_REGION }}" >> env/production.env
-#           docker build -t $ECR_REGISTRY/${{ secrets.AWS_API_REPOSITORY }}:$IMAGE_TAG . --no-cache
-#           docker tag $ECR_REGISTRY/${{ secrets.AWS_API_REPOSITORY }}:$IMAGE_TAG $ECR_REGISTRY/${{ secrets.AWS_API_REPOSITORY }}:latest
-#           docker push $ECR_REGISTRY/${{ secrets.AWS_API_REPOSITORY }}:$IMAGE_TAG
-#           docker push $ECR_REGISTRY/${{ secrets.AWS_API_REPOSITORY }}:latest
+      - name: api push to ECR
+        id: build-image-api
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        run: |
+          cd api
+          mkdir env
+          touch env/production.env
+          echo "API_PORT=${{ secrets.API_API_PORT }}" >> env/production.env
+          echo "LOG_FILE=${{ secrets.API_LOG_FILE }}" >> env/production.env
+          echo "DRIVER=${{ secrets.API_DRIVER }}" >> env/production.env
+          echo "USER_NAME=${{ secrets.API_USER_NAME }}" >> env/production.env
+          echo "PASSWORD=${{ secrets.API_PASSWORD }}" >> env/production.env
+          echo "HOST=${{ secrets.API_HOST }}" >> env/production.env
+          echo "DB_PORT=${{ secrets.API_DB_PORT }}" >> env/production.env
+          echo "DB_NAME=${{ secrets.API_DB_NAME }}" >> env/production.env
+          echo "ALLOWED_ORIGINS=${{ secrets.API_ALLOWED_ORIGINS }}" >> env/production.env
+          echo "ALLOWED_METHODS=${{ secrets.API_ALLOWED_METHODS }}" >> env/production.env
+          echo "ALLOWED_HEADERS=${{ secrets.API_ALLOWED_HEADERS }}" >> env/production.env
+          echo "SESSION_KEY=${{ secrets.API_SESSION_KEY }}" >> env/production.env
+          echo "AWS_BUCKET=${{ secrets.API_AWS_BUCKET }}" >> env/production.env
+          echo "AWS_ACCESS_KEY_ID=${{ secrets.API_AWS_ACCESS_KEY_ID }}" >> env/production.env
+          echo "AWS_SECRET_ACCESS_KEY=${{ secrets.API_AWS_SECRET_ACCESS_KEY }}" >> env/production.env
+          echo "AWS_REGION=${{ secrets.API_AWS_REGION }}" >> env/production.env
+          docker build -t $ECR_REGISTRY/${{ secrets.AWS_API_REPOSITORY }}:$IMAGE_TAG . --no-cache
+          docker tag $ECR_REGISTRY/${{ secrets.AWS_API_REPOSITORY }}:$IMAGE_TAG $ECR_REGISTRY/${{ secrets.AWS_API_REPOSITORY }}:latest
+          docker push $ECR_REGISTRY/${{ secrets.AWS_API_REPOSITORY }}:$IMAGE_TAG
+          docker push $ECR_REGISTRY/${{ secrets.AWS_API_REPOSITORY }}:latest
 
-#       - name: client push to ECR
-#         id: build-image-client
-#         env:
-#           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-#         run: |
-#           cd client
-#           touch client-app/.env.production
-#           echo "REACT_APP_API_URL=${{ secrets.CLIENT_REACT_APP_API_URL }}" >> client-app/.env.production
-#           docker build -t $ECR_REGISTRY/${{ secrets.AWS_CLIENT_REPOSITORY }}:$IMAGE_TAG . --no-cache
-#           docker tag $ECR_REGISTRY/${{ secrets.AWS_CLIENT_REPOSITORY }}:$IMAGE_TAG $ECR_REGISTRY/${{ secrets.AWS_CLIENT_REPOSITORY }}:latest
-#           docker push $ECR_REGISTRY/${{ secrets.AWS_CLIENT_REPOSITORY }}:$IMAGE_TAG
-#           docker push $ECR_REGISTRY/${{ secrets.AWS_CLIENT_REPOSITORY }}:latest
+      - name: client push to ECR
+        id: build-image-client
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        run: |
+          cd client
+          touch client-app/.env.production
+          echo "REACT_APP_API_URL=${{ secrets.CLIENT_REACT_APP_API_URL }}" >> client-app/.env.production
+          docker build -t $ECR_REGISTRY/${{ secrets.AWS_CLIENT_REPOSITORY }}:$IMAGE_TAG . --no-cache
+          docker tag $ECR_REGISTRY/${{ secrets.AWS_CLIENT_REPOSITORY }}:$IMAGE_TAG $ECR_REGISTRY/${{ secrets.AWS_CLIENT_REPOSITORY }}:latest
+          docker push $ECR_REGISTRY/${{ secrets.AWS_CLIENT_REPOSITORY }}:$IMAGE_TAG
+          docker push $ECR_REGISTRY/${{ secrets.AWS_CLIENT_REPOSITORY }}:latest
 
-#       - name: mysql push to ECR
-#         id: build-image-mysql
-#         env:
-#           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-#         run: |
-#           cd mysql
-#           docker build -t $ECR_REGISTRY/${{ secrets.AWS_MYSQL_REPOSITORY }}:$IMAGE_TAG . --no-cache
-#           docker tag $ECR_REGISTRY/${{ secrets.AWS_MYSQL_REPOSITORY }}:$IMAGE_TAG $ECR_REGISTRY/${{ secrets.AWS_MYSQL_REPOSITORY }}:latest
-#           docker push $ECR_REGISTRY/${{ secrets.AWS_MYSQL_REPOSITORY }}:$IMAGE_TAG
-#           docker push $ECR_REGISTRY/${{ secrets.AWS_MYSQL_REPOSITORY }}:latest
+      # - name: mysql push to ECR
+      #   id: build-image-mysql
+      #   env:
+      #     ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+      #   run: |
+      #     cd mysql
+      #     docker build -t $ECR_REGISTRY/${{ secrets.AWS_MYSQL_REPOSITORY }}:$IMAGE_TAG . --no-cache
+      #     docker tag $ECR_REGISTRY/${{ secrets.AWS_MYSQL_REPOSITORY }}:$IMAGE_TAG $ECR_REGISTRY/${{ secrets.AWS_MYSQL_REPOSITORY }}:latest
+      #     docker push $ECR_REGISTRY/${{ secrets.AWS_MYSQL_REPOSITORY }}:$IMAGE_TAG
+      #     docker push $ECR_REGISTRY/${{ secrets.AWS_MYSQL_REPOSITORY }}:latest
 
-#       - name: Deploy to ECS
-#         run: |
-#           aws ecs update-service --service ${{ secrets.AWS_ECS_SERVIE }} --cluster ${{ secrets.AWS_ECS_CLUSTER }} --force-new-deployment
+      - name: Deploy to ECS
+        run: |
+          aws ecs update-service --service ${{ secrets.AWS_ECS_SERVIE }} --cluster ${{ secrets.AWS_ECS_CLUSTER }} --force-new-deployment
 
-#       - name: Success
-#         uses: rtCamp/action-slack-notify@v2.0.2
-#         if: success()
-#         env:
-#           SLACK_TITLE: Deploy flow / success
-#           SLACK_COLOR: good
-#           SLACK_MESSAGE: Message for success
+      - name: Success
+        uses: rtCamp/action-slack-notify@v2.0.2
+        if: success()
+        env:
+          SLACK_TITLE: Deploy flow / success
+          SLACK_COLOR: good
+          SLACK_MESSAGE: Message for success
 
-#       - name: Failure
-#         uses: rtCamp/action-slack-notify@v2.0.2
-#         if: failure()
-#         env:
-#           SLACK_TITLE: Deploy flow / failure
-#           SLACK_COLOR: danger
-#           SLACK_MESSAGE: Message for failure
+      - name: Failure
+        uses: rtCamp/action-slack-notify@v2.0.2
+        if: failure()
+        env:
+          SLACK_TITLE: Deploy flow / failure
+          SLACK_COLOR: danger
+          SLACK_MESSAGE: Message for failure
 
-#       - name: Cancel
-#         uses: rtCamp/action-slack-notify@v2.0.2
-#         if: cancelled()
-#         env:
-#           SLACK_TITLE: Deploy flow / cancel
-#           SLACK_COLOR: danger
-#           SLACK_MESSAGE: Message for cancel
+      - name: Cancel
+        uses: rtCamp/action-slack-notify@v2.0.2
+        if: cancelled()
+        env:
+          SLACK_TITLE: Deploy flow / cancel
+          SLACK_COLOR: danger
+          SLACK_MESSAGE: Message for cancel
