@@ -12,38 +12,47 @@ resource "aws_ecs_cluster" "terr_pres_cluster" {
 
 resource "aws_ecs_task_definition" "terr_pres_task" {
   family                   = "terr_pres_task"
-  cpu                      = "512"
+  cpu                      = "256"
   memory                   = "1024"
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
-  # container_definitions = templatefile("./containers/app_container_definition.json", {
-  #   db_image_uri        = aws_ecr_repository.db.repository_url
-  #   api_image_uri       = aws_ecr_repository.api.repository_url
-  #   client_image_uri    = aws_ecr_repository.client.repository_url
-  #   api_container_name    = var.ecs_task_api_container_name
-  #   client_container_name = var.ecs_task_client_container_name
-  #   db_container_name = var.ecs_task_db_container_name
-  #   mysql_database      = var.mysql_database
-  #   mysql_password      = var.mysql_password
-  #   mysql_root_password = var.mysql_root_password
-  #   mysql_user          = var.mysql_user
-  # })
-  container_definitions = templatefile("./containers/rds_container_definition.json", {
+
+  # ====== RDS ======
+
+  container_definitions = templatefile("./containers/app_container_definition.json", {
+    db_image_uri          = aws_ecr_repository.db.repository_url
     api_image_uri         = aws_ecr_repository.api.repository_url
     client_image_uri      = aws_ecr_repository.client.repository_url
     api_container_name    = var.ecs_task_api_container_name
     client_container_name = var.ecs_task_client_container_name
+    db_container_name     = var.ecs_task_db_container_name
     mysql_database        = var.mysql_database
     mysql_password        = var.mysql_password
     mysql_root_password   = var.mysql_root_password
     mysql_user            = var.mysql_user
   })
+
+  # ====== RDS ======
+
+  # container_definitions = templatefile("./containers/rds_container_definition.json", {
+  #   api_image_uri         = aws_ecr_repository.api.repository_url
+  #   client_image_uri      = aws_ecr_repository.client.repository_url
+  #   api_container_name    = var.ecs_task_api_container_name
+  #   client_container_name = var.ecs_task_client_container_name
+  #   mysql_database        = var.mysql_database
+  #   mysql_password        = var.mysql_password
+  #   mysql_root_password   = var.mysql_root_password
+  #   mysql_user            = var.mysql_user
+  # })
+
+  # depends_on = [
+  #   aws_db_instance.instance
+  # ]
+
+  # ====== RDS ======
+
   execution_role_arn = aws_iam_role.ecs_task.arn
   task_role_arn      = aws_iam_role.session_manager.arn
-
-  depends_on = [
-    aws_db_instance.instance
-  ]
 }
 
 # ------------------------
@@ -125,11 +134,6 @@ resource "aws_iam_policy" "allow-ecs-exec" {
   name   = "allow-ecs-exec"
   policy = file("policy/ecs-exec.json")
 }
-
-# resource "aws_iam_role_policy_attachment" "allow-ecs-exec-attach" {
-#   role       = aws_iam_role.ecs_task.name
-#   policy_arn = aws_iam_policy.allow-ecs-exec.arn
-# }
 
 resource "aws_iam_role" "session_manager" {
   name               = "session_manager"

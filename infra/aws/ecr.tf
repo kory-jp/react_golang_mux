@@ -20,15 +20,18 @@ resource "aws_ecr_repository" "api" {
   }
 }
 
-# resource "aws_ecr_repository" "db" {
-#   name                 = var.db_image_name
-#   image_tag_mutability = "MUTABLE"
+# ====== RDS =====
 
-#   image_scanning_configuration {
-#     scan_on_push = true
-#   }
-# }
+resource "aws_ecr_repository" "db" {
+  name                 = var.db_image_name
+  image_tag_mutability = "MUTABLE"
 
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+}
+
+# ====== RDS =====
 
 # -----------------------------
 #  Local Image Push Command
@@ -66,16 +69,20 @@ resource "null_resource" "command" {
     command = "docker push ${aws_ecr_repository.api.repository_url}"
   }
 
+  # ====== RDS =====
+
   # --- mysql ---
-  # provisioner "local-exec" {
-  #   command = "docker build -t ${var.db_image_name} ../../mysql"
-  # }
+  provisioner "local-exec" {
+    command = "docker build -t ${var.db_image_name} ../../mysql"
+  }
 
-  # provisioner "local-exec" {
-  #   command = "docker tag ${var.db_image_name}:latest ${aws_ecr_repository.db.repository_url}"
-  # }
+  provisioner "local-exec" {
+    command = "docker tag ${var.db_image_name}:latest ${aws_ecr_repository.db.repository_url}"
+  }
 
-  # provisioner "local-exec" {
-  #   command = "docker push ${aws_ecr_repository.db.repository_url}"
-  # }
+  provisioner "local-exec" {
+    command = "docker push ${aws_ecr_repository.db.repository_url}"
+  }
+
+  # ====== RDS =====
 }
