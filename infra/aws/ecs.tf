@@ -12,7 +12,7 @@ resource "aws_ecs_cluster" "terr_pres_cluster" {
 
 resource "aws_ecs_task_definition" "terr_pres_task" {
   family                   = "terr_pres_task"
-  cpu                      = "512"
+  cpu                      = "256"
   memory                   = "1024"
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
